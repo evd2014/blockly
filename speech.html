@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Tina Blockly Demo</title>
+    <!-- load uncompressed blockly (concatenation of core blockly scripts) -->
+    <script src="blockly_uncompressed.js"></script>
+    <!-- load javascript generators -->
+    <script src="generators/javascript.js"></script>
+    <script src="generators/javascript/logic.js"></script>
+    <script src="generators/javascript/loops.js"></script>
+    <script src="generators/javascript/math.js"></script>
+    <script src="generators/javascript/text.js"></script>
+    <script src="generators/javascript/lists.js"></script>
+    <script src="generators/javascript/colour.js"></script>
+    <script src="generators/javascript/variables.js"></script>
+    <script src="generators/javascript/procedures.js"></script>
+    <!-- load messages -->
+    <script src="msg/js/en.js"></script>
+    <!-- line above interchangeable with "<script src="msg/messages.js"></script> "-->
+
+    <!-- load uncompressed blocks -->
+    <script src="blocks/logic.js"></script>
+    <script src="blocks/loops.js"></script>
+    <script src="blocks/math.js"></script>
+    <script src="blocks/text.js"></script>
+    <script src="blocks/lists.js"></script>
+    <script src="blocks/colour.js"></script>
+    <script src="blocks/variables.js"></script>
+    <script src="blocks/procedures.js"></script>    
+    <script src="../speechBlocks.js"></script>
+ <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    h1 {
+      font-weight: normal;
+      font-size: 140%;
+    }
+    table {
+      height: 100%;
+      width: 100%;
+    }
+    #blocklyArea {
+      height: 99%;
+    }
+  </style>
+</head>
+<body>
+  <table>
+    <tr>
+      <td>
+        <h1><a href="https://developers.google.com/blockly/">Blockly</a> &gt;
+          <a href="../index.html">Demos</a> >Tina's Demo</h1>
+
+        <p>
+          <button id="run-code-button" onclick="runCode()"> Run Code</button>
+          <button id="show-code-button" onclick="showCode()"> Show Code</button>
+        </p>
+
+        <button class="speech-button" id="listenAndRespond" onclick="runCode()">Listen for Speech to Trigger Blocsk</button>
+        <button class="speech-button" id="test" onclick="listen()">Test Speech Recognition</button>
+        <div>
+            <p class="output"> Press button to start recognition.</p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td id="blocklyArea">
+      </td>
+    </tr>
+  </table>
+
+  <div id="blocklyDiv" style="position: absolute"></div>
+
+  <xml id="toolbox" style="display: none">
+    <category name="Speech">
+      <block type="voice_command"></block>
+    </category>
+    <category name="Logic">
+      <category name="If">
+        <block type="controls_if"></block>
+        <block type="controls_if">
+          <mutation else="1"></mutation>
+        </block>
+        <block type="controls_if">
+          <mutation elseif="1" else="1"></mutation>
+        </block>
+      </category>
+      <category name="Boolean">
+        <block type="logic_compare"></block>
+        <block type="logic_operation"></block>
+        <block type="logic_negate"></block>
+        <block type="logic_boolean"></block>
+        <block type="logic_null"></block>
+        <block type="logic_ternary"></block>
+      </category>
+    </category>
+    <category name="Loops">
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <block type="math_number">
+            <field name="NUM">10</field>
+          </block>
+        </value>
+      </block>
+      <block type="controls_whileUntil"></block>
+      <block type="controls_for">
+        <field name="VAR">i</field>
+        <value name="FROM">
+          <block type="math_number">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+        <value name="TO">
+          <block type="math_number">
+            <field name="NUM">10</field>
+          </block>
+        </value>
+        <value name="BY">
+          <block type="math_number">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+      </block>
+      <block type="controls_forEach"></block>
+      <block type="controls_flow_statements"></block>
+    </category>
+    <category name="Math">
+      <block type="math_number"></block>
+      <block type="math_arithmetic"></block>
+      <block type="math_single"></block>
+      <block type="math_trig"></block>
+      <block type="math_constant"></block>
+      <block type="math_number_property"></block>
+      <block type="math_change">
+        <value name="DELTA">
+          <block type="math_number">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+      </block>
+      <block type="math_round"></block>
+      <block type="math_on_list"></block>
+      <block type="math_modulo"></block>
+      <block type="math_constrain">
+        <value name="LOW">
+          <block type="math_number">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+        <value name="HIGH">
+          <block type="math_number">
+            <field name="NUM">100</field>
+          </block>
+        </value>
+      </block>
+      <block type="math_random_int">
+        <value name="FROM">
+          <block type="math_number">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+        <value name="TO">
+          <block type="math_number">
+            <field name="NUM">100</field>
+          </block>
+        </value>
+      </block>
+      <block type="math_random_float"></block>
+    </category>
+    <category name="Lists">
+      <block type="lists_create_empty"></block>
+      <block type="lists_create_with"></block>
+      <block type="lists_repeat">
+        <value name="NUM">
+          <block type="math_number">
+            <field name="NUM">5</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_length"></block>
+      <block type="lists_isEmpty"></block>
+      <block type="lists_indexOf"></block>
+      <block type="lists_getIndex"></block>
+      <block type="lists_setIndex"></block>
+    </category>
+        <category name="Text">
+      <block type="text"></block>
+      <block type="text_join"></block>
+      <block type="text_append">
+        <value name="TEXT">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <block type="text_length">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_isEmpty">
+        <value name="VALUE">
+          <shadow type="text">
+            <field name="TEXT"></field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_indexOf">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+        <value name="FIND">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_charAt">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_getSubstring">
+        <value name="STRING">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_changeCase">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_trim">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_print">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="text_prompt_ext">
+        <value name="TEXT">
+          <shadow type="text">
+            <field name="TEXT">abc</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Variables" custom="VARIABLE"></category>
+    <category name="Functions" custom="PROCEDURE"></category>    
+  </xml>
+
+    <script>
+    var blocklyArea = document.getElementById('blocklyArea');
+    var blocklyDiv = document.getElementById('blocklyDiv');
+    var workspace = Blockly.inject(blocklyDiv,
+        {toolbox: document.getElementById('toolbox')});
+    var onresize = function(e) {
+      // Compute the absolute coordinates and dimensions of blocklyArea.
+      var element = blocklyArea;
+      var x = 0;
+      var y = 0;
+      do {
+        x += element.offsetLeft;
+        y += element.offsetTop;
+        element = element.offsetParent;
+      } while (element);
+      // Position blocklyDiv over blocklyArea.
+      blocklyDiv.style.left = x + 'px';
+      blocklyDiv.style.top = y + 'px';
+      blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
+      blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
+    };
+    window.addEventListener('resize', onresize, false);
+    onresize();
+
+    var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+    var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
+    var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
+    var recognition = new SpeechRecognition();
+
+    var phrases = ['I love lemons', 'I work at Google', 'Purple is my favorite color']
+    //var speechButton = document.getElementById('speech-button');
+    var speechButton = document.querySelector('.speech-button')
+    var messagesToUser = document.querySelector('.output');
+
+    var listen = function(){
+      //edits state
+      speechButton.disabled = true;
+      speechButton.textContent = 'Recognition in progress';
+
+      //select the phrase
+      var phrase = phrases.join(" | ");
+      messagesToUser.textContent = '...';
+
+      var grammar = '#JSGF V1.0; grammar phrase; public <phrase> = ' + phrase +';';
+      var speechRecognitionList = new SpeechGrammarList();
+      speechRecognitionList.addFromString(grammar, 1);
+      recognition.grammars = speechRecognitionList;
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.start();
+
+      recognition.onresult = function(event) {
+        // The SpeechRecognitionEvent results property returns a SpeechRecognitionResultList object
+        // The SpeechRecognitionResultList object contains SpeechRecognitionResult objects.
+        // It has a getter so it can be accessed like an array
+        // The first [0] returns the SpeechRecognitionResult at position 0.
+        // Each SpeechRecognitionResult object contains SpeechRecognitionAlternative objects
+        //that contain individual results.
+        // These also have getters so they can be accessed like arrays.
+        // The second [0] returns the SpeechRecognitionAlternative at position 0.
+        // We then return the transcript property of the SpeechRecognitionAlternative object
+        console.log("Speech Recieved:"+ event.results[0][0].transcript);
+
+        var speechResult = event.results[0][0].transcript;
+        messagesToUser.textContent = 'Speech received: ' + speechResult + '.';
+        return speechResult;
+
+      };
+      recognition.onstart = function(){
+        messagesToUser.textContent = 'Listening...';
+      }
+      recognition.onspeechend = function() {
+        console.log("speech end event-->recognition stopped")
+        recognition.stop();
+        speechButton.disabled = false;
+        speechButton.textContent = 'Recognize Speech';
+      };
+
+      recognition.onerror = function(event) {
+        console.log("error")
+        speechButton.disabled = false;
+        speechButton.textContent = 'Recognize Speech';
+        messagesToUser.textContent = 'Error occurred in recognition: ' + event.error;
+      };
+
+    };
+
+    //Given a String, gets rid of punctuation and capitalization--all words are left lowercase and separated by a single space
+    var formatText = function(text){
+      // if(text !== undefined){
+        var punctuationless = text.replace(/[.,\/#!$%\^&\*;:{}—=\-_`~()]/g," "); //remove punctuation
+
+        var finalString = punctuationless.replace(/\s\s+/g, ' '); //replace all spaces with a single space
+        var finalString = finalString.toLowerCase().trim(); //make all lowercase and get rid of extra surrounding white space
+      // }
+      return finalString; 
+    } 
+
+    //@param String containing what the user said
+    //@return startBlock that matches user's speech or null
+    var getMyStartBlock = function(speechResult) {
+      var formattedSpeech = formatText(speechResult);
+      var topBlocks = workspace.getTopBlocks();
+      for (var i = 0; i < topBlocks.length; i++){
+        var block = topBlocks[i];
+        if(block.data != null){
+          var blockPhrase = block.data;
+          console.log("speech: "+ speechResult);
+          console.log("blockphrase: "+blockPhrase);
+          var formattedBlockPhrase = formatText(blockPhrase);
+          console.log("f_ speech:" + formattedSpeech);
+          console.log("f_blockphrase:" + formattedBlockPhrase);
+          if( formattedSpeech == formattedBlockPhrase){
+            console.log("speech matched!");
+            return block;
+          }
+          else{
+            console.log("speech doesn't match blockphrase");
+            block = null;
+          }
+        }
+        else{
+          console.log("block.data is null");
+          block = null;}
+      }
+      return block;
+    };
+
+
+  //without actually listening to user
+  var runCode = function(speechResult){
+    Blockly.JavaScript.addReservedWords('code');
+    var code = Blockly.JavaScript.workspaceToCode(workspace);
+    var speechResult =listen();
+    var startBlock = getMyStartBlock(speechResult);
+    if (startBlock != null){
+      code = Blockly.JavaScript.blockToCode(startBlock);
+      try {
+        eval(code);
+      } catch (e) {
+        alert(e);
+      }
+    }
+  };
+
+  var handleSpeech = function(event) {
+    var startBlock = getMyStartBlock();
+    var code = Blockly.JavaScript.blockToCode(block);
+    eval(code);
+  } ;
+
+  var showCode = function(){
+    Blockly.JavaScript.addReservedWords('code');
+    var code = Blockly.JavaScript.workspaceToCode(workspace);
+    try {
+      alert(code);
+    } catch (e) {
+      alert(e);
+    }
+  };
+
+</script>
+
+
+</body>
+</html>
