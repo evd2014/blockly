@@ -86,7 +86,7 @@
       <block type="logic_ternary"></block>
     </category>
 
-    <category name="Listen" colour="0">
+ <category name="Listen" colour="0">
       <block type="listen_if">
          <value name="WORD">
           <shadow type="text"></shadow>
@@ -101,8 +101,9 @@
     </category>
     <category name="Display" colour="60">
       <block type="display_img"></block>
-      <block type="display_text">
-       <value name="DISPLAY_TEXT">
+      <block type="display_clear_text"></block>
+      <block type="display_update_text">
+       <value name="UPDATE_TEXT">
           <shadow type="text"></shadow>
         </value>
       </block>
@@ -114,8 +115,27 @@
         </value>
       </block>
     </category>
-    <category name="Speak" colour="300">
-      <block type="speech_speak"></block>
+    <category name="Speak" colour="30">
+      <block type="speech_speak">
+        <value name="TO_SAY">
+          <shadow type="text"></shadow>
+        </value>
+      </block>
+      <block type="speech_set_voice"></block>
+      <block type="speech_set_volume">
+        <value name="VOLUME">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="speech_set_rate">
+        <value name="RATE">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
     </category>
 
 

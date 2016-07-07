@@ -480,6 +480,28 @@
       }
     }
 
+      //@Tina: Is this still needed?
+
+  //SPEECH SYNTHESIS INITIALIZATION
+  var msg = new SpeechSynthesisUtterance();
+  var voices = window.speechSynthesis.getVoices();
+
+  var say = function(wordsToSay){
+    if ('speechSynthesis' in window) {
+    //msg = new SpeechSynthesisUtterance(wordsToSay);
+      msg.text = wordsToSay
+      window.speechSynthesis.speak(msg);
+    // Synthesis support. Make your web apps talk!
+    } else {
+      console.log("speechSynthesis not found. Text to speech capability under Web Speech API not supported.")
+    }
+  };
+
+  msg.onend = function(e) {
+  console.log('Finished in ' + event.elapsedTime + ' seconds.');
+  };
+
+
 */
 
   </script>
