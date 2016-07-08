@@ -6,9 +6,9 @@ var recognizableWords = []; //keeps track of all the words that the recognizer s
     {media: '../../media/',
      toolbox: document.getElementById('toolbox')});*/
 
-if (!('webkitSpeechRecognition' in window)) {
+/*if (!('webkitSpeechRecognition' in window)) {
   alert("Speech recognition and speech synthesis not supported. Please use Chrome to run this demo.");
-}
+}*/
 
 //allows for portability across different browsers
 var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
