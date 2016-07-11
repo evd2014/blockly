@@ -122,7 +122,8 @@ Blockly.Blocks['speech_speak'] = {
   }
 };
 
-/** Helper function for the 'speech_set_voice' block;
+/**
+ * Helper function for the 'speech_set_voice' block;
  *
  * @param {!Array.<SpeechSynthesisVoice>} voices - the available voices
  * @return {!Array.<!Array.<string>>} dropdown - the dropdown options
@@ -138,7 +139,8 @@ var getVoicesForBlock = function(voices) {
 };
 
 
-/** The voice list is loaded async to the page in Chrome. An onvoiceschanged
+/**
+ * The voice list is loaded async to the page in Chrome. An onvoiceschanged
  * event is fired when they are loaded.
  * http://stackoverflow.com/questions/21513706/getting-the-list-of-voices-in-speechsynthesis-of-chrome-web-speech-api
  */
