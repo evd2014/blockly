@@ -130,8 +130,7 @@ Blockly.Blocks['speech_speak'] = {
  */
 var getVoicesForBlock = function(voices) {
   var dropdown = [];
-  var i;
-  for (i = 0; i < voices.length; i++) {
+  for (var i = 0; i < voices.length; i++) {
     var voice = [voices[i].name, i.toString()];
     dropdown.push(voice);
   }

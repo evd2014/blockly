@@ -12,12 +12,12 @@
  * word (entered in a text field)
  */
 Blockly.JavaScript['listen_if'] = function(block) {
-    var textWord = Blockly.JavaScript.valueToCode(block, 'WORD',
+  var textWord = Blockly.JavaScript.valueToCode(block, 'WORD',
       Blockly.JavaScript.ORDER_ATOMIC);
-    var statements = Blockly.JavaScript.statementToCode(block, 'DO');
-    speech.addRecognizableWord(textWord);
-    return 'if (listen_branch('+speech.formatText(textWord)+')) {\n' +
-      statements + '}\n';
+  var statements = Blockly.JavaScript.statementToCode(block, 'DO');
+  speech.addRecognizableWord(textWord);
+  return 'if (listen_branch(' + speech.formatText(textWord) + ')) {\n' +
+    statements + '}\n';
 };
 
 /**
@@ -25,12 +25,12 @@ Blockly.JavaScript['listen_if'] = function(block) {
  * and false otherwise
  */
 Blockly.JavaScript['listen_bool'] = function(block) {
-    var textWord = Blockly.JavaScript.valueToCode(block, 'WORD',
-    	Blockly.JavaScript.ORDER_ATOMIC);
-    speech.addRecognizableWord(textWord);
-    window.console.log(textWord + ' ' + speech.formatText(textWord));
-    var code = 'listen_branch('+speech.formatText(textWord)+')';
-    return [code, Blockly.JavaScript.ORDER_ATOMIC];
+  var textWord = Blockly.JavaScript.valueToCode(block, 'WORD',
+  	  Blockly.JavaScript.ORDER_ATOMIC);
+  speech.addRecognizableWord(textWord);
+  window.console.log(textWord + ' ' + speech.formatText(textWord));
+  var code = 'listen_branch(' + speech.formatText(textWord) + ')';
+  return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
 /**
@@ -47,7 +47,7 @@ Blockly.JavaScript['listen_text'] = function(block) {
  */
 Blockly.JavaScript['display_img'] = function(block) {
   var textImgSrc = block.getFieldValue('IMG_SRC');
-  var code = 'displayImage('+Blockly.JavaScript.quote_(textImgSrc)+');\n';
+  var code = 'displayImage(' + Blockly.JavaScript.quote_(textImgSrc) + ');\n';
   return code;
 };
 
@@ -56,7 +56,7 @@ Blockly.JavaScript['display_img'] = function(block) {
  */
 Blockly.JavaScript['display_pause'] = function(block) {
   var valueTime = Blockly.JavaScript.valueToCode(block, 'TIME',
-  	Blockly.JavaScript.ORDER_ATOMIC);
+  	 Blockly.JavaScript.ORDER_ATOMIC);
   valueTime *= 1000;	//milliseconds to seconds
   var code = 'pause('+valueTime+');\n';
   return code;
@@ -67,15 +67,15 @@ Blockly.JavaScript['display_pause'] = function(block) {
  */
 Blockly.JavaScript['display_update_text'] = function(block) {
   var valueUpdateText = Blockly.JavaScript.valueToCode(block, 'UPDATE_TEXT',
-  	Blockly.JavaScript.ORDER_ATOMIC);
+  	 Blockly.JavaScript.ORDER_ATOMIC);
   var dropdownName = block.getFieldValue('WRITETYPE');
   //line spacing and indentation used here to correctly format
   //generated code
-  var code = 'if(' + Blockly.JavaScript.quote_(dropdownName) + ' == "REPLACE")\
-  {\n\
-    clearText("textArea");\n\
-	}\n\
-	appendText("p", '+ valueUpdateText + ',"textArea");\n';
+  var code = 'if(' + Blockly.JavaScript.quote_(dropdownName) +
+  ' == "REPLACE") {\n' +
+  '  clearText("textArea");\n' +
+	'}\n' +
+	'appendText("p", ' + valueUpdateText + ',"textArea");\n';
   return code;
 };
 
@@ -94,7 +94,7 @@ Blockly.JavaScript['display_clear_text'] = function() {
  */
 Blockly.JavaScript['speech_speak'] = function(block) {
   var valueToSay = Blockly.JavaScript.valueToCode(block, 'TO_SAY',
-  	Blockly.JavaScript.ORDER_ATOMIC);
+  	 Blockly.JavaScript.ORDER_ATOMIC);
   var code;
   if (valueToSay !== '' && valueToSay !== null) {
     code = 'globalSay(' + valueToSay + ');\n';
@@ -110,7 +110,7 @@ Blockly.JavaScript['speech_speak'] = function(block) {
 Blockly.JavaScript['speech_set_voice'] = function(block) {
   var dropdownName = block.getFieldValue('VOICES');
   var voiceIndex = parseInt(dropdownName);
-  var code = 'setVoice('+voiceIndex+');\n';
+  var code = 'setVoice(' + voiceIndex + ');\n';
   return code;
 };
 
@@ -120,10 +120,10 @@ Blockly.JavaScript['speech_set_voice'] = function(block) {
 
 Blockly.JavaScript['speech_set_volume'] = function(block) {
   var valueVolume = Blockly.JavaScript.valueToCode(
-    block, 'VOLUME', Blockly.JavaScript.ORDER_ATOMIC);
+      block, 'VOLUME', Blockly.JavaScript.ORDER_ATOMIC);
   var code = '';
   if (valueVolume >= 0 && valueVolume <= 1) {
-    code = 'setVolume('+ valueVolume+');\n';
+    code = 'setVolume(' + valueVolume + ');\n';
   }
   return code;
 };
@@ -134,10 +134,10 @@ Blockly.JavaScript['speech_set_volume'] = function(block) {
 
  Blockly.JavaScript['speech_set_rate'] = function(block) {
   var valueRate = Blockly.JavaScript.valueToCode(
-    block, 'RATE', Blockly.JavaScript.ORDER_ATOMIC);
+      block, 'RATE', Blockly.JavaScript.ORDER_ATOMIC);
   var code = '';
   if (valueRate >= .1 && valueRate <= 10) {
-    code = 'setRate('+ valueRate+');\n';
+    code = 'setRate('+ valueRate +');\n';
   }
   return code;
 };
@@ -147,15 +147,15 @@ Blockly.JavaScript['speech_set_volume'] = function(block) {
  */
 Blockly.JavaScript['speech_say_and_write'] = function(block) {
   var valueUpdateText = Blockly.JavaScript.valueToCode(
-    block, 'TEXT', Blockly.JavaScript.ORDER_ATOMIC);
+      block, 'TEXT', Blockly.JavaScript.ORDER_ATOMIC);
   var dropdownWriteType = block.getFieldValue('WRITE_TYPE');
   //line spacing and indentation used here to correctly format
   //generated code
-  var code = 'if(' + Blockly.JavaScript.quote_(dropdownWriteType) + ' ==\
-    "REPLACE") {\n\
-    clearText("textArea");\n\
-  }\n\
-  appendText("p", '+ valueUpdateText + ',"textArea");\n\
-  globalSay('+ valueUpdateText+');\n';
+  var code = 'if(' + Blockly.JavaScript.quote_(dropdownWriteType) + ' ==' +
+    '"REPLACE") {\n' +
+    '  clearText("textArea");\n' +
+    '}\n' +
+    'appendText("p", ' + valueUpdateText + ',"textArea");\n' +
+    'globalSay(' + valueUpdateText + ');\n';
   return code;
 };

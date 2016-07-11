@@ -10,8 +10,7 @@ body {
 }
 
 h1 {
-  font-size: 140%;
-  font-weight: normal;
+  font: normal 140%;
 }
 
 section {

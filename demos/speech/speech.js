@@ -363,13 +363,13 @@ speech.addRecognizableWord = function(word) {
  * @return {String} the grammar string formatted correctly
  * so that it can update the grammar of a recognizer.
  */
-speech.convertRecognizableWordsToString = function() {
+speech.convertWordsToGrammarString = function(words) {
   var grammarString = '#JSGF V1.0; grammar phrase; public <phrase> = ';
-  if (speech.recognizableWords.length > 0) {
-    grammarString += speech.recognizableWords[0];
+  if (words.length > 0) {
+    grammarString += words[0];
   }
-  for (var i = 1; i < speech.recognizableWords.length; i++) {
-    grammarString += ' | ' + speech.recognizableWords[i];
+  for (var i = 1; i < words.length; i++) {
+    grammarString += ' | ' + words[i];
   }
   grammarString += ';';
   return grammarString;
@@ -384,7 +384,7 @@ speech.convertRecognizableWordsToString = function() {
  */
 speech.createSpeechRecognizer = function() {
   var myRecognizer = new speech.SpeechRecognition();
-  var grammar = speech.convertRecognizableWordsToString();
+  var grammar = speech.convertWordsToGrammarString(speech.recognizableWords);
   var speechRecognitionList = new speech.SpeechGrammarList();
   speechRecognitionList.addFromString(grammar, 1);
   myRecognizer.grammars = speechRecognitionList;
