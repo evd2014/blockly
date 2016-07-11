@@ -1,6 +1,8 @@
 /**
  * @fileoverview Block generator functions for custom blocks using the Web
- * Speech API and updating the page using text and images.
+ * Speech API and updating the page using text and images. Depends on
+ * wrappers for the JS-Interpreter and helper functions in speech.js, and
+ * the configuration for the blocks is in blocks.js.
  *
  * @author edauterman, quacht
  */
@@ -13,8 +15,8 @@ Blockly.JavaScript['listen_if'] = function(block) {
     var textWord = Blockly.JavaScript.valueToCode(block, 'WORD',
       Blockly.JavaScript.ORDER_ATOMIC);
     var statements = Blockly.JavaScript.statementToCode(block, 'DO');
-    addRecognizableWord(textWord);
-    return 'if (listen_branch('+formatText(textWord)+')) {\n' +
+    speech.addRecognizableWord(textWord);
+    return 'if (listen_branch('+speech.formatText(textWord)+')) {\n' +
       statements + '}\n';
 };
 
@@ -25,9 +27,9 @@ Blockly.JavaScript['listen_if'] = function(block) {
 Blockly.JavaScript['listen_bool'] = function(block) {
     var textWord = Blockly.JavaScript.valueToCode(block, 'WORD',
     	Blockly.JavaScript.ORDER_ATOMIC);
-    addRecognizableWord(textWord);
-    window.console.log(textWord + ' ' + formatText(textWord));
-    var code = 'listen_branch('+formatText(textWord)+')';
+    speech.addRecognizableWord(textWord);
+    window.console.log(textWord + ' ' + speech.formatText(textWord));
+    var code = 'listen_branch('+speech.formatText(textWord)+')';
     return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
 

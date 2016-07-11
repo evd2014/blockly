@@ -1,6 +1,7 @@
 /**
  * @fileoverview Block configurations for all custom blocks using the Web
  * Speech API and updating the webpage using text and images from the user.
+ * The generator functions for these blocks are defined in blockgenerators.js.
  *
  * @author edauterman, quacht
  */
