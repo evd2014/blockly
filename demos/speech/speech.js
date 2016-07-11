@@ -11,7 +11,10 @@
  */
 
 'use strict';
-//namespace
+/**
+ * namespace for our speech code.
+ * @namespace speech
+ */
 var speech = {};
 //keeps track of all the words that the recognizer should listen for
 speech.recognizableWords = [];
@@ -40,6 +43,8 @@ speech.msg = new SpeechSynthesisUtterance();
 /**
  * Associated with the "Show Javascript button", outputs the code in an alert
  * window
+ * @function showCode
+ * @memberof speech
  */
 speech.showCode = function() {
   Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
@@ -50,6 +55,8 @@ speech.showCode = function() {
 /**
  * Used for logging messages from within the JS Interpreter. Prints it to the
  * logging area and the console.
+ * @function logMessage
+ * @memberof speech
  *
  * @param {Interpreter} myInterpreter - The interpreter that is initialized and
  * running the code.
@@ -65,6 +72,8 @@ speech.logMessage = function(myInterpreter, message) {
 /**
  * Taken from JS Interpreter example.
  * Runs the JSInterpreter such that asynchronous functions may work properly.
+ * @function runButton
+ * @memberof speech
  *
  * @param {Interpreter} myInterpreter The interpreter that is initialized and
  * will run the code.
@@ -82,11 +91,13 @@ speech.runButton = function(myInterpreter) {
  * console for debugging. Defines wrappers (synchronously and asynchronously) to
  * handle certain blocks that cannot be handled by the JS Interpreter
  * internally.
- * NOTE: If the wrapper functions are moved outside of runCode, then
+ * If the wrapper functions are moved outside of runCode, then
  * myInterpreter is not in scope. It needs to be a local because it needs to be
  * recreated each time to allow for changes to code, and myInterpreter can't be
  * passed as an argument because the order and type of arguments is defined by
  * JS Interpreter.
+ * @function runCode
+ * @memberof speech
  */
 speech.runCode = function() {
   var code = Blockly.JavaScript.workspaceToCode(workspace);
@@ -348,6 +359,8 @@ speech.runCode = function() {
 /**
  * Add a word that the recognizer should be able to recognize from the user.
  * Called from block code.
+ * @function addRecognizableWord
+ * @memberof speech
  *
  * @param {string} word The word to be added to the list of recognizable words.
  */
@@ -359,6 +372,8 @@ speech.addRecognizableWord = function(word) {
 /**
  * Uses the recognizableWords to generate a string to give to the recognizer in
  * updateGrammars.
+ * @function convertWordsToGrammarString
+ * @memberof speech
  *
  * @return {String} the grammar string formatted correctly
  * so that it can update the grammar of a recognizer.
@@ -378,6 +393,8 @@ speech.convertWordsToGrammarString = function(words) {
 /**
  * Takes as an argument the recognizer to update. Sets the settings using the
  * grammar string and sets the language to US English.
+ * @function createSpeechRecognizer
+ * @memberof speech
  *
  * @return {Recognizer} recognizer with grammar list generated from
  *    recognizable words.
@@ -397,6 +414,8 @@ speech.createSpeechRecognizer = function() {
 /**
  * Given a String, gets rid of punctuation and capitalization--all words are
  * left lowercase and separated by a single space.
+ * @function formatText
+ * @memberof speech
  *
  * @param {String} text - text input for formatting
  * @return {String} formatted text

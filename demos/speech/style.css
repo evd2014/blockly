@@ -30,7 +30,7 @@ button {
   color: #000;
   padding: 10px;
   margin: 0 5px;
-  font-size: large;
+  font: large;
 }
 
 button:hover:not(:disabled) {
@@ -52,7 +52,7 @@ button:hover:not(:disabled)>* {
 
 .demo-button {
   background-color: #e6f2ff;
-  font-size: small;
+  font: small;
   border-radius: 3px;
 }
 
