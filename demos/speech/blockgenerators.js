@@ -69,9 +69,11 @@ Blockly.JavaScript['display_update_text'] = function(block) {
   var valueUpdateText = Blockly.JavaScript.valueToCode(block, 'UPDATE_TEXT',
   	Blockly.JavaScript.ORDER_ATOMIC);
   var dropdownName = block.getFieldValue('WRITETYPE');
+  //line spacing and indentation used here to correctly format
+  //generated code
   var code = 'if(' + Blockly.JavaScript.quote_(dropdownName) + ' == "REPLACE")\
-  	{\n\
-      clearText("textArea");\n\
+  {\n\
+    clearText("textArea");\n\
 	}\n\
 	appendText("p", '+ valueUpdateText + ',"textArea");\n';
   return code;
@@ -147,11 +149,13 @@ Blockly.JavaScript['speech_say_and_write'] = function(block) {
   var valueUpdateText = Blockly.JavaScript.valueToCode(
     block, 'TEXT', Blockly.JavaScript.ORDER_ATOMIC);
   var dropdownWriteType = block.getFieldValue('WRITE_TYPE');
+  //line spacing and indentation used here to correctly format
+  //generated code
   var code = 'if(' + Blockly.JavaScript.quote_(dropdownWriteType) + ' ==\
-     "REPLACE") {\n\
-      clearText("textArea");\n\
-    }\n\
-    appendText("p", '+ valueUpdateText + ',"textArea");\n\
-    globalSay('+ valueUpdateText+');\n';
+    "REPLACE") {\n\
+    clearText("textArea");\n\
+  }\n\
+  appendText("p", '+ valueUpdateText + ',"textArea");\n\
+  globalSay('+ valueUpdateText+');\n';
   return code;
 };
