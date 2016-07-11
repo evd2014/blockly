@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Blockly Demo: Adventure Blockly</title>
+  <script src="../../blockly_uncompressed.js"></script>
+  <script src="../../generators/javascript.js"></script>
+  <script src="../../generators/javascript/logic.js"></script>
+  <script src="../../generators/javascript/loops.js"></script>
+  <script src="../../generators/javascript/math.js"></script>
+  <script src="../../generators/javascript/text.js"></script>
+  <script src="../../generators/javascript/lists.js"></script>
+  <script src="../../generators/javascript/colour.js"></script>
+  <script src="../../generators/javascript/variables.js"></script>
+  <script src="../../generators/javascript/procedures.js"></script>
+  <script src="../../msg/messages.js"></script>
+  <script src="../../blocks/logic.js"></script>
+  <script src="../../blocks/loops.js"></script>
+  <script src="../../blocks/math.js"></script>
+  <script src="../../blocks/text.js"></script>
+  <script src="../../blocks/lists.js"></script>
+  <script src="../../blocks/colour.js"></script>
+  <script src="../../blocks/variables.js"></script>
+  <script src="../../blocks/procedures.js"></script>
+  <script src="JS-Interpreter/acorn.js"></script>
+  <script src="JS-Interpreter/interpreter.js"></script>
+  <script src="blocks.js"></script>
+    
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    h1 {
+      font-weight: normal;
+      font-size: 140%;
+    }
+    section {
+      float: left;
+      width : 70%;
+    }
+    aside {
+      float: right;
+      width: 30%;
+    }
+  </style>
+</head>
+<body>
+<table>
+  <tr>
+   <td>
+    <h1><a href="https://developers.google.com/blockly/">Blockly</a> &gt;
+      <a href="../index.html">Demos</a> &gt; Adventure Blockly</h1>
+
+      <p>Make your own adventure through text, speech, and pictures. Create your own or check out some of our examples (link).</p>
+
+      <p id = "logText">This is where logging messages go.</p>
+
+      <p>
+        <button onclick="showCode()">Show JavaScript</button>   
+        <button onclick="runCode()">Run JavaScript</button>
+        <!--button onclick="listenStart()">Talk to Start</button-->
+        <!--button onclick="listen()">Talk to Answer</button-->
+      </p>
+
+  <aside>
+       <p id="displayText"> Your story's text will be shown here.</p>
+
+       <img id = "displayPic" src = "http://cdn3-www.cattime.com/assets/uploads/2011/08/best-kitten-names-1.jpg" alt="Image chosen by user" style = "width:40%;height:40%;">
+  </aside>
+
+
+  <section id="blocklyDiv" style= "height: 480px; width: 900px;"></div>    
+
+  <xml id="toolbox" style="display: none">
+    <category name="Listen">
+      <block type="listen_start"></block>
+      <block type="listen_if"></block>
+      <block type="listen_bool"></block>
+      <block type="listen_text"></block>
+    </category>
+    <category name="Display">
+      <block type="display_img"></block>
+      <block type="display_text"></block>
+      <block type="display_pause"></block>
+    </category>
+    <category name="Usual">
+      <block type="math_number"></block>
+      <block type="controls_if"></block>
+      <block type="logic_compare"></block>
+      <block type="controls_repeat_ext"></block>
+      <block type="math_number"></block>
+      <block type="math_arithmetic"></block>
+    </category>
+    <category name="Text">
+      <block type="text"></block>
+      <block type="text_print"></block>
+    </category>
+    <category name="Speak">
+      <block type="speech_speak"></block>
+    </category>
+  </xml>
+  </section>
+
+  <script>
+
+   // var LISTEN_FOR_START = true;
+    var recognizableWords = []; //keeps track of all the words that the recognizer should listen for
+
+    var workspace = Blockly.inject('blocklyDiv',   //used to be blocklyDiv
+        {media: '../../media/',
+         toolbox: document.getElementById('toolbox')});
+
+    //workspace.addChangeListener(updateCode);  //makes sure that the workspace code is always updated
+    
+
+    //updates the code in the workspace so it's ready to execute when called by listen or run code (most current dropdown speech choice). This is called on every change to the blockly workspace. Might be a better way to do this?
+    function updateCode() { 
+      var code = Blockly.JavaScript.workspaceToCode(workspace);
+      window.console.log("Updating code.");
+    }
+
+    //associated with the "Show Javascript button", outputs the code in an alert window
+    function showCode() {   
+      Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+      var code = Blockly.JavaScript.workspaceToCode(workspace);
+      alert(code);
+    }
+
+    //initialize recognition object as a global (for access in block code, especially for boolean block)
+    var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+    var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
+    var SpeechRecognitionEvent = SpeechRecognitionEvent ||webkitSpeechRecognitionEvent;
+    //var recognition = new SpeechRecognition();
+
+
+    // Generate JavaScript code and run it, prints the code to the console
+    function runCode() {
+      var code = Blockly.JavaScript.workspaceToCode(workspace);
+      window.console.log(code);
+      LISTEN_FOR_START = false;
+
+      var initFunc = function(myInterpreter,scope) {
+
+        //alert
+        var wrapper = function(text) {
+          text = text ? text.toString() : '';
+          return myInterpreter.createPrimitive(alert(text));
+        };
+        myInterpreter.setProperty(scope, 'alert',
+            myInterpreter.createNativeFunction(wrapper));
+
+        //prompt -- not currently being used, might want to take out
+         wrapper = function(text) {
+            text = text ? text.toString() : '';
+            return myInterpreter.createPrimitive(prompt(text));
+          };
+          myInterpreter.setProperty(scope, 'prompt',
+              myInterpreter.createNativeFunction(wrapper));
+
+          //listen_branch
+        var wrapper = function listen_branch(word, callback) {
+          word = word ? word.toString() : '';
+          var localRecognizer = new SpeechRecognition();
+          updateGrammars(localRecognizer);
+          localRecognizer.start();
+          window.console.log("Listening");
+          localRecognizer.onresult = function() {
+              window.console.log("Checking result.");
+              var speechResult = event.results[0][0].transcript;
+              window.console.log("You said: " + speechResult);
+              callback(myInterpreter.createPrimitive(speechResult == word));
+          };
+        };
+        myInterpreter.setProperty(scope,'listen_branch', myInterpreter.createAsyncFunction(wrapper));
+
+        //listen_text
+        var wrapper = function listen_text(callback) {
+          var localRecognizer = new SpeechRecognition();
+          updateGrammars(localRecognizer);
+          localRecognizer.start();
+          window.console.log("Listening");
+          localRecognizer.onresult = function() {
+              window.console.log("Checking result.");
+              var speechResult = event.results[0][0].transcript;
+              window.console.log("You said: " + speechResult);
+              callback(myInterpreter.createPrimitive(speechResult));
+          };
+        };
+        myInterpreter.setProperty(scope,'listen_text', myInterpreter.createAsyncFunction(wrapper));
+
+        //display_img
+        var wrapper = function(url) {
+          url = url ? url.toString() : '';
+          return myInterpreter.createPrimitive(window.document.getElementById('displayPic').src = url);
+        };
+        myInterpreter.setProperty(scope, 'displayImage',
+            myInterpreter.createNativeFunction(wrapper));
+
+        //pause
+        var wrapper = function(time,callback) {
+          time = time ? time.toString() : '';
+          timeVar = parseInt(time);
+          window.console.log(timeVar);  
+          var resume = function() {
+            window.console.log("Back!");
+            callback();
+          };
+          return myInterpreter.createPrimitive(window.setTimeout(resume,timeVar));
+        };
+        myInterpreter.setProperty(scope, 'pause',
+            myInterpreter.createAsyncFunction(wrapper));
+
+        //wraps function for text to speech
+        var wrapper = function say(wordsToSay, callback){
+          wordsToSay = wordsToSay ? wordsToSay.toString() : '';
+          if ('speechSynthesis' in window) {
+            localMsg = new SpeechSynthesisUtterance(wordsToSay);
+            window.speechSynthesis.speak(localMsg);
+          // Synthesis support. Make your web apps talk!
+          } else {
+            console.log("speechSynthesis not found. Text to speech capability under Web Speech API not supported.")
+          }
+          localMsg.onend = function(e) {
+            callback();
+          };
+        };
+        myInterpreter.setProperty(scope, 'say', myInterpreter.createAsyncFunction(wrapper));
+
+        //wraps function for displayingText
+        var wrapper = function updateTextDisplay(text) {
+          text = text ? text.toString() : '';
+          return myInterpreter.createPrimitive(document.getElementById('displayText').textContent = text);
+        };
+        myInterpreter.setProperty(scope, 'updateTextDisplay',
+            myInterpreter.createNativeFunction(wrapper));
+
+      };
+      var myInterpreter = new Interpreter(code,initFunc);
+      runButton(myInterpreter);
+      /*try {
+        eval(code);
+      } catch(e) {
+        alert(e);
+      }*/
+    }
+
+    function runButton(myInterpreter) {
+      if (myInterpreter.run()) {
+        // Ran until an async call.  Give this call a chance to run.
+        // Then start running again later.
+        // 1000ms is waaay too long, but is used here to demo the pause.
+        setTimeout(runButton, 100, myInterpreter);
+      }
+    }
+    
+    
+    //add a word that the recognizer should be able to recognize from the user. Called from block code
+    //TODO: Is there a good way to remove words after the user has changed them so that the grammar list doesn't get "clogged up" with words that are used and then changed? Is this worthwhile or unnecessary?
+    function addRecognizableWord(word) {
+      recognizableWords[recognizableWords.length] = word;
+    }
+
+    //Uses the recognizableWords to generate a string to give to the recognizer in updateGrammars.
+    function convertRecognizableWordsToString() {
+      var grammarString = '#JSGF V1.0; grammar phrase; public <phrase> = ';
+      if (recognizableWords.length > 0) {
+        grammarString += recognizableWords[0];
+      }
+      for (var i=1; i<recognizableWords.length; i++) {
+        grammarString += ' | ' + recognizableWords[i];
+      }
+      grammarString += ';';
+    }
+
+    //this can be updated to include different types of strings that we want to include
+    function updateGrammars(myRecognizer) {
+      var grammar = convertRecognizableWordsToString();
+      //var grammar = '#JSGF V1.0; grammar phrase; public <phrase> = red | green | blue ;';
+      var speechRecognitionList = new SpeechGrammarList();
+      speechRecognitionList.addFromString(grammar, 1);
+      myRecognizer.grammars = speechRecognitionList;
+      myRecognizer.lang = 'en-US';
+      myRecognizer.interimResults = false;
+      myRecognizer.maxAlternatives = 1;
+    }
+/*
+    //this is called on the "Talk to Start", launches blockly code by listening (used for the blocks that trigger other pieces of code). If there is code that doesn't require talking to start, it immediatley executes that instead. 
+    //TODO: Determine if this is the design we want? How do we want to incorporate speech-launched blocks?
+    function listenStart() {
+      LISTEN_FOR_START = true;
+      listen();
+    } 
+
+    //Used for the branching block, executes statements if the word the user speaks == phrase. Waits for the user to press "Talk to Answer"
+    function listenIf(phrase, statements) {
+      phrase_to_match = phrase;
+      statements_to_do = statements;
+      LISTEN_FOR_START = false;
+      window.console.log("Press \"Talk to Answer\" to start talking and proceed.");
+    }
+
+    //called by both listenStart() and by listenBool(), used by both blocks to start the speech recognition process and log it. Maybe not necessary, could just replace with a recognition.start() call.
+    function listen() {
+      updateCode();
+      updateGrammars(recognition);   //moved here instead of in initialization to account for if user wants to add options between runs
+      recognition.start();
+      window.console.log("Listening...");
+    }
+
+    //Triggered when speech recognition is completed, logs results, and if the "Start Talking" button was pressed (LISTEN_FOR_START = true), then the corresponding root block is kicked off. Otherwise, resultWord is updated for use by the speech_bool block.
+    recognition.onresult = function(event) {
+        window.console.log("Checking result.");
+        var speechResult = event.results[0][0].transcript;
+        window.console.log("You said: " + speechResult);
+        if (LISTEN_FOR_START) //"start talking" was pressed, need to start root blocks
+          startFromSpeech(speechResult);
+        else
+          continueFromSpeech(speechResult);
+      }
+
+      function continueFromSpeech(speechResult) {
+        if (speechResult == phrase_to_match)
+          eval(statements_to_do);
+      }
+
+  
+    //Kick off the root blocks associated with the word spoken "speechResult". Called only if LISTEN_FOR_START = true
+    function startFromSpeech(speechResult) {
+      var topBlocksArr = workspace.getTopBlocks();
+      window.console.log(topBlocksArr);
+      var startBlock = null;
+      for (var i=0; i<topBlocksArr.length; i++) {
+        var data = topBlocksArr[i].data;
+        window.console.log(data);
+        if (data == speechResult) {
+          startBlock = topBlocksArr[i];
+          window.console.log("Found match: " + data);
+          var code = Blockly.JavaScript.statementToCode(startBlock, 'DO');
+          window.console.log("Code to execute: " + code);
+          eval(code);
+          return;
+        }
+      }
+      window.console.log("No match found.");
+    }
+
+    //called by the speech_bool block. Kind of a mess right now. Will probably change. Uses the listen() function like listenForStart()
+    function listenForBool(speech) {
+      resultWord = null;
+      LISTEN_FOR_START = false;
+      listen();
+      return true;  //stub
+
+      //while(!handled)   { //FIX!!!!!! hate doing this :(
+          if (resultWord == speech) {
+            window.console.log("Return true");
+            return true
+          }
+          else if (resultWord != null) {
+            window.console.log("Return false");
+            return false;
+          } 
+          //setTimeout(100);
+      //}  
+      window.console.log("Exited early"); 
+    }
+
+
+    //for debugging
+    recognition.onnomatch = function(event) {
+      window.console.log('Couldn\'t understand you.');
+    }
+    recognition.onerror = function(event) {
+      window.console.log('Error occurred in recognition.');
+    } 
+    recognition.onend = function() {
+      window.console.log("Done listening.");
+      recognition.stop();
+    } */
+
+  //SPEECH SYNTHESIS INITIALIZATION
+  var msg = new SpeechSynthesisUtterance();
+  var voices = window.speechSynthesis.getVoices();
+
+  var say = function(wordsToSay){
+    if ('speechSynthesis' in window) {
+    //msg = new SpeechSynthesisUtterance(wordsToSay);
+      msg.text = wordsToSay
+      window.speechSynthesis.speak(msg);
+    // Synthesis support. Make your web apps talk!
+    } else {
+      console.log("speechSynthesis not found. Text to speech capability under Web Speech API not supported.")
+    }
+  };
+
+  msg.onend = function(e) {
+  console.log('Finished in ' + event.elapsedTime + ' seconds.');
+  };
+
+  //TODO(quacht): add capability (new param called 'opt_append') for optionally appending the text rather than replacing it?
+  var updateTextDisplay = function(newText){
+    document.getElementById('displayText').textContent = newText;
+  };
+/*
+  //current implementation uses JSInterpreter to wait for the API calls to return a result before
+  //executing code
+  var myInterpreter;
+  function runCode() {
+      var code = Blockly.JavaScript.workspaceToCode(workspace);
+      window.console.log(code);
+      LISTEN_FOR_START = false;
+
+      var initFunc = function(myInterpreter,scope) {
+        //myInterpreter.setProperty(scope,'matchWord',myInterpreter.createPrimitive(location.toString()));    //???? need something for word and statements? what does this do?
+
+        var wrapper = function(text) {
+          text = text ? text.toString() : '';
+          return myInterpreter.createPrimitive(alert(text));
+        };
+        myInterpreter.setProperty(scope, 'alert',
+            myInterpreter.createNativeFunction(wrapper));
+
+
+        var wrapper = function listen_branch(word, callback) {
+          word = word ? word.toString() : '';
+          var localRecognizer = new SpeechRecognition();
+          updateGrammars(localRecognizer);
+          localRecognizer.start();
+          window.console.log("Listening");
+          localRecognizer.onresult = function() {
+              window.console.log("Checking result.");
+              var speechResult = event.results[0][0].transcript;
+              window.console.log("You said: " + speechResult);
+              callback(myInterpreter.createPrimitive(speechResult == word));
+          };
+        };
+        myInterpreter.setProperty(scope,'listen_branch', myInterpreter.createAsyncFunction(wrapper));
+
+        //wraps function for text to speech
+        var wrapper = function say(wordsToSay, callback){
+          wordsToSay = wordsToSay ? wordsToSay.toString() : '';
+          if ('speechSynthesis' in window) {
+            localMsg = new SpeechSynthesisUtterance(wordsToSay);
+            window.speechSynthesis.speak(localMsg);
+          // Synthesis support. Make your web apps talk!
+          } else {
+            console.log("speechSynthesis not found. Text to speech capability under Web Speech API not supported.")
+          }
+          localMsg.onend = function(e) {
+            callback();
+          };
+        };
+        myInterpreter.setProperty(scope, 'say', myInterpreter.createAsyncFunction(wrapper));
+
+        //wraps function for displayingText
+        var wrapper = function updateTextDisplay(text) {
+          text = text ? text.toString() : '';
+          return myInterpreter.createPrimitive(document.getElementById('displayText').textContent = text);
+        };
+        myInterpreter.setProperty(scope, 'updateTextDisplay',
+            myInterpreter.createNativeFunction(wrapper));
+
+        };
+      myInterpreter = new Interpreter(code,initFunc);
+      runButton();
+    }
+
+    function runButton() {
+      if (myInterpreter.run()) {
+        // Ran until an async call.  Give this call a chance to run.
+        // Then start running again later.
+        // 1000ms is waaay too long, but is used here to demo the pause.
+        setTimeout(runButton, 100);
+      }
+    }
+
+      //@Tina: Is this still needed?
+
+  //SPEECH SYNTHESIS INITIALIZATION
+  var msg = new SpeechSynthesisUtterance();
+  var voices = window.speechSynthesis.getVoices();
+
+  var say = function(wordsToSay){
+    if ('speechSynthesis' in window) {
+    //msg = new SpeechSynthesisUtterance(wordsToSay);
+      msg.text = wordsToSay
+      window.speechSynthesis.speak(msg);
+    // Synthesis support. Make your web apps talk!
+    } else {
+      console.log("speechSynthesis not found. Text to speech capability under Web Speech API not supported.")
+    }
+  };
+
+  msg.onend = function(e) {
+  console.log('Finished in ' + event.elapsedTime + ' seconds.');
+  };
+
+
+*/
+
+  </script>
+
+</body>
+</html>

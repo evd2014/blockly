@@ -104,7 +104,6 @@ Blockly.JavaScript['speech_speak'] = function(block) {
 
 /**
  * Set voice based on user's dropdown choice
- * Default is Alex
  */
 Blockly.JavaScript['speech_set_voice'] = function(block) {
   var dropdownName = block.getFieldValue('VOICES');
