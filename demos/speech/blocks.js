@@ -77,6 +77,10 @@ Blockly.Blocks['display_pause'] = {
   }
 };
 
+//const for options to replace or append text
+const writeOpt = [['replacing old text', 'REPLACE'],
+  ['adding to old text', 'APPEND']];
+
 Blockly.Blocks['display_update_text'] = {
   /**
    * Block to update the text shown on the screen
@@ -87,8 +91,7 @@ Blockly.Blocks['display_update_text'] = {
         .appendField('write');
     this.appendDummyInput()
         .appendField('by')
-        .appendField(new Blockly.FieldDropdown([['replacing old text',
-          'REPLACE'], ['adding to old text', 'APPEND']]), 'WRITETYPE');
+        .appendField(new Blockly.FieldDropdown(writeOpt), 'WRITETYPE');
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(60);
@@ -122,13 +125,15 @@ Blockly.Blocks['speech_speak'] = {
   }
 };
 
+var VoiceBlock = {};
+
 /**
  * Helper function for the 'speech_set_voice' block;
  *
  * @param {!Array.<SpeechSynthesisVoice>} voices - the available voices
  * @return {!Array.<!Array.<string>>} dropdown - the dropdown options
  */
-var getVoicesForBlock = function(voices) {
+VoiceBlock.getVoicesForBlock = function(voices) {
   var dropdown = [];
   for (var i = 0; i < voices.length; i++) {
     var voice = [voices[i].name, i.toString()];
@@ -143,8 +148,9 @@ var getVoicesForBlock = function(voices) {
  * event is fired when they are loaded.
  * http://stackoverflow.com/questions/21513706/getting-the-list-of-voices-in-speechsynthesis-of-chrome-web-speech-api
  */
-var voices = window.speechSynthesis.getVoices();
-var setVoiceBlock = {
+
+VoiceBlock.voices = window.speechSynthesis.getVoices();
+VoiceBlock.setVoiceBlock = {
   /**
    * Block for setting the voice
    */
@@ -152,20 +158,20 @@ var setVoiceBlock = {
     this.appendDummyInput()
         .appendField('set voice to')
         .appendField(
-          new Blockly.FieldDropdown(getVoicesForBlock(voices)), 'VOICES');
+          new Blockly.FieldDropdown(VoiceBlock.getVoicesForBlock(VoiceBlock.voices)), 'VOICES');
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(30);
   }
 };
-if (voices.length > 0) {
-  Blockly.Blocks['speech_set_voice'] = setVoiceBlock;
+if (VoiceBlock.voices.length > 0) {
+  Blockly.Blocks['speech_set_voice'] = VoiceBlock.setVoiceBlock;
 } else {
    // Wait on voices to be loaded before fetching list
   window.speechSynthesis.onvoiceschanged = function() {
     //Voices becomes {!Array.<SpeechSynthesisVoice>}
     voices = window.speechSynthesis.getVoices();
-    Blockly.Blocks['speech_set_voice'] = setVoiceBlock;
+    Blockly.Blocks['speech_set_voice'] = VoiceBlock.setVoiceBlock;
   };
 }
 
@@ -197,7 +203,6 @@ Blockly.Blocks['speech_set_rate'] = {
   }
 };
 
-var opt = [['replacing old text', 'REPLACE'], ['adding to old text', 'APPEND']];
 Blockly.Blocks['speech_say_and_write'] = {
   /**
    * Block for speaking and writing text
@@ -208,7 +213,7 @@ Blockly.Blocks['speech_say_and_write'] = {
         .appendField('say and write');
     this.appendDummyInput()
         .appendField('by')
-        .appendField(new Blockly.FieldDropdown(opt), 'WRITE_TYPE');
+        .appendField(new Blockly.FieldDropdown(writeOpt), 'WRITE_TYPE');
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(30);

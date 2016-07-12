@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <meta charset="utf-8">
   <title>Blockly Demo: Adventure Blockly</title>
   <script src="../../blockly_compressed.js"></script>
   <script src="../../blocks_compressed.js"></script>
   <script src="../../javascript_compressed.js"></script>
   <script src="../../msg/js/en.js"></script>
-  <!-- TODO: Use compressed version of JS-Interpreter after re-compiled to include createAsyncFunction -->
+  <!-- TODO (edauterman): Use compressed version of JS-Interpreter after re-compiled to include createAsyncFunction -->
   <script src="JS-Interpreter/interpreter.js"></script>
   <script src="JS-Interpreter/acorn.js"></script>
   <script src="blocks.js"></script>
   <script src="block_generators.js"></script>
   <script src="speech.js"></script>
   <link rel="stylesheet" href="style.css">
-</head>
-<body>
   <table>
     <tr>
       <td>
@@ -26,8 +24,8 @@
         <p>Make your own adventure through speech synthesis, speech reognition, text, and pictures. Create your own or check out some of our demos shown below.</p>
         <p id = "logText"><code>Logging messages will be displayed here.</code></p>
         <p>
-          <button onclick="speech.showCode()">Show JavaScript</button>
-          <button onclick="speech.runCode()">Start Adventure</button>
+          <button onclick="Speech.showCode()">Show JavaScript</button>
+          <button onclick="Speech.runCode()">Start Adventure</button>
           <button onclick="clearWorkspace()">Clear</button>
 
           <button onclick="loadMonkeyDemo()" class="demo-button">Simple Demo</button>
@@ -860,5 +858,4 @@
   };
 
 </script>
-</body>
 </html>

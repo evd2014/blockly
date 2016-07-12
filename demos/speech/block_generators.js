@@ -15,8 +15,8 @@ Blockly.JavaScript['listen_if'] = function(block) {
   var textWord = Blockly.JavaScript.valueToCode(block, 'WORD',
       Blockly.JavaScript.ORDER_ATOMIC);
   var statements = Blockly.JavaScript.statementToCode(block, 'DO');
-  speech.addRecognizableWord(textWord);
-  return 'if (listen_branch(' + speech.formatText(textWord) + ')) {\n' +
+  Speech.addRecognizableWord(textWord);
+  return 'if (listen_branch(' + Speech.formatText(textWord) + ')) {\n' +
     statements + '}\n';
 };
 
@@ -27,9 +27,9 @@ Blockly.JavaScript['listen_if'] = function(block) {
 Blockly.JavaScript['listen_bool'] = function(block) {
   var textWord = Blockly.JavaScript.valueToCode(block, 'WORD',
   	  Blockly.JavaScript.ORDER_ATOMIC);
-  speech.addRecognizableWord(textWord);
-  window.console.log(textWord + ' ' + speech.formatText(textWord));
-  var code = 'listen_branch(' + speech.formatText(textWord) + ')';
+  Speech.addRecognizableWord(textWord);
+  window.console.log(textWord + ' ' + Speech.formatText(textWord));
+  var code = 'listen_branch(' + Speech.formatText(textWord) + ')';
   return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
 
@@ -72,17 +72,16 @@ Blockly.JavaScript['display_update_text'] = function(block) {
   //line spacing and indentation used here to correctly format
   //generated code
   var code = 'if(' + Blockly.JavaScript.quote_(dropdownName) +
-  ' == "REPLACE") {\n' +
-  '  clearText("textArea");\n' +
-	'}\n' +
-	'appendText("p", ' + valueUpdateText + ',"textArea");\n';
+      ' == "REPLACE") {\n' +
+      '  clearText("textArea");\n' +
+	    '}\n' +
+	    'appendText("p", ' + valueUpdateText + ',"textArea");\n';
   return code;
 };
 
 /**
  * Clears the textArea div
  */
-
 Blockly.JavaScript['display_clear_text'] = function() {
   var code = 'clearText("textArea");\n';
   return code;
@@ -117,7 +116,6 @@ Blockly.JavaScript['speech_set_voice'] = function(block) {
 /**
  * Set volume of speech
  */
-
 Blockly.JavaScript['speech_set_volume'] = function(block) {
   var valueVolume = Blockly.JavaScript.valueToCode(
       block, 'VOLUME', Blockly.JavaScript.ORDER_ATOMIC);
@@ -131,7 +129,6 @@ Blockly.JavaScript['speech_set_volume'] = function(block) {
 /**
  * Set rate of speech
  */
-
  Blockly.JavaScript['speech_set_rate'] = function(block) {
   var valueRate = Blockly.JavaScript.valueToCode(
       block, 'RATE', Blockly.JavaScript.ORDER_ATOMIC);
