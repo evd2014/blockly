@@ -26,7 +26,7 @@ Blockly.JavaScript['listen_if'] = function(block) {
  */
 Blockly.JavaScript['listen_bool'] = function(block) {
   var textWord = Blockly.JavaScript.valueToCode(block, 'WORD',
-  	  Blockly.JavaScript.ORDER_ATOMIC);
+      Blockly.JavaScript.ORDER_ATOMIC);
   Speech.addRecognizableWord(textWord);
   window.console.log(textWord + ' ' + Speech.formatText(textWord));
   var code = 'listen_branch(' + Speech.formatText(textWord) + ')';

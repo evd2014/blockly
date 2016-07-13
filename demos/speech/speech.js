@@ -13,7 +13,7 @@
 'use strict';
 /**
  * namespace for our speech code.
- * @namespace speech
+ * @namespace Speech
  */
 var Speech = {};
 //keeps track of all the words that the recognizer should listen for

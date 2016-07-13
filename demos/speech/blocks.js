@@ -125,7 +125,7 @@ Blockly.Blocks['speech_speak'] = {
   }
 };
 
-var VoiceBlock = {};
+var Voice = {};
 
 /**
  * Helper function for the 'speech_set_voice' block;
@@ -133,7 +133,7 @@ var VoiceBlock = {};
  * @param {!Array.<SpeechSynthesisVoice>} voices - the available voices
  * @return {!Array.<!Array.<string>>} dropdown - the dropdown options
  */
-VoiceBlock.getVoicesForBlock = function(voices) {
+Voice.getVoicesForBlock = function(voices) {
   var dropdown = [];
   for (var i = 0; i < voices.length; i++) {
     var voice = [voices[i].name, i.toString()];
@@ -149,29 +149,44 @@ VoiceBlock.getVoicesForBlock = function(voices) {
  * http://stackoverflow.com/questions/21513706/getting-the-list-of-voices-in-speechsynthesis-of-chrome-web-speech-api
  */
 
-VoiceBlock.voices = window.speechSynthesis.getVoices();
-VoiceBlock.setVoiceBlock = {
-  /**
-   * Block for setting the voice
-   */
-  init: function() {
-    this.appendDummyInput()
-        .appendField('set voice to')
-        .appendField(
-          new Blockly.FieldDropdown(VoiceBlock.getVoicesForBlock(VoiceBlock.voices)), 'VOICES');
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(true, null);
-    this.setColour(30);
-  }
-};
-if (VoiceBlock.voices.length > 0) {
-  Blockly.Blocks['speech_set_voice'] = VoiceBlock.setVoiceBlock;
+Voice.voices = window.speechSynthesis.getVoices();
+
+if (Voice.voices.length > 0) {
+  Blockly.Blocks['speech_set_voice'] = {
+    /**
+     * Block for setting the voice
+     */
+    init: function() {
+      this.appendDummyInput()
+          .appendField('set voice to')
+          .appendField(
+            new Blockly.FieldDropdown(Voice.getVoicesForBlock(Voice.voices)),
+                'VOICES');
+      this.setPreviousStatement(true, null);
+      this.setNextStatement(true, null);
+      this.setColour(30);
+    }
+  };
 } else {
    // Wait on voices to be loaded before fetching list
   window.speechSynthesis.onvoiceschanged = function() {
     //Voices becomes {!Array.<SpeechSynthesisVoice>}
-    voices = window.speechSynthesis.getVoices();
-    Blockly.Blocks['speech_set_voice'] = VoiceBlock.setVoiceBlock;
+    Voice.voices = window.speechSynthesis.getVoices();
+    Blockly.Blocks['speech_set_voice'] = {
+      /**
+       * Block for setting the voice
+       */
+      init: function() {
+        this.appendDummyInput()
+            .appendField('set voice to')
+            .appendField(
+              new Blockly.FieldDropdown(Voice.getVoicesForBlock(Voice.voices)),
+                  'VOICES');
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(30);
+      }
+    };
   };
 }
 
