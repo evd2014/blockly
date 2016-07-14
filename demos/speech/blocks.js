@@ -151,42 +151,27 @@ Voice.getVoicesForBlock = function(voices) {
 
 Voice.voices = window.speechSynthesis.getVoices();
 
-if (Voice.voices.length > 0) {
-  Blockly.Blocks['speech_set_voice'] = {
-    /**
-     * Block for setting the voice
-     */
-    init: function() {
+var voiceBlock = {
+  init: function() {
       this.appendDummyInput()
           .appendField('set voice to')
           .appendField(
-            new Blockly.FieldDropdown(Voice.getVoicesForBlock(Voice.voices)),
-                'VOICES');
+            new Blockly.FieldDropdown(Voice.getVoicesForBlock
+              (window.speechSynthesis.getVoices)), 'VOICES');
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour(30);
     }
-  };
+};
+
+if (Voice.voices.length > 0) {
+  Blockly.Blocks['speech_set_voice'] = voiceBlock;
 } else {
    // Wait on voices to be loaded before fetching list
   window.speechSynthesis.onvoiceschanged = function() {
     //Voices becomes {!Array.<SpeechSynthesisVoice>}
     Voice.voices = window.speechSynthesis.getVoices();
-    Blockly.Blocks['speech_set_voice'] = {
-      /**
-       * Block for setting the voice
-       */
-      init: function() {
-        this.appendDummyInput()
-            .appendField('set voice to')
-            .appendField(
-              new Blockly.FieldDropdown(Voice.getVoicesForBlock(Voice.voices)),
-                  'VOICES');
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-        this.setColour(30);
-      }
-    };
+    Blockly.Blocks['speech_set_voice'] = voiceBlock;
   };
 }
 
