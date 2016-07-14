@@ -89,16 +89,16 @@ WorkspaceFactory.addCategoryRow = function(name) {
 /**
  * Used in removeCategoryByName to find the next open category to switch to.
  * Used when deleting the current tab and need to switch to another tab.
- * Assumes the category to be deleted has already been removed from
- * categoryTabMap. Returns null if no categories left to switch to, and
- * updates hasCategories to be false.
+ * Returns null if no categories left to switch to, and updates hasCategories
+ * to be false.
  * TODO(edauterman): Find a better tab than just the first tab in the map.
  *
  * @return {String} name of next category to switch to
  */
-WorkspaceFactory.getNextOpenCategory = function(){
+WorkspaceFactory.getNextOpenCategory = function(name){
     for (var key of WorkspaceFactory.categoryTabMap.keys()) {
-      return key;
+      if (key != name)
+        return key;
     }
     WorkspaceFactory.hasCategories = false;  //no category left to switch to
     return null;
@@ -116,11 +116,11 @@ WorkspaceFactory.getNextOpenCategory = function(){
 WorkspaceFactory.removeCategoryByName = function(name) {
     var table = document.getElementById('categoryTable');
     var count = table.rows.length;
-    WorkspaceFactory.categoryTabMap.delete(name);
     if (name == WorkspaceFactory.selected) {
-      var newTabOpen = WorkspaceFactory.getNextOpenCategory();
+      var newTabOpen = WorkspaceFactory.getNextOpenCategory(name);
       WorkspaceFactory.toggleTabs(newTabOpen);
     }
+    WorkspaceFactory.categoryTabMap.delete(name);
     WorkspaceFactory.categoryXmlMap.delete(name);
     WorkspaceFactory.categoryTopBlocksMap.delete(name);
     for (var i=0; i<count; i++) {
@@ -428,4 +428,10 @@ WorkspaceFactory.reinjectPreview = function(tree) {
        {controls: true,
         wheel: true}
     });
-}
+};
+
+WorkspaceFactory.moveCategory = function(e) {
+  var up = e.key == 'ArrowUp';
+  var down = e.key == 'ArrowDown';
+  if (up || down) alert("Key!")
+};
