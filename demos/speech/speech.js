@@ -19,22 +19,22 @@ var Speech = {};
 //keeps track of all the words that the recognizer should listen for
 Speech.recognizableWords = [];
 
-if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){
+if (!goog.global.webkitSpeechRecognition && !goog.global.SpeechRecognition) {
   alert('Speech recognition and speech synthesis not supported. Please use ' +
-    'Chrome to run this demo.');
+      'Chrome to run this demo.');
 }
 
-Speech.SpeechRecognition = webkitSpeechRecognition;
-Speech.SpeechGrammarList = webkitSpeechGrammarList;
-Speech.SpeechRecognitionEvent = webkitSpeechRecognitionEvent;
+//Speech.SpeechRecognition = webkitSpeechRecognition;
+// Speech.SpeechGrammarList = webkitSpeechGrammarList;
+// Speech.SpeechRecognitionEvent = webkitSpeechRecognitionEvent;
 
 //allows for portability across different browsers
 // TODO(quacht): waiting to hear back from  Neil about why the implementation below is
 //causing issues.
-// Speech.SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
-// Speech.SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
-// Speech.SpeechRecognitionEvent = SpeechRecognitionEvent ||
-//     webkitSpeechRecognitionEvent;
+ Speech.SpeechRecognition = goog.global.SpeechRecognition || webkitSpeechRecognition;
+ Speech.SpeechGrammarList = goog.global.SpeechGrammarList || webkitSpeechGrammarList;
+ Speech.SpeechRecognitionEvent = goog.global.SpeechRecognitionEvent ||
+     webkitSpeechRecognitionEvent;
 
 //global instance whose attributes may be edited in order to affect speech
 //output
