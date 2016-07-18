@@ -1,12 +1,15 @@
 /**
  * @fileoverview Stores and updates information about state and categories
- * in workspace factory. Keeps a map that for each category, stores
- * the xml to laod that category and all the blocks in that category. Also
- * stores the selected category and a boolean for if there are any categories
- * or if it's in "simple" mode (1 flyout).
- *
- * TODO(edauterman): Update comments to reflect idMap and fact that category
- * map is now keyed by a unique id
+ * in workspace factory. Each category has a unique ID making it possible to
+ * change category names and move categories easily. The xml for each category
+ * is stored in a map (xmlMap) where the ID of a category is associated with
+ * its xml object, making it easy to load the category. The ID of each category
+ * is stored in a map (idMap) where the name of each category is associated
+ * with its corresponding ID. categoryList stores an ordered list of all
+ * categories by name, making it possible to keep track of an ordering to be
+ * used for generating the xml for each category. Also keeps track of the ID
+ * of the currently selected category (null if there are no categories, which
+ * is the case if all the blocks are in 1 flyout).
  *
  * @author Emma Dauterman (edauterman)
  */
@@ -41,10 +44,14 @@ FactoryModel.prototype.isCategory = function(name) {
 
 /**
  * Finds the next open category to switch to, excluding name. Returns null if
- * no categories left to switch to, and updates hasCategories to be false.
- * TODO(edauterman): Find a better tab than just the first tab in the map.
+ * no categories left to switch to. The next category is chosen as follows:
+ * if there is a category before the deleted category, that category is chosen,
+ * if there is no category before the deleted category, then the category
+ * directly after is chosen, and if there is no category before or after,
+ * then there must be no other categories, and so it returns null to signal
+ * that there is no current category.
  *
- * @param {string} name of cateegory being deleted
+ * @param {!string} name of cateegory being deleted
  * @return {string} name of next category to switch to
  */
 FactoryModel.prototype.getNextOpenCategory = function(name){
@@ -62,7 +69,9 @@ FactoryModel.prototype.getNextOpenCategory = function(name){
 };
 
 /**
- * Adds an empty category entry, updating state variables accordingly.
+ * Adds an empty category entry, updating state variables accordingly. Generates
+ * the unique ID for the category and adds the category to the next space on
+ * the list.
  *
  * @param {string} name name of category to be added
  */
@@ -74,9 +83,9 @@ FactoryModel.prototype.addCategoryEntry = function(name) {
 };
 
 /**
- * Returns category currently selected.
+ * Returns id of category currently selected.
  *
- * @return {string} name of category currently selected
+ * @return {int} id of category currently selected
  */
 FactoryModel.prototype.getSelectedId = function() {
   return this.selectedId;
@@ -84,15 +93,17 @@ FactoryModel.prototype.getSelectedId = function() {
 
 
 /**
- * Sets category currently selected.
+ * Sets category currently selected by id.
  *
- * @param {string} name name of category that should now be selected
+ * @param {int} id ID of category that should now be selected
  */
 FactoryModel.prototype.setSelectedId = function(id) {
   this.selectedId = id;
 }
 /**
  * Captures the statue of a current category, updating its entry in categoryMap.
+ *
+ * @param {int} id ID of category to capture state for
  */
 FactoryModel.prototype.captureState = function(id) {
   if (!id) {  //never want to capture state for null
@@ -101,7 +112,7 @@ FactoryModel.prototype.captureState = function(id) {
   this.xmlMap[id] = Blockly.Xml.workspaceToDom(toolboxWorkspace);
 };
 /**
- * Returns the xml to load a given category
+ * Returns the xml to load a given category by name
  *
  * @param {string} name name of category to fetch xml for
  * @return {!Element} xml element to be loaded to workspace
@@ -111,9 +122,9 @@ FactoryModel.prototype.getXmlByName = function(name) {
 };
 
 /**
- * Returns the xml to load a given category
+ * Returns the xml to load a given category by id
  *
- * @param {int} id id of category to fetch xml for
+ * @param {int} id ID of category to fetch xml for
  * @return {!Element} xml element to be loaded to workspace
  */
 FactoryModel.prototype.getXmlById = function(id) {
@@ -121,17 +132,7 @@ FactoryModel.prototype.getXmlById = function(id) {
 };
 
 /**
- * Returns xml for the blocks of a given category.
- *
- * @param {string} name name of category to fetch blocks for
- * @return{ !Array.<!Blockly.Block>} top level block objects
- */
-/*FactoryModel.prototype.getBlocks = function(name) {
-  return this.categoryMap[this.idMap[name]].blocks;
-};*/
-
-/**
- * Deletes a category entry and all associated data.
+ * Deletes a category entry and all associated data given a category name.
  *
  * @param {string} name of category to be deleted
  */
@@ -139,37 +140,47 @@ FactoryModel.prototype.deleteCategoryEntry = function(name) {
   var id = this.idMap[name];
   delete this.xmlMap[id];
   delete this.idMap[name];
-  for (var i=0; i<this.categoryList.length; i++) { //performance problems? coordinate with model so only have 1 lookup
+  for (var i=0; i<this.categoryList.length; i++) {
     if (this.categoryList[i] == name) {
       this.categoryList.splice(i, 1);
-      window.console.log("Spliced");
-      return; //unify to function for changing name
+      return;
     }
   }
 };
 
 /**
- * Return map of category names that can be iterated over in a for-in loop.
- * Used when it is necessary to look through all categories.
+ * Return ordered list category names.
  */
 FactoryModel.prototype.getCategoryList = function() {
   return this.categoryList;
 };
 
+/**
+ * Gets the ID of a category given its name.
+ *
+ * @param {string} name Name of category
+ * @return {int} ID of category
+ */
 FactoryModel.prototype.getId = function(name) {
   return this.idMap[name];
 }
 
+/**
+ * Changes the name of a category given its new name and ID. Updates it in
+ * the category list, creates a new entry in the ID map, and deletes the old
+ * entry in the ID map.
+ *
+ * @param {string} newName New name of category
+ * @param {int} id ID of category to be updated
+ */
 FactoryModel.prototype.changeCategoryName = function (newName, id) {
-  window.console.log("past break");
-  this.idMap[newName] = id;
-  for (var i=0; i<this.categoryList.length; i++) { //performance problems? coordinate with model so only have 1 lookup
+  for (var i=0; i<this.categoryList.length; i++) {
     if (this.getId(this.categoryList[i]) == id) {
-      window.console.log("updated");
       this.categoryList[i] = newName;
       break;
     }
   }
+  this.idMap[newName] = id;
   for (var catName in this.idMap) {
     if (this.idMap[catName] == id) {
       delete this.idMap[catName];
@@ -178,7 +189,11 @@ FactoryModel.prototype.changeCategoryName = function (newName, id) {
   }
 };
 
-FactoryModel.prototype.swapCategoryXml = function (id1, id2, name1, name2) {
+/**
+ * Swaps the IDs of two categories while keeping the XML and names associated
+ * with a category the same. Used when swapping categories
+ */
+FactoryModel.prototype.swapCategoryId = function (id1, id2, name1, name2) {
   var temp = this.xmlMap[id1];
   this.xmlMap[id1] = this.xmlMap[id2];
   this.xmlMap[id2] = temp;

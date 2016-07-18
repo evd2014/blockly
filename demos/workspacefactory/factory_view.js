@@ -39,6 +39,12 @@ FactoryView.prototype.addCategoryRow = function(name) {
       {FactoryController.switchCategory(id)};}(id));
 };
 
+/*var getCategorySwitchFunc = function(id) {
+  return function() {
+    FactoryController.switchCategory(id);
+  }
+}*/
+
 /**
  * Deletes a category tab from the UI and updates tabMap accordingly.
  *

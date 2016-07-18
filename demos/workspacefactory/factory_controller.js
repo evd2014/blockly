@@ -2,9 +2,13 @@
  * @fileoverview Contains the controller code for workspace factory. Depends
  * on the model and view objects and interacts with previewWorkspace and
  * toolboxWorkspace. Provides the functionality for the actions the user
- * can initiate, including adding and removing categories, switching between
- * categories, printing and downloading configuration xml, and updating
- * the preview workspace.
+ * can initiate:
+ * - adding and removing categories
+ * - switching between categories
+ * - printing and downloading configuration xml
+ * - updating the preview workspace
+ * - changing a category name
+ * - moving the position of a category.
  *
  * @author Emma Dauterman (edauterman)
  */
@@ -158,10 +162,15 @@ FactoryController.reinjectPreview = function(tree) {
     });
 };
 
-//in the future change to allow to change names of not just category selected
+/**
+ * Tied to "change name" button. Changes the name of the selected category.
+ * Continues prompting the user until they input a category name that is not
+ * currently in use, exits if user presses cancel. Doesn't allow the user to
+ * change a category name if there are no categories.
+ */
 FactoryController.changeName = function() {
   if (!model.getSelectedId()) {
-    alert("No current category.");
+    alert("No current categories created.");
     return;
   }
   do {
@@ -174,16 +183,21 @@ FactoryController.changeName = function() {
   view.updateCategoryName(newName,model.getSelectedId());
 };
 
+/**
+ * Tied to arrow up and arrow down keys. On pressing the up or down key, moves
+ * the selected category up or down one space in the list of categories.
+ *
+ * @param {Event} e keyboard event received, called onkeydown
+ */
 FactoryController.moveCategory = function(e) {
-  if (e.key != 'ArrowUp' && e.key != 'ArrowDown') {
-    return;
+  if ((e.key != 'ArrowUp' && e.key != 'ArrowDown') || !model.getSelectedId()) {
+    return; //do nothing if not arrow up or arrow down, or no categories
   }
-
   var names = view.swapCategories(model.getSelectedId(), e.key == 'ArrowUp');
   var currID = model.getSelectedId();
   var swapID = model.getId(names.swap);
   model.captureState(currID);
-  model.swapCategoryXml(currID, swapID, names.curr, names.swap);
+  model.swapCategoryId(currID, swapID, names.curr, names.swap);
   model.swapCategoryOrder(names.curr, names.swap);
   model.setSelectedId(swapID);
   FactoryController.switchCategory(swapID);
