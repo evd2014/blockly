@@ -56,7 +56,7 @@ Blockly.JavaScript['display_img'] = function(block) {
  */
 Blockly.JavaScript['display_pause'] = function(block) {
   var valueTime = Blockly.JavaScript.valueToCode(block, 'TIME',
-  	 Blockly.JavaScript.ORDER_ATOMIC);
+      Blockly.JavaScript.ORDER_ATOMIC);
   valueTime *= 1000;	//milliseconds to seconds
   var code = 'pause('+valueTime+');\n';
   return code;

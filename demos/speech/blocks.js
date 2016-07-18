@@ -77,8 +77,14 @@ Blockly.Blocks['display_pause'] = {
   }
 };
 
-//const for options to replace or append text
-const writeOpt = [['replacing old text', 'REPLACE'],
+/**
+ * namespace for initializing speech synthesis blocks.
+ * @namespace Voice
+ */
+var Voice = {};
+
+//options to replace or append text
+Voices.writeOpt = [['replacing old text', 'REPLACE'],
   ['adding to old text', 'APPEND']];
 
 Blockly.Blocks['display_update_text'] = {
@@ -125,11 +131,16 @@ Blockly.Blocks['speech_speak'] = {
   }
 };
 
-var Voice = {};
-// todo
 window.speechSynthesis.getVoices();
+/**
+ * The first time we call getVoices, the browser has not yet gotten the voices
+ * and needs time to fetch them so that the next time we call getVoices in
+ * getVoicesForBlock, they will be accessible.
+ */
 
-var voices;
+Voice.voices;
+// Stored here so they can be accessed by the JS Interpreter in speech.js
+
 /**
  * Helper function for the 'speech_set_voice' block;
  *

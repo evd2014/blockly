@@ -16,7 +16,7 @@
  * @namespace Speech
  */
 var Speech = {};
-//keeps track of all the words that the recognizer should listen for
+// Keeps track of all the words that the recognizer should listen for
 Speech.recognizableWords = [];
 
 if (!goog.global.webkitSpeechRecognition && !goog.global.SpeechRecognition) {
@@ -24,20 +24,14 @@ if (!goog.global.webkitSpeechRecognition && !goog.global.SpeechRecognition) {
       'Chrome to run this demo.');
 }
 
-//Speech.SpeechRecognition = webkitSpeechRecognition;
-// Speech.SpeechGrammarList = webkitSpeechGrammarList;
-// Speech.SpeechRecognitionEvent = webkitSpeechRecognitionEvent;
-
-//allows for portability across different browsers
-// TODO(quacht): waiting to hear back from  Neil about why the implementation below is
-//causing issues.
+// Allows for portability across different browsers
  Speech.SpeechRecognition = goog.global.SpeechRecognition || webkitSpeechRecognition;
  Speech.SpeechGrammarList = goog.global.SpeechGrammarList || webkitSpeechGrammarList;
  Speech.SpeechRecognitionEvent = goog.global.SpeechRecognitionEvent ||
      webkitSpeechRecognitionEvent;
 
-//global instance whose attributes may be edited in order to affect speech
-//output
+// Global instance whose attributes may be edited in order to affect speech
+// output
 Speech.msg = new SpeechSynthesisUtterance();
 
 /**
@@ -75,7 +69,7 @@ Speech.logMessage = function(myInterpreter, message) {
 Speech.runButton = function(myInterpreter) {
   if (myInterpreter.run()) {
     // Run until an async call.  Give this call a chance to run. Then start
-    //running again later.
+    // running again later.
     setTimeout(Speech.runButton, 10, myInterpreter);
   }
 };
@@ -95,7 +89,7 @@ Speech.runCode = function() {
   var code = Blockly.JavaScript.workspaceToCode(workspace);
   window.console.log(code);
 
-  //used to define wrappers for myInterpreter
+  // Used to define wrappers for myInterpreter
   var initFunc = function(myInterpreter,scope) {
 
     /**
@@ -317,7 +311,8 @@ Speech.runCode = function() {
      */
     var setVoiceWrapper = function(newVoiceIndex) {
       //voices is defined in the blocks.js file that defines the set_voice block
-      myInterpreter.createPrimitive(Speech.msg.voice = voices[newVoiceIndex]);
+      myInterpreter.createPrimitive(Speech.msg.voice =
+          Voice.voices[newVoiceIndex]);
     };
     myInterpreter.setProperty(scope, 'setVoice',
         myInterpreter.createNativeFunction(setVoiceWrapper));
