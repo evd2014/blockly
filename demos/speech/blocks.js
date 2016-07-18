@@ -129,13 +129,14 @@ var Voice = {};
 // todo
 window.speechSynthesis.getVoices();
 
+var voices;
 /**
  * Helper function for the 'speech_set_voice' block;
  *
  * @return {!Array.<!Array.<string>>} dropdown - the dropdown options
  */
 Voice.getVoicesForBlock = function() {
-  var voices = window.speechSynthesis.getVoices();
+  voices = window.speechSynthesis.getVoices();
   var dropdown = [];
   for (var i = 0; i < voices.length; i++) {
     var voice = [voices[i].name, i.toString()];
