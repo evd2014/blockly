@@ -28,7 +28,7 @@ FactoryController.addCategory = function() {
   do {
     var name = prompt('Enter the name of your new category: ');
   } while (model.isCategory(name));
-  if (!name) {  //if cancelled
+  if (!name) {  // If cancelled
     return;
   }
   model.addCategoryEntry(name);
@@ -42,8 +42,7 @@ FactoryController.addCategory = function() {
  * the user tries to remove a nonexistent category. If currently on the category
  * being removed, switches to the first category added.
  *
- * TODO(edauterman): make case insensitive, have it switch to a more logical
- * category (e.g. most recently added category)
+ * TODO(edauterman): make case insensitive
  */
 FactoryController.removeCategory = function() {
   var name = prompt('Enter the name of your category to remove: ');
@@ -70,8 +69,7 @@ FactoryController.removeCategory = function() {
  * the option to put these blocks in a category so they don't lose all their
  * work.
  *
- * @param {string} name name of tab to be opened, must be valid category name
- UPDATE!!!!!
+ * @param {!string} id ID of tab to be opened, must be valid category ID
  */
 FactoryController.switchCategory = function(id) {
   if (id == null) {
@@ -81,7 +79,7 @@ FactoryController.switchCategory = function(id) {
     return;
   }
   var table = document.getElementById('categoryTable');
-  //caches information to reload or generate xml if switching from category
+  // Caches information to reload or generate xml if switching from category.
   if (model.getSelectedId() != null) {
       model.captureState(model.getSelectedId());
       view.toggleTab(model.getSelectedId(),false);
@@ -176,7 +174,7 @@ FactoryController.changeName = function() {
   do {
     var newName = prompt("What do you want to change this category's name to?");
   } while (model.isCategory(name));
-  if (!newName) { //if cancelled
+  if (!newName) { // If cancelled
     return;
   }
   model.changeCategoryName(newName,model.getSelectedId());
@@ -191,9 +189,12 @@ FactoryController.changeName = function() {
  */
 FactoryController.moveCategory = function(e) {
   if ((e.key != 'ArrowUp' && e.key != 'ArrowDown') || !model.getSelectedId()) {
-    return; //do nothing if not arrow up or arrow down, or no categories
+    return; // Do nothing if not arrow up or arrow down, or no categories.
   }
   var names = view.swapCategories(model.getSelectedId(), e.key == 'ArrowUp');
+  if (!names) { // No valid category to swap with.
+    return;
+  }
   var currID = model.getSelectedId();
   var swapID = model.getId(names.swap);
   model.captureState(currID);

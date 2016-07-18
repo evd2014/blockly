@@ -24,7 +24,7 @@ FactoryModel = function() {
   this.categoryList = [];
 };
 
-//string name of current selected category, null if no categories
+// String name of current selected category, null if no categories
 FactoryModel.prototype.selectedId = null;
 
 /**
@@ -106,7 +106,7 @@ FactoryModel.prototype.setSelectedId = function(id) {
  * @param {int} id ID of category to capture state for
  */
 FactoryModel.prototype.captureState = function(id) {
-  if (!id) {  //never want to capture state for null
+  if (!id) {  // Never want to capture state for null
     return;
   }
   this.xmlMap[id] = Blockly.Xml.workspaceToDom(toolboxWorkspace);
@@ -191,7 +191,13 @@ FactoryModel.prototype.changeCategoryName = function (newName, id) {
 
 /**
  * Swaps the IDs of two categories while keeping the XML and names associated
- * with a category the same. Used when swapping categories
+ * with a category the same. Used when swapping categories so that same tab
+ * can now refer to a different category.
+ *
+ * @param {!string} id1 ID of first category to be swapped
+ * @param {!string} id2 ID of second category to be swapped
+ * @param {!string} name1 name of first category to be swapped
+ * @param {!string} name2 name of second category to be swapped
  */
 FactoryModel.prototype.swapCategoryId = function (id1, id2, name1, name2) {
   var temp = this.xmlMap[id1];
@@ -201,6 +207,12 @@ FactoryModel.prototype.swapCategoryId = function (id1, id2, name1, name2) {
   this.idMap[name2] = id1;
 };
 
+/**
+ * Swaps the order of two categories in the category list.
+ *
+ * @param name1 Name of first category to swap
+ * @param name2 Name of second category to swap
+ */
 FactoryModel.prototype.swapCategoryOrder = function(name1, name2) {
   for (var i=0; i<this.categoryList.length; i++) {
     if (this.categoryList[i] == name1) {

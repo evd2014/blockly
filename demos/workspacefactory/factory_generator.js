@@ -30,8 +30,12 @@ FactoryGenerator.categoryWorkspaceToDom = function(xmlDom, blocks) {
 /**
  * Generates the xml for the toolbox or flyout. If there is only a flyout,
  * only the current blocks are needed, and these are included without
- * a category. If there are categories, then the top blocks from each category
- * are used to generate the xml for that category.
+ * a category. If there are categories, then each category is briefly loaded
+ * and the top blocks are used to generate the xml for the flyout for that
+ * category.
+ * This was changed to load each category instead of just using the stored
+ * top blocks because blocks connected to the top blocks were lost if the
+ * whole workspace was not loaded (including shadow blocks, block groups, etc.).
  *
  * @return {!Element} XML element representing toolbox or flyout corresponding
  * to toolbox workspace.
@@ -47,7 +51,7 @@ FactoryGenerator.generateConfigXml = function() {
         toolboxWorkspace.getTopBlocks());
   }
   else {
-    //capture any changes made by user before generating xml
+    // Capture any changes made by user before generating xml.
     model.captureState(model.getSelectedId());
     var categoryList = model.getCategoryList();
     for (var i=0; i<categoryList.length; i++) {
@@ -55,13 +59,15 @@ FactoryGenerator.generateConfigXml = function() {
       var categoryElement = goog.dom.createDom('category');
       categoryElement.setAttribute('name',category);
       toolboxWorkspace.clear();
-      Blockly.Xml.domToWorkspace(model.getXmlByName(category), toolboxWorkspace);
-      FactoryGenerator.categoryWorkspaceToDom(categoryElement, toolboxWorkspace.getTopBlocks()
-          ); //possibly take out blocks field? model.getBlocks(category)
+      Blockly.Xml.domToWorkspace(model.getXmlByName(category),
+          toolboxWorkspace);
+      FactoryGenerator.categoryWorkspaceToDom(categoryElement,
+          toolboxWorkspace.getTopBlocks());
       xmlDom.appendChild(categoryElement);
     }
   }
   toolboxWorkspace.clear();
-  Blockly.Xml.domToWorkspace(model.getXmlById(model.getSelectedId()), toolboxWorkspace);
-   return xmlDom;
+  Blockly.Xml.domToWorkspace(model.getXmlById(model.getSelectedId()),
+      toolboxWorkspace);
+  return xmlDom;
  }
