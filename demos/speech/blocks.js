@@ -78,13 +78,13 @@ Blockly.Blocks['display_pause'] = {
 };
 
 /**
- * namespace for initializing speech synthesis blocks.
+ * Namespace for initializing speech synthesis blocks.
  * @namespace Voice
  */
 var Voice = {};
 
-//options to replace or append text
-Voices.writeOpt = [['replacing old text', 'REPLACE'],
+// Options to replace or append text
+Voice.blockWriteOptions = [['replacing old text', 'REPLACE'],
   ['adding to old text', 'APPEND']];
 
 Blockly.Blocks['display_update_text'] = {
@@ -97,7 +97,8 @@ Blockly.Blocks['display_update_text'] = {
         .appendField('write');
     this.appendDummyInput()
         .appendField('by')
-        .appendField(new Blockly.FieldDropdown(writeOpt), 'WRITETYPE');
+        .appendField(new Blockly.FieldDropdown(Voice.blockWriteOptions),
+            'WRITETYPE');
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(60);
@@ -131,14 +132,14 @@ Blockly.Blocks['speech_speak'] = {
   }
 };
 
-window.speechSynthesis.getVoices();
 /**
  * The first time we call getVoices, the browser has not yet gotten the voices
  * and needs time to fetch them so that the next time we call getVoices in
  * getVoicesForBlock, they will be accessible.
  */
+window.speechSynthesis.getVoices();
 
-Voice.voices;
+Voice.voices = null;
 // Stored here so they can be accessed by the JS Interpreter in speech.js
 
 /**
@@ -147,10 +148,10 @@ Voice.voices;
  * @return {!Array.<!Array.<string>>} dropdown - the dropdown options
  */
 Voice.getVoicesForBlock = function() {
-  voices = window.speechSynthesis.getVoices();
+  Voice.voices = window.speechSynthesis.getVoices();
   var dropdown = [];
-  for (var i = 0; i < voices.length; i++) {
-    var voice = [voices[i].name, i.toString()];
+  for (var i = 0; i < Voice.voices.length; i++) {
+    var voice = [Voice.voices[i].name, i.toString()];
     dropdown.push(voice);
   }
   return dropdown;
@@ -213,7 +214,8 @@ Blockly.Blocks['speech_say_and_write'] = {
         .appendField('say and write');
     this.appendDummyInput()
         .appendField('by')
-        .appendField(new Blockly.FieldDropdown(writeOpt), 'WRITE_TYPE');
+        .appendField(new Blockly.FieldDropdown(Voice.blockWriteOptions),
+            'WRITE_TYPE');
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(30);
