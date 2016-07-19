@@ -1,15 +1,14 @@
 /**
  * @fileoverview Stores and updates information about state and categories
  * in workspace factory. Each category has a unique ID making it possible to
- * change category names and move categories easily. The xml for each category
- * is stored in a map (xmlMap) where the ID of a category is associated with
- * its xml object, making it easy to load the category. The ID of each category
- * is stored in a map (idMap) where the name of each category is associated
- * with its corresponding ID. categoryList stores an ordered list of all
- * categories by name, making it possible to keep track of an ordering to be
- * used for generating the xml for each category. Also keeps track of the ID
- * of the currently selected category (null if there are no categories, which
- * is the case if all the blocks are in 1 flyout).
+ * change category names and move categories easily. Data is stored for each
+ * category in these data structures:
+ * - xmlMap: stores xml for each category by ID
+ * - idMap: stores id for each category by name
+ * - categoryList: ordered list of all categories by name
+ *
+ * Also keeps track of the ID of the currently selected category (null if there
+ * are no categories, which is the case if all the blocks are in 1 flyout).
  *
  * @author Emma Dauterman (edauterman)
  */
@@ -33,7 +32,7 @@ FactoryModel.prototype.selectedId = null;
  * @param {string} name string to be compared against
  * @return {boolean} true if string is a used category name, false otherwise
  */
-FactoryModel.prototype.isCategory = function(name) {
+FactoryModel.prototype.hasCategory = function(name) {
   for (var category in this.idMap) {
     if (category == name) {
         return true;
@@ -83,6 +82,23 @@ FactoryModel.prototype.addCategoryEntry = function(name) {
 };
 
 /**
+ * Deletes a category entry and all associated data given a category name.
+ *
+ * @param {string} name of category to be deleted
+ */
+FactoryModel.prototype.deleteCategoryEntry = function(name) {
+  var id = this.idMap[name];
+  delete this.xmlMap[id];
+  delete this.idMap[name];
+  for (var i=0; i<this.categoryList.length; i++) {
+    if (this.categoryList[i] == name) {
+      this.categoryList.splice(i, 1);
+      return;
+    }
+  }
+};
+
+/**
  * Returns id of category currently selected.
  *
  * @return {int} id of category currently selected
@@ -129,23 +145,6 @@ FactoryModel.prototype.getXmlByName = function(name) {
  */
 FactoryModel.prototype.getXmlById = function(id) {
   return this.xmlMap[id];
-};
-
-/**
- * Deletes a category entry and all associated data given a category name.
- *
- * @param {string} name of category to be deleted
- */
-FactoryModel.prototype.deleteCategoryEntry = function(name) {
-  var id = this.idMap[name];
-  delete this.xmlMap[id];
-  delete this.idMap[name];
-  for (var i=0; i<this.categoryList.length; i++) {
-    if (this.categoryList[i] == name) {
-      this.categoryList.splice(i, 1);
-      return;
-    }
-  }
 };
 
 /**

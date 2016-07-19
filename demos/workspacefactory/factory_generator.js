@@ -1,16 +1,20 @@
 /**
  * @fileoverview Generates the configuration xml used to update the preview
  * workspace or print to the console or downlaod to a file. Leverages
- * Blockly.Xml and depends on information in the model and in toolboxWorkspace.
+ * Blockly.Xml and depends on information in the model and in toolboxWorkspace,
+ * by holding references to them.
  *
  * @author Emma Dauterman (edauterman)
  */
 
 /**
- * namespace for workspace factory xml generation code
- * @namespace FactoryGenerator
+ * Class for a FactoryGenerator
+ * @constructor
  */
-FactoryGenerator = {};
+FactoryGenerator = function(model, toolboxWorkspace) {
+  this.model = model;
+  this.toolboxWorkspace = toolboxWorkspace;
+};
 
 /**
  * Adaped from workspaceToDom, encodes workspace for a particular category
@@ -19,7 +23,7 @@ FactoryGenerator = {};
  * @param {!Element} xmlDom Tree of XML elements to be appended to.
  * @param {!Array.<!Blockly.Block>} topBlocks top level blocks to add to xmlDom
  */
-FactoryGenerator.categoryWorkspaceToDom = function(xmlDom, blocks) {
+FactoryGenerator.prototype.categoryWorkspaceToDom = function(xmlDom, blocks) {
   for (var i=0, block; block=blocks[i]; i++) {
     var blockChild = Blockly.Xml.blockToDom(block);
     blockChild.removeAttribute('id');
@@ -40,34 +44,34 @@ FactoryGenerator.categoryWorkspaceToDom = function(xmlDom, blocks) {
  * @return {!Element} XML element representing toolbox or flyout corresponding
  * to toolbox workspace.
  */
-FactoryGenerator.generateConfigXml = function() {
+FactoryGenerator.prototype.generateConfigXml = function() {
   var xmlDom = goog.dom.createDom('xml',
       {
         'id' : 'toolbox',
         'style' : 'display:none'
       });
-  if (!model.getSelectedId()) {
+  if (!this.model.getSelectedId()) {
     FactoryGenerator.categoryWorkspaceToDom(xmlDom,
         toolboxWorkspace.getTopBlocks());
   }
   else {
     // Capture any changes made by user before generating xml.
-    model.captureState(model.getSelectedId());
-    var categoryList = model.getCategoryList();
+    this.model.captureState(this.model.getSelectedId(), this.toolboxWorkspace);
+    var categoryList = this.model.getCategoryList();
     for (var i=0; i<categoryList.length; i++) {
       var category = categoryList[i];
       var categoryElement = goog.dom.createDom('category');
       categoryElement.setAttribute('name',category);
-      toolboxWorkspace.clear();
-      Blockly.Xml.domToWorkspace(model.getXmlByName(category),
-          toolboxWorkspace);
-      FactoryGenerator.categoryWorkspaceToDom(categoryElement,
-          toolboxWorkspace.getTopBlocks());
+      this.toolboxWorkspace.clear();
+      Blockly.Xml.domToWorkspace(this.model.getXmlByName(category),
+          this.toolboxWorkspace);
+      this.categoryWorkspaceToDom(categoryElement,
+          this.toolboxWorkspace.getTopBlocks());
       xmlDom.appendChild(categoryElement);
     }
   }
-  toolboxWorkspace.clear();
-  Blockly.Xml.domToWorkspace(model.getXmlById(model.getSelectedId()),
-      toolboxWorkspace);
+  this.toolboxWorkspace.clear();
+  Blockly.Xml.domToWorkspace(this.model.getXmlById(this.model.getSelectedId()),
+      this.toolboxWorkspace);
   return xmlDom;
  }

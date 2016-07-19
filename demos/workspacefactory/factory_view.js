@@ -22,9 +22,11 @@ FactoryView = function(){
  * switches to that category based on the unique ID associated with that
  * tab. Updates tabMap accordingly.
  *
- * @param {string} name The name of the category to be created
+ * @param {!string} name The name of the category being created
+ * @param {!string} id ID of category being created
+ * @return {!Element} DOM element created for tab
  */
-FactoryView.prototype.addCategoryRow = function(name) {
+FactoryView.prototype.addCategoryRow = function(name, id) {
   // Create tab.
   var table = document.getElementById('categoryTable');
   var count = table.rows.length;
@@ -34,20 +36,19 @@ FactoryView.prototype.addCategoryRow = function(name) {
   nextEntry.id = "tab_" + name;
   nextEntry.textContent = name;
   // Store tab.
-  this.tabMap[model.getId(name)] = table.rows[count].cells[0];
+  this.tabMap[id] = table.rows[count].cells[0];
   // When click the tab with that name, switch to that tab.
-  var id = model.getId(name);
-  this.bindClick(nextEntry, function(id) {return function ()
-      {FactoryController.switchCategory(id)};}(id));
+  return nextEntry;
 };
 
 /**
  * Deletes a category tab from the UI and updates tabMap accordingly.
  *
- * @param {string} name Then name of the category to be deleted
+ * @param {!string} name The name of the category to be deleted
+ * @param {!string} id ID of category to be deleted
  */
-FactoryView.prototype.deleteCategoryRow = function(name) {
-  delete this.tabMap[model.getId(name)];
+FactoryView.prototype.deleteCategoryRow = function(name, id) {
+  delete this.tabMap[id];
   var table = document.getElementById('categoryTable');
   var count = table.rows.length;
   for (var i=0; i<count; i++) {
@@ -63,10 +64,11 @@ FactoryView.prototype.deleteCategoryRow = function(name) {
  * Switches a tab on or off.
  *
  * @param {!string} id ID of the tab to switch on or off
- * @param {boolean} on true if tab should be on, false if tab should be off
+ * @param {boolean} selected true if tab should be on, false if tab should be
+ * off
  */
-FactoryView.prototype.toggleTab = function(id, on) {
-  this.tabMap[id].className = on ? 'tabon' : 'taboff';
+FactoryView.prototype.setCategoryTabSelection = function(id, selected) {
+  this.tabMap[id].className = selected ? 'tabon' : 'taboff';
 };
 
 /**
@@ -147,7 +149,7 @@ FactoryView.prototype.swapCategories = function(currID, swapUp) {
   // Adjust text content of tabs.
   swapTab.textContent = currName;
   currTab.textContent = swapName;
-  this.toggleTab(currID,false);
+  this.setCategoryTabSelection(currID,false);
   return {
     curr: currName,
     swap: swapName

@@ -37,12 +37,12 @@
   <tr>
     <td>
       <p>
-        <button onclick="FactoryController.addCategory()">Add Category</button>
-        <button onclick="FactoryController.removeCategory()">Remove Category</button>
-        <button onclick="FactoryController.exportConfig()">Export Config</button>
-        <button onclick="FactoryController.printConfig()">Print Config</button>
-        <button onclick="FactoryController.updatePreview()">Update Preview</button>
-        <button onclick="FactoryController.changeName()">Change Name</button>
+<button id="button_add">Add Category</button>
+        <button id="button_remove">Remove Category</button>
+        <button id="button_export">Export Config</button>
+        <button id="button_print">Print Config</button>
+        <button id="button_preview">Update Preview</button>
+        <button id="button_name">Change Name</button>
       </p>
     </td>
   </tr>
@@ -369,9 +369,7 @@
 </xml>
 
 <script type="text/javascript">
-  //Create empty workspace for creating toolbox/flyout
-  var toolbox = document.getElementById('toolbox');
-  var previewToolbox = '<xml></xml>';
+  // Create empty workspace for configuring workspace.
   var toolboxWorkspace = Blockly.inject('toolbox_blocks',
     {grid:
       {spacing: 25,
@@ -381,8 +379,7 @@
        media: '../../media/',
        toolbox: toolbox,
      });
-
-  //Create empty workspace for previewing created workspace
+  // Create empty workspace for previewing created workspace.
   var previewWorkspace = Blockly.inject('preview_blocks',
     {grid:
       {spacing: 25,
@@ -390,16 +387,51 @@
        colour: '#ccc',
        snap: true},
      media: '../../media/',
-     toolbox: previewToolbox,
+     toolbox: '<xml></xml>',
      zoom:
        {controls: true,
         wheel: true}
     });
 
-  var model = new FactoryModel();
-  var view = new FactoryView();
+  var controller = new FactoryController(toolboxWorkspace, previewWorkspace);
 
-  window.addEventListener('keydown', FactoryController.moveCategory);
+  // Wrappers to attach buttons to method calls for the controller object
+  var addWrapper = function() {
+    controller.addCategory();
+  };
+  var removeWrapper = function() {
+    controller.removeCategory();
+  };
+  var exportWrapper = function() {
+    controller.exportConfig();
+  };
+  var printWrapper = function() {
+    controller.printConfig();
+  };
+  var previewWrapper = function() {
+    controller.updatePreview();
+  };
+  var nameWrapper = function() {
+    controller.changeName();
+  };
+  var swapWrapper = function(e) {
+    controller.moveCategory(e);
+  };
+
+
+  document.getElementById('button_add').addEventListener
+      ('click', addWrapper);
+  document.getElementById('button_remove').addEventListener
+      ('click', removeWrapper);
+  document.getElementById('button_export').addEventListener
+      ('click', exportWrapper);
+  document.getElementById('button_print').addEventListener
+      ('click', printWrapper);
+  document.getElementById('button_preview').addEventListener
+      ('click', previewWrapper);
+  document.getElementById('button_name').addEventListener
+      ('click', nameWrapper);
+  window.addEventListener('keydown',swapWrapper);
 
 </script>
 </html>
