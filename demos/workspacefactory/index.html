@@ -37,12 +37,9 @@
   <tr>
     <td>
       <p>
-<button id="button_add">Add Category</button>
-        <button id="button_remove">Remove Category</button>
         <button id="button_export">Export Config</button>
         <button id="button_print">Print Config</button>
         <button id="button_preview">Update Preview</button>
-        <button id="button_name">Change Name</button>
       </p>
     </td>
   </tr>
@@ -55,7 +52,12 @@
   </section>
   <aside id="category_section">
     <table id="categoryTable">
+      <td id="tab_help">Your categories will appear here</td>
     </table>
+    <p>&nbsp;</p>
+    <button id="button_add">+</button>
+    <button id="button_remove">-</button>
+    <button id="button_name">Edit</button>
   </aside>
 </section>
 
@@ -418,7 +420,6 @@
     controller.moveCategory(e);
   };
 
-
   document.getElementById('button_add').addEventListener
       ('click', addWrapper);
   document.getElementById('button_remove').addEventListener
@@ -431,7 +432,7 @@
       ('click', previewWrapper);
   document.getElementById('button_name').addEventListener
       ('click', nameWrapper);
-  window.addEventListener('keydown',swapWrapper);
+  window.addEventListener('keydown', swapWrapper);
 
 </script>
 </html>

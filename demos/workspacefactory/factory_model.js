@@ -32,7 +32,7 @@ FactoryModel.prototype.selectedId = null;
  * @param {string} name string to be compared against
  * @return {boolean} true if string is a used category name, false otherwise
  */
-FactoryModel.prototype.hasCategory = function(name) {
+FactoryModel.prototype.hasCategoryName = function(name) {
   for (var category in this.idMap) {
     if (category == name) {
         return true;
@@ -40,6 +40,30 @@ FactoryModel.prototype.hasCategory = function(name) {
   }
   return false;
 };
+
+/**
+ * Given a ID, determines if it is the ID of a category already present.
+ *
+ * @param {string} name string to be compared against
+ * @return {boolean} true if string is a used category name, false otherwise
+ */
+FactoryModel.prototype.hasCategoryId = function(id) {
+  for (var category in this.xmlMap) {
+    if (category == id) {
+        return true;
+    }
+  }
+  return false;
+};
+
+/**
+ * Determines if the user has any categories using selected.
+ *
+ * @return {boolean} true if categories exist, false otherwise
+ */
+FactoryModel.prototype.hasCategories = function() {
+  return this.selectedId != null;
+}
 
 /**
  * Finds the next open category to switch to, excluding name. Returns null if
@@ -50,16 +74,19 @@ FactoryModel.prototype.hasCategory = function(name) {
  * then there must be no other categories, and so it returns null to signal
  * that there is no current category.
  *
- * @param {!string} name of cateegory being deleted
+ * @param {!string} name of category being deleted
  * @return {string} name of next category to switch to
  */
 FactoryModel.prototype.getNextOpenCategory = function(name){
-  for (var i=0; i<this.categoryList.length; i++) {
+  for (var i  = 0; i < this.categoryList.length; i++) {
     if (this.categoryList[i] == name) {
+      // If not first category, get next category.
       if (i != 0) {
         return this.getId(this.categoryList[i-1]);
+      // Otherwise if not last category, get category before.
       } else if (i != this.categoryList.length - 1){
         return this.getId(this.categoryList[i+1]);
+      // Otherwise no categories remaining.
       } else {
         return null;
       }
@@ -74,7 +101,7 @@ FactoryModel.prototype.getNextOpenCategory = function(name){
  *
  * @param {string} name name of category to be added
  */
-FactoryModel.prototype.addCategoryEntry = function(name) {
+FactoryModel.prototype.addNewCategoryEntry = function(name) {
   var id = Blockly.genUid();
   this.xmlMap[id] = Blockly.Xml.textToDom('<xml></xml>');
   this.idMap[name] = id;
@@ -90,13 +117,26 @@ FactoryModel.prototype.deleteCategoryEntry = function(name) {
   var id = this.idMap[name];
   delete this.xmlMap[id];
   delete this.idMap[name];
-  for (var i=0; i<this.categoryList.length; i++) {
+  for (var i = 0; i < this.categoryList.length; i++) {
     if (this.categoryList[i] == name) {
       this.categoryList.splice(i, 1);
       return;
     }
   }
 };
+
+/**
+ * Saves the current category, updating its entry in xmlMap.
+ *
+ * @param {int} id ID of category to capture state for
+ */
+FactoryModel.prototype.saveCategoryEntry = function(id) {
+  if (!id) {  // Never want to capture state for null
+    return;
+  }
+  this.xmlMap[id] = Blockly.Xml.workspaceToDom(toolboxWorkspace);
+};
+
 
 /**
  * Returns id of category currently selected.
@@ -116,17 +156,7 @@ FactoryModel.prototype.getSelectedId = function() {
 FactoryModel.prototype.setSelectedId = function(id) {
   this.selectedId = id;
 }
-/**
- * Captures the statue of a current category, updating its entry in categoryMap.
- *
- * @param {int} id ID of category to capture state for
- */
-FactoryModel.prototype.captureState = function(id) {
-  if (!id) {  // Never want to capture state for null
-    return;
-  }
-  this.xmlMap[id] = Blockly.Xml.workspaceToDom(toolboxWorkspace);
-};
+
 /**
  * Returns the xml to load a given category by name
  *
@@ -149,6 +179,8 @@ FactoryModel.prototype.getXmlById = function(id) {
 
 /**
  * Return ordered list category names.
+ *
+ * @return {!Array<!string>} ordered list of category names
  */
 FactoryModel.prototype.getCategoryList = function() {
   return this.categoryList;
@@ -173,13 +205,16 @@ FactoryModel.prototype.getId = function(name) {
  * @param {int} id ID of category to be updated
  */
 FactoryModel.prototype.changeCategoryName = function (newName, id) {
-  for (var i=0; i<this.categoryList.length; i++) {
+  // Find category in categoryList.
+  for (var i = 0; i < this.categoryList.length; i++) {
     if (this.getId(this.categoryList[i]) == id) {
       this.categoryList[i] = newName;
       break;
     }
   }
+  // Add idMap entry for new name.
   this.idMap[newName] = id;
+  // Remove old idMap entry.
   for (var catName in this.idMap) {
     if (this.idMap[catName] == id) {
       delete this.idMap[catName];
@@ -199,9 +234,11 @@ FactoryModel.prototype.changeCategoryName = function (newName, id) {
  * @param {!string} name2 name of second category to be swapped
  */
 FactoryModel.prototype.swapCategoryId = function (id1, id2, name1, name2) {
+  // Swap stored XML.
   var temp = this.xmlMap[id1];
   this.xmlMap[id1] = this.xmlMap[id2];
   this.xmlMap[id2] = temp;
+  // Swap stored IDs.
   this.idMap[name1] = id2;
   this.idMap[name2] = id1;
 };
@@ -213,7 +250,8 @@ FactoryModel.prototype.swapCategoryId = function (id1, id2, name1, name2) {
  * @param name2 Name of second category to swap
  */
 FactoryModel.prototype.swapCategoryOrder = function(name1, name2) {
-  for (var i=0; i<this.categoryList.length; i++) {
+  // Find the locations of the categories in the list.
+  for (var i = 0; i < this.categoryList.length; i++) {
     if (this.categoryList[i] == name1) {
       var index1 = i;
     }
@@ -221,6 +259,7 @@ FactoryModel.prototype.swapCategoryOrder = function(name1, name2) {
       var index2 = i;
     }
   }
+  // Swap the locations of the categories in the list.
   this.categoryList[index1] = name2;
   this.categoryList[index2] = name1;
 };

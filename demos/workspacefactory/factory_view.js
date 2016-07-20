@@ -24,16 +24,22 @@ FactoryView = function(){
  *
  * @param {!string} name The name of the category being created
  * @param {!string} id ID of category being created
+ * @param {boolean} firstCategory true if it's the first category, false
+ * otherwise
  * @return {!Element} DOM element created for tab
  */
-FactoryView.prototype.addCategoryRow = function(name, id) {
-  // Create tab.
+FactoryView.prototype.addCategoryRow = function(name, id, firstCategory) {
   var table = document.getElementById('categoryTable');
+  // Delete help label if it's the first category created.
+  if (firstCategory) {
+    table.deleteRow(0);
+  }
+  // Create tab.
   var count = table.rows.length;
   var row = table.insertRow(count);
   var nextEntry = row.insertCell(0);
   // Configure tab.
-  nextEntry.id = "tab_" + name;
+  nextEntry.id = this.createCategoryIdName(name);
   nextEntry.textContent = name;
   // Store tab.
   this.tabMap[id] = table.rows[count].cells[0];
@@ -44,21 +50,41 @@ FactoryView.prototype.addCategoryRow = function(name, id) {
 /**
  * Deletes a category tab from the UI and updates tabMap accordingly.
  *
- * @param {!string} name The name of the category to be deleted
  * @param {!string} id ID of category to be deleted
+ * @return {!string} name of category being deleted.
  */
-FactoryView.prototype.deleteCategoryRow = function(name, id) {
+FactoryView.prototype.deleteCategoryRow = function(id) {
+  // Get name of category.
+  var name = this.tabMap[id].textContent;
+  // Delete tab entry.
   delete this.tabMap[id];
+  // Find tab row.
   var table = document.getElementById('categoryTable');
   var count = table.rows.length;
-  for (var i=0; i<count; i++) {
+  for (var i = 0; i < count; i++) {
     var row = table.rows[i];
-    if (row.cells[0].childNodes[0].textContent == name) {
+    // Delete tab row.
+    if (row.cells[0].id == this.createCategoryIdName(name)) {
       table.deleteRow(i);
-      return;
+      // If last category removed, add category help text.
+      if (count == 1) {
+        var row = table.insertRow(0);
+        row.textContent = 'Your categories will appear here';
+      }
+      return name;
     }
   }
 };
+
+/**
+ * Determines the DOM id for a category given its name.
+ *
+ * @param {!string} name Name of category
+ * @return {!string} ID of category tab
+ */
+FactoryView.prototype.createCategoryIdName = function(name) {
+  return 'tab_' + name;
+}
 
 /**
  * Switches a tab on or off.
@@ -68,6 +94,9 @@ FactoryView.prototype.deleteCategoryRow = function(name, id) {
  * off
  */
 FactoryView.prototype.setCategoryTabSelection = function(id, selected) {
+  if (!this.tabMap[id]) {
+    return;
+  }
   this.tabMap[id].className = selected ? 'tabon' : 'taboff';
 };
 
@@ -90,13 +119,10 @@ FactoryView.prototype.bindClick = function(el, func) {
  * Creates a file and downloads it. In some browsers downloads, and in other
  * browsers, opens new tab with contents.
  *
- * @param {!string} contents material to be written to file
  * @param {!string} filename Name of file
- * @param {!string} fileType Type of file to be downloaded
+ * @param {!Blob} data Blob containing contents to download
  */
-FactoryView.prototype.createAndDownloadFile = function(contents, filename,
-    fileType) {
-   var data = new Blob([contents], {type: 'text/' + fileType});
+FactoryView.prototype.createAndDownloadFile = function(filename, data) {
    var clickEvent = new MouseEvent("click", {
      "view": window,
      "bubbles": true,
@@ -119,6 +145,7 @@ FactoryView.prototype.createAndDownloadFile = function(contents, filename,
  */
 FactoryView.prototype.updateCategoryName = function(newName, id) {
   this.tabMap[id].textContent = newName;
+  this.tabMap[id].id = this.createCategoryIdName(newName);
 };
 
 /**
@@ -136,6 +163,7 @@ FactoryView.prototype.updateCategoryName = function(newName, id) {
  * with. Null if there is no valid category to swap.
  */
 FactoryView.prototype.swapCategories = function(currID, swapUp) {
+  // Find tabs to swap.
   var currTab = this.tabMap[currID];
   var currName = currTab.textContent;
   var currIndex = currTab.parentNode.rowIndex;
@@ -146,10 +174,14 @@ FactoryView.prototype.swapCategories = function(currID, swapUp) {
   }
   var swapTab = table.rows[swapIndex].cells[0];
   var swapName = swapTab.textContent;
-  // Adjust text content of tabs.
+  // Adjust text content and IDs of tabs.
   swapTab.textContent = currName;
+  swapTab.id = this.createCategoryIdName(currName);
   currTab.textContent = swapName;
+  currTab.id = this.createCategoryIdName(swapName);
+  // Unselect tab currently on (now refers to the swapped category).
   this.setCategoryTabSelection(currID,false);
+  // Return name of swapped categories in object.
   return {
     curr: currName,
     swap: swapName

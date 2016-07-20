@@ -24,7 +24,7 @@ FactoryGenerator = function(model, toolboxWorkspace) {
  * @param {!Array.<!Blockly.Block>} topBlocks top level blocks to add to xmlDom
  */
 FactoryGenerator.prototype.categoryWorkspaceToDom = function(xmlDom, blocks) {
-  for (var i=0, block; block=blocks[i]; i++) {
+  for (var i  =0, block; block = blocks[i]; i++) {
     var blockChild = Blockly.Xml.blockToDom(block);
     blockChild.removeAttribute('id');
     xmlDom.appendChild(blockChild);
@@ -45,33 +45,41 @@ FactoryGenerator.prototype.categoryWorkspaceToDom = function(xmlDom, blocks) {
  * to toolbox workspace.
  */
 FactoryGenerator.prototype.generateConfigXml = function() {
+  // Create DOM for XML.
   var xmlDom = goog.dom.createDom('xml',
       {
         'id' : 'toolbox',
         'style' : 'display:none'
       });
-  if (!this.model.getSelectedId()) {
-    FactoryGenerator.categoryWorkspaceToDom(xmlDom,
+  // If no categories, use XML directly from workspace
+  if (!this.model.hasCategories()) {
+    this.categoryWorkspaceToDom(xmlDom,
         toolboxWorkspace.getTopBlocks());
   }
   else {
     // Capture any changes made by user before generating xml.
-    this.model.captureState(this.model.getSelectedId(), this.toolboxWorkspace);
+    this.model.saveCategoryEntry(this.model.getSelectedId(),
+        this.toolboxWorkspace);
     var categoryList = this.model.getCategoryList();
-    for (var i=0; i<categoryList.length; i++) {
+    // Iterate through each category to generate XML for each.
+    for (var i = 0; i < categoryList.length; i++) {
+      // Create category DOM element.
       var category = categoryList[i];
       var categoryElement = goog.dom.createDom('category');
       categoryElement.setAttribute('name',category);
+      // Load that category to workspace.
       this.toolboxWorkspace.clear();
       Blockly.Xml.domToWorkspace(this.model.getXmlByName(category),
           this.toolboxWorkspace);
+      // Generate XML for that category, append to DOM for all XML
       this.categoryWorkspaceToDom(categoryElement,
           this.toolboxWorkspace.getTopBlocks());
       xmlDom.appendChild(categoryElement);
     }
+    // Load category user was working on.
+    this.toolboxWorkspace.clear();
+    Blockly.Xml.domToWorkspace(this.model.getXmlById(this.model.getSelectedId()),
+        this.toolboxWorkspace);
   }
-  this.toolboxWorkspace.clear();
-  Blockly.Xml.domToWorkspace(this.model.getXmlById(this.model.getSelectedId()),
-      this.toolboxWorkspace);
   return xmlDom;
  }
