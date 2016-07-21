@@ -157,7 +157,7 @@ Speech.runCode = function() {
       var localRecognizer = Speech.createSpeechRecognizer();
       localRecognizer.onresult = function() {
         var speechResult = event.results[0][0].transcript;
-        speech.logMessage(myInterpreter, 'You said: \"' + speechResult + '\"');
+        Speech.logMessage(myInterpreter, 'You said: \"' + speechResult + '\"');
         callback(myInterpreter.createPrimitive(speechResult));
       };
       localRecognizer.onnomatch = function() {
@@ -205,7 +205,8 @@ Speech.runCode = function() {
     var pauseWrapper = function(time,callback) {
       time = time ? time.toString() : '';
       var timeVar = parseInt(time);
-      Speech.logMessage('Paused for ' + (timeVar/1000) + ' seconds');
+      Speech.logMessage(myInterpreter, 'Paused for ' + (timeVar/1000) +
+          ' seconds');
       var resume = function() {
         callback();
       };
@@ -284,8 +285,9 @@ Speech.runCode = function() {
         Speech.msg.text = wordsToSay;
         window.speechSynthesis.speak(Speech.msg);
       } else {
-        Speech.logMessage('speechSynthesis not found. Text to speech capability'
-          + 'under Web Speech API not supported.');
+        Speech.logMessage(myInterpreter,
+            'speechSynthesis not found. Text to speech capability'
+            + 'under Web Speech API not supported.');
       }
       Speech.msg.onend = function(e) {
         callback();
