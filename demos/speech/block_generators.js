@@ -4,7 +4,7 @@
  * wrappers for the JS-Interpreter and helper functions in speech.js, and
  * the configuration for the blocks is in blocks.js.
  *
- * @author edauterman, quacht
+ * @author Emma Dauterman (evd2014), Tina Quach (quachtina96)
  */
 
 /**
@@ -28,7 +28,6 @@ Blockly.JavaScript['listen_bool'] = function(block) {
   var textWord = Blockly.JavaScript.valueToCode(block, 'WORD',
       Blockly.JavaScript.ORDER_ATOMIC);
   Speech.addRecognizableWord(textWord);
-  window.console.log(textWord + ' ' + Speech.formatText(textWord));
   var code = 'listen_branch(' + Speech.formatText(textWord) + ')';
   return [code, Blockly.JavaScript.ORDER_ATOMIC];
 };
@@ -57,7 +56,7 @@ Blockly.JavaScript['display_img'] = function(block) {
 Blockly.JavaScript['display_pause'] = function(block) {
   var valueTime = Blockly.JavaScript.valueToCode(block, 'TIME',
       Blockly.JavaScript.ORDER_ATOMIC);
-  valueTime *= 1000;  //milliseconds to seconds
+  valueTime *= 1000;  // Milliseconds to seconds
   var code = 'pause('+valueTime+');\n';
   return code;
 };
@@ -69,8 +68,8 @@ Blockly.JavaScript['display_update_text'] = function(block) {
   var valueUpdateText = Blockly.JavaScript.valueToCode(block, 'UPDATE_TEXT',
      Blockly.JavaScript.ORDER_ATOMIC);
   var dropdownName = block.getFieldValue('WRITETYPE');
-  //line spacing and indentation used here to correctly format
-  //generated code
+  // Line spacing and indentation used here to correctly format
+  // generated code.
   var code = 'if(' + Blockly.JavaScript.quote_(dropdownName) +
       ' == "REPLACE") {\n' +
       '  clearText("textArea");\n' +
