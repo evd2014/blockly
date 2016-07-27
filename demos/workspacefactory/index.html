@@ -52,6 +52,7 @@ goog.require('goog.ui.ColorPicker');
     <div id="dropdown_add" class="dropdown-content">
       <a id='dropdown_newCategory'>New Category</a>
       <a id='dropdown_loadCategory'>Standard Category</a>
+      <a id='dropdown_separator'>Separator</a>
     </div>
     </div>
     <button id="button_remove">-</button>
@@ -479,8 +480,12 @@ goog.require('goog.ui.ColorPicker');
     controller.loadCategory();
     document.getElementById('dropdown_add').classList.remove("show");
   };
+  var separatorWrapper = function() {
+    controller.addSeparator();
+    document.getElementById('dropdown_add').classList.remove("show");
+  };
   var removeWrapper = function() {
-    controller.removeCategory();
+    controller.removeElement();
   };
   var exportWrapper = function() {
     controller.exportConfig();
@@ -489,10 +494,10 @@ goog.require('goog.ui.ColorPicker');
     controller.printConfig();
   };
   var upWrapper = function() {
-    controller.moveCategory(-1);
+    controller.moveElement(-1);
   };
   var downWrapper = function() {
-    controller.moveCategory(1);
+    controller.moveElement(1);
   };
   var editWrapper = function() {
     document.getElementById('dropdown_edit').classList.toggle("show");
@@ -508,6 +513,8 @@ goog.require('goog.ui.ColorPicker');
       ('click', newCategoryWrapper);
   document.getElementById('dropdown_loadCategory').addEventListener
       ('click', loadCategoryWrapper);
+  document.getElementById('dropdown_separator').addEventListener
+      ('click', separatorWrapper);
   document.getElementById('button_remove').addEventListener
       ('click', removeWrapper);
   document.getElementById('button_export').addEventListener

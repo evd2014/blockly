@@ -51,7 +51,7 @@ FactoryView.prototype.addCategoryRow = function(name, id, firstCategory) {
  * @param {!string} id ID of category to be deleted.
  * @param {!string} name The name of the category to be deleted.
  */
-FactoryView.prototype.deleteCategoryRow = function(id, index) {
+FactoryView.prototype.deleteElementRow = function(id, index) {
   // Delete tab entry.
   delete this.tabMap[id];
   // Delete tab row.

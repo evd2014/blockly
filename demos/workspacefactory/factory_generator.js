@@ -58,7 +58,7 @@ FactoryGenerator.prototype.generateConfigXml = function() {
       throw new Error('Selected is null when there are categories');
     }
     // Capture any changes made by user before generating xml.
-    this.model.saveCategoryEntry(this.model.getSelected(),
+    this.model.saveCategoryInList(this.model.getSelected(),
         this.toolboxWorkspace);
     var categoryList = this.model.getCategoryList();
     // Iterate through each category to generate XML for each. Load each
@@ -66,24 +66,29 @@ FactoryGenerator.prototype.generateConfigXml = function() {
     // also captured as block groups in the flyout.
     for (var i = 0; i < categoryList.length; i++) {
       // Create category DOM element.
-      var category = categoryList[i];
-      var categoryElement = goog.dom.createDom('category');
-      categoryElement.setAttribute('name', category.name);
-      // Add a colour attribute if one exists.
-      if (category.color != null) {
-        categoryElement.setAttribute('colour', category.color);
+      var element = categoryList[i];
+      if (element.type == ListElement.SEPARATOR) {
+        var sepElement = goog.dom.createDom('sep');
+        xmlDom.appendChild(sepElement);
+      } else {
+        var categoryElement = goog.dom.createDom('category');
+        categoryElement.setAttribute('name', element.name);
+        // Add a colour attribute if one exists.
+        if (element.color != null) {
+          categoryElement.setAttribute('colour', element.color);
+        }
+        // Add a custom attribute if one exists.
+        if (element.custom != null) {
+          categoryElement.setAttribute('custom', element.custom);
+        }
+        // Load that category to workspace.
+        this.toolboxWorkspace.clear();
+        Blockly.Xml.domToWorkspace(element.xml, this.toolboxWorkspace);
+        // Generate XML for that category, append to DOM for all XML.
+        this.categoryWorkspaceToDom(categoryElement,
+            this.toolboxWorkspace.getTopBlocks());
+        xmlDom.appendChild(categoryElement);
       }
-      // Add a custom attribute if one exists.
-      if (category.custom != null) {
-        categoryElement.setAttribute('custom', category.custom);
-      }
-      // Load that category to workspace.
-      this.toolboxWorkspace.clear();
-      Blockly.Xml.domToWorkspace(category.xml, this.toolboxWorkspace);
-      // Generate XML for that category, append to DOM for all XML.
-      this.categoryWorkspaceToDom(categoryElement,
-          this.toolboxWorkspace.getTopBlocks());
-      xmlDom.appendChild(categoryElement);
     }
     // Load category user was working on.
     this.toolboxWorkspace.clear();
