@@ -1,8 +1,10 @@
 /**
  * @fileoverview Stores and updates information about state and categories
- * in workspace factory. Each category has a name, XML to load that category,
- * and a unique ID making it possible to change category names and move
- * categories easily. Also keeps track of the currently selected category.
+ * in workspace factory. Each list element is either a separator or a category,
+ * and each category stores its name, XML to load that category, color,
+ * custom tags, and a unique ID making it possible to change category names and
+ * move categories easily. Also keeps track of the currently selected list
+ * element.
  *
  * @author Emma Dauterman (evd2014)
  */
@@ -12,11 +14,17 @@
  * @constructor
  */
 FactoryModel = function() {
-  // Ordered list of Category objects.
-  this.categoryList = [];
+  // Ordered list of ListElement objects.
+  this.toolboxList = [];
+  // String name of current selected list element, null if no list elements.
+  this.selected = null;
+  // Boolean for if a Variable category has been added.
+  this.hasVariableCategory = false;
+  // Boolean for if a Procedure category has been added.
+  this.hasProcedureCategory = false;
 };
 
-// String name of current selected category, null if no categories
+// String name of current selected list element, null if no list elements.
 FactoryModel.prototype.selected = null;
 
 /**
@@ -27,96 +35,141 @@ FactoryModel.prototype.selected = null;
  * @return {boolean} True if string is a used category name, false otherwise.
  */
 FactoryModel.prototype.hasCategoryByName = function(name) {
-  for (var i = 0; i < this.categoryList.length; i++) {
-    if (this.categoryList[i].name == name) {
-        return true;
+  for (var i = 0; i < this.toolboxList.length; i++) {
+    if (this.toolboxList[i].type == ListElement.CATEGORY &&
+        this.toolboxList[i].name == name) {
+      return true;
     }
   }
   return false;
 };
 
 /**
- * Determines if the user has any categories. Uses the length of categoryList.
+ * Determines if a category with the 'VARIABLE' tag exists.
+ *
+ * @return {boolean} True if there exists a category with the Variables tag,
+ * false otherwise.
+ */
+FactoryModel.prototype.hasVariables = function() {
+  return this.hasVariableCategory;
+};
+
+/**
+ * Determines if a category with the 'PROCEDURE' tag exists.
+ *
+ * @return {boolean} True if there exists a category with the Procedures tag,
+ * false otherwise.
+ */
+FactoryModel.prototype.hasProcedures = function() {
+  return this.hasFunctionCategory;
+};
+
+/**
+ * Determines if the user has any elements in the toolbox. Uses the length of
+ * toolboxList.
  *
  * @return {boolean} True if categories exist, false otherwise.
  */
-FactoryModel.prototype.hasCategories = function() {
-  return this.categoryList.length > 0;
+FactoryModel.prototype.hasToolbox = function() {
+  return this.toolboxList.length > 0;
 };
 
 /**
  * Adds an empty category entry, updating state variables accordingly. Generates
- * the unique ID for the category and adds the category at the end of the list.
+ * the unique ID for the category and adds the category to the end of the list.
  *
  * @param {string} name The name of category to be added.
+ * @return {!string} The ID of the category added.
  */
-FactoryModel.prototype.addNewCategoryEntry = function(name) {
-  this.categoryList.push(new Category(name));
+FactoryModel.prototype.addCategoryToList = function(name) {
+  // Create element.
+  var category = new ListElement(ListElement.CATEGORY, name);
+  // Check if need to update flags.
+  this.hasVariableCategory = category.custom == 'VARIABLE' ? true :
+      this.hasVariableCategory;
+  this.hasProcedureCategory = category.custom == 'PROCEDURE' ? true :
+      this.hasProcedureCategory;
+  // Add element to list and return ID.
+  this.toolboxList.push(category);
+  return category.id;
 };
 
 /**
- * Deletes a category entry and all associated data given a category name.
+ * Given an index, deletes a list element and all associated data.
  *
- * @param {int} index The index of the category to delete.
+ * @param {int} index The index of the list element to delete.
  */
-FactoryModel.prototype.deleteCategoryEntry = function(index) {
-  if (index < 0 || index > this.categoryList.length) {
+FactoryModel.prototype.deleteElementFromList = function(index) {
+  // Check if index is out of bounds.
+  if (index < 0 || index >= this.toolboxList.length) {
     return; // No entry to delete.
   }
-  this.categoryList.splice(index, 1);
+  // Check if need to update flags.
+  this.hasVariableCategory = this.toolboxList[index].custom == 'VARIABLE' ?
+      false : this.hasVariableCategory;
+  this.hasProcedureCategory = this.toolboxList[index].custom == 'PROCEDURE' ?
+      false : this.hasProcedureCategory;
+  // Remove element.
+  this.toolboxList.splice(index, 1);
 };
 
 /**
- * Saves the current category by updating its XML.
+ * Saves the current category by updating its XML (does not save XML for
+ * elements that are not categories).
  *
- * @param {Category} category The Category object to save.
+ * @param {ListElement} category The Category object to save.
  * @param {Blockly.workspace} workspace The workspace to save category entry
  * from.
  */
-FactoryModel.prototype.saveCategoryEntry = function(category, workspace) {
-  // Only save category entries for valid IDs.
-  if (!category) {
+FactoryModel.prototype.saveCategoryInList = function(category, workspace) {
+  // Only save list elements that are categories.
+  if (!category || category.type != ListElement.CATEGORY) {
     return;
   }
   category.xml = Blockly.Xml.workspaceToDom(workspace);
 };
 
 /**
- * Changes the name of a category object given a new name.
+ * Changes the name of a category object given a new name. Returns if
+ * category is null or not a category.
  *
  * @param {string} newName New name of category.
- * @param {Category} category The category to be updated.
+ * @param {ListElement} category The category to be updated.
  */
 FactoryModel.prototype.changeCategoryName = function (newName, category) {
+  // Only update list elements that are categories.
+  if (!category || category.type != ListElement.CATEGORY) {
+    return;
+  }
   category.name = newName;
 };
 
 /**
- * Moves a category to a certain position in categoryList by removing it
+ * Moves a list element to a certain position in toolboxList by removing it
  * and then inserting it at the correct index. Checks that indices are in
  * bounds (throws error if not), but assumes that oldIndex is the correct index
- * for category.
+ * for list element.
  *
- * @param {!Category} category The category to move in categoryList.
- * @param {int} newIndex The index to insert the category at.
- * @param {int} oldIndex The index the category is currently at.
+ * @param {!ListElement} element The element to move in toolboxList.
+ * @param {int} newIndex The index to insert the element at.
+ * @param {int} oldIndex The index the element is currently at.
  */
-FactoryModel.prototype.moveCategoryToIndex = function(category, newIndex,
+FactoryModel.prototype.moveElementToIndex = function(element, newIndex,
     oldIndex) {
   // Check that indexes are in bounds.
-  if (newIndex < 0 || newIndex >= this.categoryList.length || oldIndex < 0 ||
-      oldIndex >= this.categoryList.length) {
-    throw new Error('Index out of bounds when moving category in the model.');
+  if (newIndex < 0 || newIndex >= this.toolboxList.length || oldIndex < 0 ||
+      oldIndex >= this.toolboxList.length) {
+    throw new Error('Index out of bounds when moving element in the model.');
   }
-  this.deleteCategoryEntry(oldIndex);
-  this.categoryList.splice(newIndex, 0, category);
+  this.deleteElementFromList(oldIndex);
+  this.toolboxList.splice(newIndex, 0, element);
 }
 
 /**
- * Returns the ID of the currently selected category. Returns null if there are
+ * Returns the ID of the currently selected element. Returns null if there are
  * no categories (if selected == null).
  *
- * @return {string} The ID of the category currently selected.
+ * @return {string} The ID of the element currently selected.
  */
 FactoryModel.prototype.getSelectedId = function() {
   return this.selected ? this.selected.id : null;
@@ -124,7 +177,8 @@ FactoryModel.prototype.getSelectedId = function() {
 
 /**
  * Returns the name of the currently selected category. Returns null if there
- * are no categories (if selected == null).
+ * are no categories (if selected == null) or the selected element is not
+ * a category (in which case its name is null).
  *
  * @return {string} The name of the category currently selected.
  */
@@ -133,88 +187,89 @@ FactoryModel.prototype.getSelectedName = function() {
 };
 
 /**
- * Returns the currently selected category object.
+ * Returns the currently selected list element object.
  *
- * @return {Category} The currently selected category.
+ * @return {ListElement} The currently selected ListElement
  */
 FactoryModel.prototype.getSelected = function() {
   return this.selected;
 };
 
 /**
- * Sets category currently selected by id.
+ * Sets list element currently selected by id.
  *
- * @param {string} id ID of category that should now be selected.
+ * @param {string} id ID of list element that should now be selected.
  */
 FactoryModel.prototype.setSelectedById = function(id) {
-  this.selected = this.getCategoryById(id);
+  this.selected = this.getElementById(id);
 };
 
 /**
- * Given an ID of a category, returns the index of that category in
- * categoryList. Returns -1 if ID is not present.
+ * Given an ID of a list element, returns the index of that list element in
+ * toolboxList. Returns -1 if ID is not present.
  *
- * @param {!string} id The ID of category to search for.
- * @return {int} The index of category in categoryList, or -1 if it doesn't
- * exist.
+ * @param {!string} id The ID of list element to search for.
+ * @return {int} The index of the list element in toolboxList, or -1 if it
+ * doesn't exist.
  */
 
-FactoryModel.prototype.getIndexByCategoryId = function(id) {
-  for (var i = 0; i < this.categoryList.length; i++) {
-    if (this.categoryList[i].id == id) {
+FactoryModel.prototype.getIndexByElementId = function(id) {
+  for (var i = 0; i < this.toolboxList.length; i++) {
+    if (this.toolboxList[i].id == id) {
       return i;
     }
   }
-  return -1;  // ID not present in categoryList.
+  return -1;  // ID not present in toolboxList.
 };
 
 /**
- * Given the ID of a category, returns that Category object.
+ * Given the ID of a list element, returns that ListElement object.
  *
- * @param {!string} id The ID of category to search for.
- * @return {Category} Corresponding category object in categoryList, or null
- * if that category does not exist.
+ * @param {!string} id The ID of element to search for.
+ * @return {ListElement} Corresponding ListElement object in toolboxList, or
+ * null if that element does not exist.
  */
 
-FactoryModel.prototype.getCategoryById = function(id) {
-  for (var i = 0; i < this.categoryList.length; i++) {
-    if (this.categoryList[i].id == id) {
-      return this.categoryList[i];
+FactoryModel.prototype.getElementById = function(id) {
+  for (var i = 0; i < this.toolboxList.length; i++) {
+    if (this.toolboxList[i].id == id) {
+      return this.toolboxList[i];
     }
   }
-  return null;  // ID not present in categoryList.
+  return null;  // ID not present in toolboxList.
 };
 
 /**
- * Given the index of a category in categoryList, returns that Category object.
+ * Given the index of a list element in toolboxList, returns that ListElement
+ * object.
  *
- * @param {int} index The index of the category to return.
- * @return {Category} The corresponding category object in categoryList.
+ * @param {int} index The index of the element to return.
+ * @return {ListElement} The corresponding ListElement object in toolboxList.
  */
-FactoryModel.prototype.getCategoryByIndex = function(index) {
-  if (index < 0 || index >= this.categoryList.length) {
+FactoryModel.prototype.getElementByIndex = function(index) {
+  if (index < 0 || index >= this.toolboxList.length) {
     return null;
   }
-  return this.categoryList[index];
+  return this.toolboxList[index];
 };
 
 /**
- * Returns the xml to load the selected category.
+ * Returns the xml to load the selected element.
  *
- * @return {!Element} The XML of the selected category, or null if there is
- * no selected category.
+ * @return {!Element} The XML of the selected element, or null if there is
+ * no selected element.
  */
 FactoryModel.prototype.getSelectedXml = function() {
   return this.selected ? this.selected.xml : null;
 };
 
 /**
- * Return ordered list Category objects.
+ * Return ordered list of ListElement objects.
  *
- * @return {!Array<!Category>} ordered list of Category objects
+ * @return {!Array<!ListElement>} ordered list of ListElement objects
  */
-FactoryModel.prototype.getCategoryList = function() {
-  return this.categoryList;
+FactoryModel.prototype.getToolboxList = function() {
+  return this.toolboxList;
 };
 
 /**
@@ -224,58 +279,87 @@ FactoryModel.prototype.getCategoryList = function() {
  * @return {int} ID of category
  */
 FactoryModel.prototype.getCategoryIdByName = function(name) {
-  for (var i = 0; i < this.categoryList.length; i++) {
-    if (this.categoryList[i].name == name) {
-      return this.categoryList[i].id;
+  for (var i = 0; i < this.toolboxList.length; i++) {
+    if (this.toolboxList[i].name == name) {
+      return this.toolboxList[i].id;
     }
   }
-  return null;  // Name not present in categoryList.
+  return null;  // Name not present in toolboxList.
 };
 
 /**
- * Given the ID of a category, sets the color of that category.
+ * Given the ID of a category, sets the color of that category. If tries to
+ * set the color of something other than a category, returns.
  *
  * @param {!string} id The ID of the category to update.
  * @param {!string} color The color that should be used for that category.
  */
 FactoryModel.prototype.setCategoryColorById = function (id, color) {
-  var category = this.getCategoryById(id);
+  var category = this.getElementById(id);
+  if (category.type != ListElement.CATEGORY) {
+    return;
+  }
   category.color = color;
 };
 
 /**
- * Given two categories, copies everything from the original to the copy except
- * for the ID (which must stay unique between categories). Throws an error
- * if either the original category or the category to be copied into are null.
+ * Makes a copy of the original element, adds it to the toolboxList, and
+ * returns it. Everything about the copy is identical except for its ID. Throws
+ * an error if the original element is null.
  *
- * @param {!Category} copy The category that should be changed to mirror
- * original.
- * @param {!Category} original The category that should be copied into copy.
+ * @param {!ListElement} original The category that should be copied.
+ * @return {!ListElement} The copy of original.
  */
-FactoryModel.prototype.copyCategory = function(copy, original) {
-  if (!copy || !original) {
+FactoryModel.prototype.copyElement = function(original) {
+  if (!original) {
     throw new Error('Trying to copy null category.');
   }
+  copy = new ListElement(ListElement.CATEGORY, original.name);
   // Copy all attributes except ID.
+  copy.type = original.type;
   copy.xml = original.xml;
   copy.color = original.color;
   copy.custom = original.custom;
-  copy.name = original.name;
+  // Update state if the copied category has a custom tag.
+  this.hasVariableCategory = original.custom == 'VARIABLE' ? true :
+      this.hasVariableCategory
+  this.hasProcedureCategory = original.custom == 'PROCEDURE' ? true :
+      this.hasProcedureCategory;
+  // Add copy to the category list and return it.
+  this.toolboxList.push(copy);
+  return copy;
 };
 
+
 /**
- * Class for a Category
+ * Creates a new separator, adds it to the toolbox list, and returns the ID
+ * of the separator.
+ *
+ * @return {!string} The ID of the separator added.
+ */
+FactoryModel.prototype.addSeparatorToList = function() {
+  var sep = new ListElement(ListElement.SEPARATOR);
+  this.toolboxList.push(sep);
+  return sep.id;
+}
+
+/**
+ * Class for a ListElement
  * @constructor
  */
-Category = function(name) {
-  // XML DOM element to load the category.
+ListElement = function(type, opt_name) {
+  this.type = type;
+  // XML DOM element to load the element.
   this.xml = Blockly.Xml.textToDom('<xml></xml>');
-  // Name of category. Can be changed by user.
-  this.name = name;
-  // Unique ID of category. Does not change.
+  // Name of category. Can be changed by user. Null if separator.
+  this.name = opt_name ? opt_name : null;
+  // Unique ID of element. Does not change.
   this.id = Blockly.genUid();
-  // Color of category. Default is no color.
+  // Color of category. Default is no color. Null if separator.
   this.color = null;
-  // Stores a custom tag, if necessary. Null if no custom tag.
+  // Stores a custom tag, if necessary. Null if no custom tag or separator.
   this.custom = null;
 };
+// List element types.
+ListElement.CATEGORY = 'category';
+ListElement.SEPARATOR = 'separator';

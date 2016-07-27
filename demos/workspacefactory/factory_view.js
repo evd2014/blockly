@@ -51,7 +51,7 @@ FactoryView.prototype.addCategoryRow = function(name, id, firstCategory) {
  * @param {!string} id ID of category to be deleted.
  * @param {!string} name The name of the category to be deleted.
  */
-FactoryView.prototype.deleteCategoryRow = function(id, index) {
+FactoryView.prototype.deleteElementRow = function(id, index) {
   // Delete tab entry.
   delete this.tabMap[id];
   // Delete tab row.
@@ -67,23 +67,29 @@ FactoryView.prototype.deleteCategoryRow = function(id, index) {
 };
 
 /**
- * Given the index of the currently selected category, updates the state of
- * the buttons that allow the user to edit the categories. Updates the edit
- * name and arrow buttons. Should be called when adding or removing categories
- * or when changing to a new category or when swapping to a different category.
+ * Given the index of the currently selected element, updates the state of
+ * the buttons that allow the user to edit the list elements. Updates the edit
+ * and arrow buttons. Should be called when adding or removing elements
+ * or when changing to a new element or when swapping to a different element.
  *
  * TODO(evd2014): Switch to using CSS to add/remove styles.
  *
- * @param {int} selectedIndex The index of the currently selected category.
+ * @param {ListElement} selected The currently selected element, null if no
+ * element exists so no element selected.
+ * @param {int} selectedIndex The index of the currently selected element.
  */
-FactoryView.prototype.updateState = function(selectedIndex) {
-  document.getElementById('button_edit').disabled = selectedIndex < 0;
+FactoryView.prototype.updateState = function(selected, selectedIndex) {
+  // Disable/enable editing buttons as necessary.
+  document.getElementById('button_edit').disabled = selectedIndex < 0 ||
+      selected.type != ListElement.CATEGORY;
   document.getElementById('button_remove').disabled = selectedIndex < 0;
   document.getElementById('button_up').disabled =
       selectedIndex <= 0 ? true : false;
   var table = document.getElementById('categoryTable');
   document.getElementById('button_down').disabled = selectedIndex >=
       table.rows.length - 1 || selectedIndex < 0 ? true : false;
+  // Disable/enable the workspace as necessary.
+  this.disableWorkspace(this.shouldDisableWorkspace(selected));
 };
 
 /**
@@ -198,4 +204,48 @@ FactoryView.prototype.setBorderColor = function(id, color) {
   tab.style.borderLeftWidth = "8px";
   tab.style.borderLeftStyle = "solid";
   tab.style.borderColor = color;
-}
+};
+
+/**
+ * Given a separator ID, creates a corresponding tab in the view, updates
+ * tab map, and returns the tab.
+ *
+ * @param {!string} id The ID of the separator.
+ * @param {!Element} The td DOM element representing the separator.
+ */
+FactoryView.prototype.addSeparatorTab = function(id) {
+  // Create separator.
+  var table = document.getElementById('categoryTable');
+  var count = table.rows.length;
+  var row = table.insertRow(count);
+  var nextEntry = row.insertCell(0);
+  // Configure separator.
+  nextEntry.style.height = '10px';
+  // Store and return separator.
+  this.tabMap[id] = table.rows[count].cells[0];
+  return nextEntry;
+};
+
+/**
+ * Disables or enables the workspace by putting a div over or under the
+ * toolbox workspace, depending on the value of disable. Used when switching
+ * to/from separators where the user shouldn't be able to drag blocks into
+ * the workspace.
+ *
+ * @param {boolean} disable True if the workspace should be disabled, false
+ * if it should be enabled.
+ */
+FactoryView.prototype.disableWorkspace = function(disable) {
+  document.getElementById('disable_div').style.zIndex = disable ? 1 : -1;
+};
+
+/**
+ * Determines if the workspace should be disabled. The workspace should be
+ * disabled if category is a separator or has VARIABLE or PROCEDURE tags.
+ *
+ * @return {boolean} True if the workspace should be disabled, false otherwise.
+ */
+FactoryView.prototype.shouldDisableWorkspace = function(category) {
+  return category != null && (category.type == ListElement.SEPARATOR ||
+      category.custom == 'VARIABLE' || category.custom == 'PROCEDURE');
+};
