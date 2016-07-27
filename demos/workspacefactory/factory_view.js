@@ -68,27 +68,28 @@ FactoryView.prototype.deleteElementRow = function(id, index) {
 };
 
 /**
- * Given the index of the currently selected category, updates the state of
- * the buttons that allow the user to edit the categories. Updates the edit
- * name and arrow buttons. Should be called when adding or removing categories
- * or when changing to a new category or when swapping to a different category.
+ * Given the index of the currently selected element, updates the state of
+ * the buttons that allow the user to edit the list elements. Updates the edit
+ * and arrow buttons. Should be called when adding or removing elements
+ * or when changing to a new element or when swapping to a different element.
  *
  * TODO(evd2014): Switch to using CSS to add/remove styles.
  *
  * @param {int} selectedIndex The index of the currently selected category,
  * -1 if no categories created.
- * @param {!string} selectedType The type of the selected ListElement.
- * ListElement.TYPE_CATEGORY or ListElement.TYPE_SEPARATOR.
+ * @param {ListElement} selected The selected ListElement.
  */
-FactoryView.prototype.updateState = function(selectedIndex, selectedType) {
-  document.getElementById('button_edit').disabled = selectedIndex < 0 ||
-      selectedType != ListElement.TYPE_CATEGORY;
+FactoryView.prototype.updateState = function(selectedIndex, selected) {
+  document.getElementById('button_editCategory').disabled = selectedIndex < 0 ||
+      selected.type != ListElement.TYPE_CATEGORY;
   document.getElementById('button_remove').disabled = selectedIndex < 0;
   document.getElementById('button_up').disabled =
       selectedIndex <= 0 ? true : false;
   var table = document.getElementById('categoryTable');
   document.getElementById('button_down').disabled = selectedIndex >=
       table.rows.length - 1 || selectedIndex < 0 ? true : false;
+  // Disable/enable the workspace as necessary.
+  this.disableWorkspace(this.shouldDisableWorkspace(selected));
 };
 
 /**
@@ -237,3 +238,55 @@ FactoryView.prototype.addSeparatorTab = function(id) {
 FactoryView.prototype.disableWorkspace = function(disable) {
   document.getElementById('disable_div').style.zIndex = disable ? 1 : -1;
 };
+
+/**
+ * Determines if the workspace should be disabled. The workspace should be
+ * disabled if category is a separator or has VARIABLE or PROCEDURE tags.
+ *
+ * @return {boolean} True if the workspace should be disabled, false otherwise.
+ */
+FactoryView.prototype.shouldDisableWorkspace = function(category) {
+  return category != null && (category.type == ListElement.SEPARATOR ||
+      category.custom == 'VARIABLE' || category.custom == 'PROCEDURE');
+};
+
+/**
+ * Given a set of blocks currently loaded user-generated shadow blocks, visually
+ * marks them without making them actual shadow blocks (allowing them to still
+ * be editable and movable).
+ *
+ * @param {!<Blockly.Block>} blocks Array of user-generated shadow blocks
+ * currently loaded.
+ */
+FactoryView.prototype.markShadowBlocks = function(blocks) {
+  for (var i = 0; i < blocks.length; i++) {
+    this.markShadowBlock(blocks[i]);
+  }
+};
+
+/**
+ * Visually marks a user-generated shadow block as a shadow block in the
+ * workspace without making the block an actual shadow block (allowing it
+ * to be moved and edited).
+ *
+ * @param {!Blockly.Block} block The block that should be marked as a shadow
+ *    block (must be rendered).
+ */
+FactoryView.prototype.markShadowBlock = function(block) {
+  // Add Blockly CSS for user-generated shadow blocks.
+  Blockly.addClass_(block.svgGroup_, 'shadowBlock');
+};
+
+/**
+ * Removes visual marking for a shadow block given a rendered block.
+ *
+ * @param {!Blockly.Block} block The block that should be unmarked as a shadow
+ *    block (must be rendered).
+ */
+FactoryView.prototype.unmarkShadowBlock = function(block) {
+  // Remove Blockly CSS for user-generated shadow blocks.
+  if (Blockly.hasClass_(block.svgGroup_, 'shadowBlock')) {
+    Blockly.removeClass_(block.svgGroup_, 'shadowBlock');
+  }
+};
+

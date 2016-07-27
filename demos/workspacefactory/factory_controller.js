@@ -32,7 +32,7 @@ FactoryController = function(toolboxWorkspace, previewWorkspace) {
   // Updates the category tabs.
   this.view = new FactoryView();
   // Generates XML for categories.
-  this.generator = new FactoryGenerator(this.model, this.toolboxWorkspace);
+  this.generator = new FactoryGenerator(this.model);
 };
 
 /**
@@ -55,9 +55,8 @@ FactoryController.prototype.addCategory = function() {
       if (!name) {  // Exit if cancelled.
         return;
       }
-      this.model.addNewCategoryEntry(name);
-      this.addCategoryToView(name, this.model.getCategoryIdByName(name), true);
-      this.model.setSelectedById(this.model.getCategoryIdByName(name));
+      this.createCategory(name, true);
+      this.model.setSelectedById(category.id);
     }
   }
   // After possibly creating a category, check again if it's the first category.
@@ -68,9 +67,7 @@ FactoryController.prototype.addCategory = function() {
     return;
   }
   // Create category.
-  this.model.addNewCategoryEntry(name);
-  this.addCategoryToView(name, this.model.getCategoryIdByName(name),
-      firstCategory);
+  this.createCategory(name, firstCategory);
   // Switch to category.
   this.switchElement(this.model.getCategoryIdByName(name));
   // Update preview.
@@ -94,7 +91,6 @@ FactoryController.prototype.createCategory = function(name, firstCategory) {
   // Create new category.
   var tab = this.view.addCategoryRow(name, category.id, firstCategory);
   this.addClickToSwitch(tab, category.id);
-
 };
 
 /**
@@ -178,6 +174,9 @@ FactoryController.prototype.promptForNewCategoryName = function(promptString) {
  * @param {!string} id ID of tab to be opened, must be valid element ID.
  */
 FactoryController.prototype.switchElement = function(id) {
+  // Disables events while switching so that Blockly delete and create events
+  // don't update the preview repeatedly.
+  Blockly.Events.disable();
   // Caches information to reload or generate xml if switching to/from element.
   // Only saves if a category is selected.
   if (this.model.getSelectedId() != null && id != null) {
@@ -185,6 +184,8 @@ FactoryController.prototype.switchElement = function(id) {
   }
   // Load element.
   this.clearAndLoadElement(id);
+  // Enable Blockly events again.
+  Blockly.Events.enable();
 };
 
 /**
@@ -218,9 +219,11 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
       this.view.disableWorkspace(true);
     }
   }
+  this.view.markShadowBlocks(this.model.getShadowBlocksInWorkspace
+        (toolboxWorkspace.getAllBlocks()));
   // Update category editing buttons.
   this.view.updateState(this.model.getIndexByElementId
-      (this.model.getSelectedId()), this.model.getSelected().type);
+      (this.model.getSelectedId()), this.model.getSelected());
 };
 
 /**
@@ -230,7 +233,7 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
 FactoryController.prototype.exportConfig = function() {
   // Generate XML.
   var configXml = Blockly.Xml.domToPrettyText
-      (this.generator.generateConfigXml());
+      (this.generator.generateConfigXml(this.toolboxWorkspace));
   // Get file name.
   var fileName = prompt("File Name: ");
   if (!fileName) { // If cancelled
@@ -247,7 +250,7 @@ FactoryController.prototype.exportConfig = function() {
  */
 FactoryController.prototype.printConfig = function() {
   window.console.log(Blockly.Xml.domToPrettyText
-      (this.generator.generateConfigXml()));
+      (this.generator.generateConfigXml(this.toolboxWorkspace)));
 };
 
 /**
@@ -263,7 +266,7 @@ FactoryController.prototype.updatePreview = function() {
   // through event handlers.
   Blockly.Events.disable();
   var tree = Blockly.Options.parseToolboxTree
-      (this.generator.generateConfigXml());
+      (this.generator.generateConfigXml(this.toolboxWorkspace));
   // No categories, creates a simple flyout.
   if (tree.getElementsByTagName('category').length == 0) {
     if (this.previewWorkspace.toolbox_) {
@@ -357,7 +360,7 @@ FactoryController.prototype.moveElement = function(offset) {
   // Indexes must be valid because confirmed that curr and swap exist.
   this.moveElementToIndex(curr, swapIndex, currIndex);
   // Update element editing buttons.
-  this.view.updateState(swapIndex, this.model.getSelected().type);
+  this.view.updateState(swapIndex, this.model.getSelected());
   // Update preview.
   this.updatePreview();
 };
@@ -411,10 +414,30 @@ FactoryController.prototype.loadCategory = function() {
     }
   } while (!this.isStandardCategoryName(name));
 
+  // Check if the user can create that standard category.
+  if (this.model.hasVariables() && name.toLowerCase() == 'variables') {
+    alert('A Variables category already exists. You cannot create multiple' +
+        ' variables categories.');
+    return;
+  }
+  if (this.model.hasProcedures() && name.toLowerCase() == 'functions') {
+    alert('A Functions category already exists. You cannot create multiple' +
+        ' functions categories.');
+    return;
+  }
+  // Check if the user can create a category with that name.
+  var standardCategory = this.standardCategories[name.toLowerCase()]
+  if (this.model.hasCategoryByName(standardCategory.name)) {
+    alert('You already have a category with the name ' + standardCategory.name
+        + '. Rename your category and try again.');
+    return;
+  }
+
   // Copy the standard category in the model.
   var standardCategory = this.standardCategories[name.toLowerCase()];
   var copy = standardCategory.copy();
   this.model.addElementToList(copy);
+
   // Update the copy in the view.
   var tab = this.view.addCategoryRow(copy.name, copy.id, this.model.getSelected() == null);
   this.addClickToSwitch(tab, copy.id);
@@ -465,4 +488,37 @@ FactoryController.prototype.addSeparator = function() {
   // Switch to the separator and update the preview.
   this.switchElement(separator.id);
   this.updatePreview();
+};
+
+/**
+ * Makes the currently selected block a user-generated shadow block. These
+ * blocks are not made into real shadow blocks, but recorded in the model
+ * and visually marked as shadow blocks, allowing the user to move and edit
+ * them (which would be impossible with actual shadow blocks). Updates the
+ * preview when done.
+ *
+ */
+FactoryController.prototype.addShadow = function() {
+  // No block selected to make a shadow block.
+  if (!Blockly.selected) {
+    return;
+  }
+  this.view.markShadowBlock(Blockly.selected);
+  this.model.addShadowBlock(Blockly.selected.id);
+  this.updatePreview();
+};
+
+/**
+ * If the currently selected block is a user-generated shadow block, this
+ * function makes it a normal block again, removing it from the list of
+ * shadow blocks and loading the workspace again. Updates the preview again.
+ *
+ */
+FactoryController.prototype.removeShadow = function() {
+  // No block selected to modify.
+  if (!Blockly.selected) {
+    return;
+  }
+  this.model.removeShadowBlock(Blockly.selected.id);
+  this.view.unmarkShadowBlock(Blockly.selected);
 };
