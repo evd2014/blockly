@@ -413,13 +413,14 @@ FactoryController.prototype.loadCategory = function() {
   var standardCategory = this.standardCategories[name.toLowerCase()];
   var copy = this.model.copyCategory(standardCategory);
   // Update the copy in the view.
-  this.addCategoryToView(copy.name, copy.id, this.model.getSelected() == null);
+  var tab = this.view.addCategoryRow(copy.name, copy.id, this.model.getSelected() == null);
+  this.addClickToSwitch(tab, copy.id);
   // Color the category tab in the view.
   if (copy.color) {
     this.view.setBorderColor(copy.id, copy.color);
   }
   // Switch to loaded category.
-  this.switchCategory(copy.id);
+  this.switchElement(copy.id);
   // Update preview.
   this.updatePreview();
 };

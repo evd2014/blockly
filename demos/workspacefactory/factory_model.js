@@ -57,7 +57,7 @@ FactoryModel.prototype.hasToolbox = function() {
  */
 FactoryModel.prototype.addCategoryToList = function(name) {
   var category = new ListElement(ListElement.CATEGORY, name);
-  this.toolboxList.push(category, name);
+  this.toolboxList.push(category);
   return category.id;
 };
 
@@ -274,12 +274,13 @@ FactoryModel.prototype.copyCategory = function(original) {
   if (!original) {
     throw new Error('Trying to copy null category.');
   }
-  copy = new Category(original.name);
+  copy = new ListElement(original.name);
   // Copy all attributes except ID.
   copy.type = original.type;
   copy.xml = original.xml;
   copy.color = original.color;
   copy.custom = original.custom;
+  copy.name = original.name;
   // Add copy to the category list and return it.
   this.toolboxList.push(copy);
   return copy;
