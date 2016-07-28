@@ -41,6 +41,7 @@ goog.require('goog.ui.ColorPicker');
   <p>Drag blocks into your toolbox</p>
   <section id="toolbox_section">
     <div id="toolbox_blocks" class="content"></div>
+    <div id='disable_div'></div>
   </section>
   <aside id="category_section">
     <table id="categoryTable">
@@ -542,11 +543,13 @@ goog.require('goog.ui.ColorPicker');
         controller.changeSelectedCategoryColor(popupPicker.getSelectedColor());
         document.getElementById('dropdown_edit').classList.remove("show");
       });
+
   // Disable category editing buttons until categories are created.
   document.getElementById('button_remove').disabled = true;
   document.getElementById('button_edit').disabled = true;
   document.getElementById('button_up').disabled = true;
   document.getElementById('button_down').disabled = true;
+
   // Listen for Blockly move and delete events to update preview.
   toolboxWorkspace.addChangeListener(function(e) {
     if (e.type == Blockly.Events.MOVE || e.type == Blockly.Events.DELETE) {

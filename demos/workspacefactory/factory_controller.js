@@ -41,7 +41,7 @@ FactoryController = function(toolboxWorkspace, previewWorkspace) {
  */
 FactoryController.prototype.addCategory = function() {
   // Check if it's the first category added.
-  var firstCategory = !this.model.hasCategories();
+  var firstCategory = !this.model.hasToolbox();
   // Give the option to save blocks if their workspace is not empty and they
   // are creating their first category.
   if (firstCategory && this.toolboxWorkspace.getAllBlocks().length > 0) {
@@ -60,7 +60,7 @@ FactoryController.prototype.addCategory = function() {
     }
   }
   // After possibly creating a category, check again if it's the first category.
-  firstCategory = !this.model.hasCategories();
+  firstCategory = !this.model.hasToolbox();
   // Get name from user.
   name = this.promptForNewCategoryName('Enter the name of your new category: ');
   if (!name) {  //Exit if cancelled.
@@ -91,7 +91,7 @@ FactoryController.prototype.createCategory = function(name, firstCategory) {
   var tab = this.view.addCategoryRow(name, this.model.getCategoryIdByName(name),
       firstCategory);
   var self = this;
-  var clickFunction = function(id) {  // Keep this in scope for switchCategory
+  var clickFunction = function(id) {  // Keep this in scope for switchElement
     return function() {
       self.switchElement(id);
     };
@@ -124,7 +124,7 @@ FactoryController.prototype.removeElement = function() {
   this.model.deleteElementFromList(selectedIndex);
   // Find next logical element to switch to.
   var next = this.model.getElementByIndex(selectedIndex);
-  if (!next && this.model.hasCategories()) {
+  if (!next && this.model.hasToolbox()) {
     next = this.model.getElementByIndex(selectedIndex - 1);
   }
   var nextId = next ? next.id : null;
@@ -163,6 +163,7 @@ FactoryController.prototype.promptForNewCategoryName = function(promptString) {
  */
 FactoryController.prototype.switchElement = function(id) {
   // Caches information to reload or generate xml if switching to/from element.
+  // Only saves if a category is selected.
   if (this.model.getSelectedId() != null && id != null) {
     this.model.saveCategoryInList(this.model.getSelected(),
         this.toolboxWorkspace);
@@ -178,24 +179,33 @@ FactoryController.prototype.switchElement = function(id) {
  * @param {!string} id ID of category to load
  */
 FactoryController.prototype.clearAndLoadElement = function(id) {
-  // Unselect current tab if switching to/from a category.
+  // Unselect current tab if switching to and from an element.
   if (this.model.getSelectedId() != null && id != null) {
     this.view.setCategoryTabSelection(this.model.getSelectedId(), false);
+  }
+  // If switching from a separator, enable workspace in view.
+  if (this.model.getSelectedId() != null && this.model.getSelected().type ==
+      ListElement.SEPARATOR) {
+    this.view.disableWorkspace(false);
   }
   // Set next category.
   this.model.setSelectedById(id);
   // Clear workspace.
   this.toolboxWorkspace.clear();
   this.toolboxWorkspace.clearUndo();
-  // Loads next category if switching to a category.
+  // Loads next category if switching to an element.
   if (id != null) {
     this.view.setCategoryTabSelection(id, true);
     Blockly.Xml.domToWorkspace(this.model.getSelectedXml(),
         this.toolboxWorkspace);
+    // Disable workspace if switching to a separator.
+    if (this.model.getSelected().type == ListElement.SEPARATOR) {
+      this.view.disableWorkspace(true);
+    }
   }
   // Update category editing buttons.
   this.view.updateState(this.model.getIndexByElementId
-      (this.model.getSelectedId()));
+      (this.model.getSelectedId()), this.model.getSelected().type);
 };
 
 /**
@@ -332,7 +342,7 @@ FactoryController.prototype.moveElement = function(offset) {
   // Indexes must be valid because confirmed that curr and swap exist.
   this.moveElementToIndex(curr, swapIndex, currIndex);
   // Update element editing buttons.
-  this.view.updateState(swapIndex);
+  this.view.updateState(swapIndex, this.model.getSelected().type);
   // Update preview.
   this.updatePreview();
 };
@@ -422,7 +432,29 @@ FactoryController.prototype.isStandardCategoryName = function(name) {
   return false;
 };
 
+/**
+ * Connected to the "add separator" dropdown option. If categories already
+ * exist, adds a separator to the model and view. Does not switch to select
+ * the separator, and updates the preview.
+ */
 FactoryController.prototype.addSeparator = function() {
-  this.model.addSeparatorToList();
-  this.view.addSeparatorTab(!this.model.hasCategories());
+  // Don't allow the user to add a separator if a category has not been created.
+  if (!this.model.hasToolbox()) {
+    alert('Add a category before adding a separator.');
+    return;
+  }
+  // Create the separator in the model.
+  var id = this.model.addSeparatorToList();
+  // Create the separator in the view.
+  var tab = this.view.addSeparatorTab(id);
+  var self = this;
+  var clickFunction = function(id) {  // Keep this in scope for switchElement.
+    return function() {
+      self.switchElement(id);
+    };
+  };
+  this.view.bindClick(tab, clickFunction(id));
+  // Switch to the separator and update the preview.
+  this.switchElement(id);
+  this.updatePreview();
 }

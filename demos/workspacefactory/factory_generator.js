@@ -49,7 +49,7 @@ FactoryGenerator.prototype.generateConfigXml = function() {
         'style' : 'display:none'
       });
   // If no categories, use XML directly from workspace
-  if (!this.model.hasCategories()) {
+  if (!this.model.hasToolbox()) {
     this.categoryWorkspaceToDom(xmlDom, this.toolboxWorkspace.getTopBlocks());
   }
   else {
@@ -60,13 +60,13 @@ FactoryGenerator.prototype.generateConfigXml = function() {
     // Capture any changes made by user before generating xml.
     this.model.saveCategoryInList(this.model.getSelected(),
         this.toolboxWorkspace);
-    var categoryList = this.model.getCategoryList();
+    var toolboxList = this.model.getToolboxList();
     // Iterate through each category to generate XML for each. Load each
     // category to make sure that all the blocks that are not top blocks are
     // also captured as block groups in the flyout.
-    for (var i = 0; i < categoryList.length; i++) {
+    for (var i = 0; i < toolboxList.length; i++) {
       // Create category DOM element.
-      var element = categoryList[i];
+      var element = toolboxList[i];
       if (element.type == ListElement.SEPARATOR) {
         var sepElement = goog.dom.createDom('sep');
         xmlDom.appendChild(sepElement);
