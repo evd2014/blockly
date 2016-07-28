@@ -86,18 +86,30 @@ FactoryController.prototype.addCategory = function() {
 
 FactoryController.prototype.createCategory = function(name, firstCategory) {
   // Create empty category
-  this.model.addCategoryToList(name);
+  var id = this.model.addCategoryToList(name);
   // Create new category.
-  var tab = this.view.addCategoryRow(name, this.model.getCategoryIdByName(name),
-      firstCategory);
+  var tab = this.view.addCategoryRow(name, id, firstCategory);
+  this.addClickToSwitch(tab, id);
+
+};
+
+/**
+ * Given a tab and a ID to be associated to that tab, adds a listener to
+ * that tab so that when the user clicks on the tab, it switches to the
+ * element associated with that ID.
+ *
+ * @param {!Element} tab The DOM element to add the listener to.
+ * @param {!string} id The ID of the element to switch to when tab is clicked.
+ */
+FactoryController.prototype.addClickToSwitch = function(tab, id) {
   var self = this;
   var clickFunction = function(id) {  // Keep this in scope for switchElement
     return function() {
       self.switchElement(id);
     };
   };
-  this.view.bindClick(tab, clickFunction(this.model.getCategoryIdByName(name)));
-}
+  this.view.bindClick(tab, clickFunction(id));
+};
 
 /**
  * Attached to "-" button. Checks if the user wants to delete
@@ -444,14 +456,8 @@ FactoryController.prototype.addSeparator = function() {
   var id = this.model.addSeparatorToList();
   // Create the separator in the view.
   var tab = this.view.addSeparatorTab(id);
-  var self = this;
-  var clickFunction = function(id) {  // Keep this in scope for switchElement.
-    return function() {
-      self.switchElement(id);
-    };
-  };
-  this.view.bindClick(tab, clickFunction(id));
+  this.addClickToSwitch(tab, id);
   // Switch to the separator and update the preview.
   this.switchElement(id);
   this.updatePreview();
-}
+};

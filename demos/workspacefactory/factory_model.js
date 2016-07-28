@@ -53,9 +53,12 @@ FactoryModel.prototype.hasToolbox = function() {
  * the unique ID for the category and adds the category to the end of the list.
  *
  * @param {string} name The name of category to be added.
+ * @return {!string} The ID of the category added.
  */
 FactoryModel.prototype.addCategoryToList = function(name) {
-  this.toolboxList.push(new ListElement(ListElement.CATEGORY, name));
+  var category = new ListElement(ListElement.CATEGORY, name);
+  this.toolboxList.push(category, name);
+  return category.id;
 };
 
 /**
