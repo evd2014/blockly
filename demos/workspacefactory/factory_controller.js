@@ -411,7 +411,7 @@ FactoryController.prototype.loadCategory = function() {
 
   // Copy the standard category in the model.
   var standardCategory = this.standardCategories[name.toLowerCase()];
-  var copy = this.model.copyCategory(standardCategory);
+  var copy = this.model.copyElement(standardCategory);
   // Update the copy in the view.
   var tab = this.view.addCategoryRow(copy.name, copy.id, this.model.getSelected() == null);
   this.addClickToSwitch(tab, copy.id);
