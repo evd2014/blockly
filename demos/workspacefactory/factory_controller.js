@@ -195,11 +195,6 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
   if (this.model.getSelectedId() != null && id != null) {
     this.view.setCategoryTabSelection(this.model.getSelectedId(), false);
   }
-  // If switching from a separator, enable workspace in view.
-  if (this.model.getSelectedId() != null && this.model.getSelected().type ==
-      ListElement.SEPARATOR) {
-    this.view.disableWorkspace(false);
-  }
   // Set next category.
   this.model.setSelectedById(id);
   // Clear workspace.
@@ -210,14 +205,10 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
     this.view.setCategoryTabSelection(id, true);
     Blockly.Xml.domToWorkspace(this.model.getSelectedXml(),
         this.toolboxWorkspace);
-    // Disable workspace if switching to a separator.
-    if (this.model.getSelected().type == ListElement.SEPARATOR) {
-      this.view.disableWorkspace(true);
-    }
   }
   // Update category editing buttons.
-  this.view.updateState(this.model.getIndexByElementId
-      (this.model.getSelectedId()), this.model.getSelected().type);
+  this.view.updateState(this.model.getSelected(),
+      this.model.getIndexByElementId(this.model.getSelectedId()));
 };
 
 /**
@@ -354,7 +345,7 @@ FactoryController.prototype.moveElement = function(offset) {
   // Indexes must be valid because confirmed that curr and swap exist.
   this.moveElementToIndex(curr, swapIndex, currIndex);
   // Update element editing buttons.
-  this.view.updateState(swapIndex, this.model.getSelected().type);
+  this.view.updateState(curr, swapIndex);
   // Update preview.
   this.updatePreview();
 };

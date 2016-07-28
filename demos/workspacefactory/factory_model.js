@@ -16,6 +16,12 @@
 FactoryModel = function() {
   // Ordered list of ListElement objects.
   this.toolboxList = [];
+  // String name of current selected list element, null if no list elements.
+  this.selected = null;
+  // Boolean for if a Variable category has been added.
+  this.hasVariableCategory = false;
+  // Boolean for if a Procedure category has been added.
+  this.hasProcedureCategory = false;
 };
 
 // String name of current selected list element, null if no list elements.
@@ -36,6 +42,26 @@ FactoryModel.prototype.hasCategoryByName = function(name) {
     }
   }
   return false;
+};
+
+/**
+ * Determines if a category with the 'VARIABLE' tag exists.
+ *
+ * @return {boolean} True if there exists a category with the Variables tag,
+ * false otherwise.
+ */
+FactoryModel.prototype.hasVariables = function() {
+  return this.hasVariableCategory;
+};
+
+/**
+ * Determines if a category with the 'PROCEDURE' tag exists.
+ *
+ * @return {boolean} True if there exists a category with the Procedures tag,
+ * false otherwise.
+ */
+FactoryModel.prototype.hasProcedures = function() {
+  return this.hasFunctionCategory;
 };
 
 /**
@@ -270,7 +296,7 @@ FactoryModel.prototype.setCategoryColorById = function (id, color) {
  * @param {!ListElement} original The category that should be copied.
  * @return {!ListElement} The copy of original.
  */
-FactoryModel.prototype.copyCategory = function(original) {
+FactoryModel.prototype.copyElement = function(original) {
   if (!original) {
     throw new Error('Trying to copy null category.');
   }
@@ -281,6 +307,9 @@ FactoryModel.prototype.copyCategory = function(original) {
   copy.color = original.color;
   copy.custom = original.custom;
   copy.name = original.name;
+  // Update state if the copied category has a custom tag.
+  this.hasVariableCategory = original.custom == 'VARIABLE' ? true : false;
+  this.hasProcedureCategory = original.custom == 'PROCEDURE' ? true : false;
   // Add copy to the category list and return it.
   this.toolboxList.push(copy);
   return copy;
