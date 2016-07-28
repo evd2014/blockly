@@ -300,13 +300,12 @@ FactoryModel.prototype.copyElement = function(original) {
   if (!original) {
     throw new Error('Trying to copy null category.');
   }
-  copy = new ListElement(original.name);
+  copy = new ListElement(ListElement.CATEGORY, original.name);
   // Copy all attributes except ID.
   copy.type = original.type;
   copy.xml = original.xml;
   copy.color = original.color;
   copy.custom = original.custom;
-  copy.name = original.name;
   // Update state if the copied category has a custom tag.
   this.hasVariableCategory = original.custom == 'VARIABLE' ? true : false;
   this.hasProcedureCategory = original.custom == 'PROCEDURE' ? true : false;

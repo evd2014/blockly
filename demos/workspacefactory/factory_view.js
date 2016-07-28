@@ -67,18 +67,19 @@ FactoryView.prototype.deleteElementRow = function(id, index) {
 };
 
 /**
- * Given the index of the currently selected category, updates the state of
- * the buttons that allow the user to edit the categories. Updates the edit
- * name and arrow buttons. Should be called when adding or removing categories
- * or when changing to a new category or when swapping to a different category.
+ * Given the index of the currently selected element, updates the state of
+ * the buttons that allow the user to edit the list elements. Updates the edit
+ * and arrow buttons. Should be called when adding or removing elements
+ * or when changing to a new element or when swapping to a different element.
  *
  * TODO(evd2014): Switch to using CSS to add/remove styles.
  *
- * @param {int} selectedIndex The index of the currently selected category.
- * @param {!string} selectedType The type of the selected ListElement.
- * ListElement.CATEGORY or ListElement.SEPARATOR.
+ * @param {ListElement} selected The currently selected element, null if no
+ * element exists so no element selected.
+ * @param {int} selectedIndex The index of the currently selected element.
  */
 FactoryView.prototype.updateState = function(selected, selectedIndex) {
+  // Disable/enable editing buttons as necessary.
   document.getElementById('button_edit').disabled = selectedIndex < 0 ||
       selected.type != ListElement.CATEGORY;
   document.getElementById('button_remove').disabled = selectedIndex < 0;
@@ -87,6 +88,7 @@ FactoryView.prototype.updateState = function(selected, selectedIndex) {
   var table = document.getElementById('categoryTable');
   document.getElementById('button_down').disabled = selectedIndex >=
       table.rows.length - 1 || selectedIndex < 0 ? true : false;
+  // Disable/enable the workspace as necessary.
   if (this.shouldDisableWorkspace(selected)) {
     this.disableWorkspace(true);
   } else {

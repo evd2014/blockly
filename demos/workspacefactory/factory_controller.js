@@ -400,9 +400,28 @@ FactoryController.prototype.loadCategory = function() {
     }
   } while (!this.isStandardCategoryName(name));
 
+  // Check if the user can create that standard category.
+  if (this.model.hasVariables() && name.toLowerCase() == 'variables') {
+    alert('A Variables category already exists. You cannot create multiple' +
+        ' variables categories.');
+    return;
+  }
+  if (this.model.hasProcedures() && name.toLowerCase() == 'functions') {
+    alert('A Functions category already exists. You cannot create multiple' +
+        ' functions categories.');
+    return;
+  }
+  // Check if the user can create a category with that name.
+  var standardCategory = this.standardCategories[name.toLowerCase()]
+  if (this.model.hasCategoryByName(standardCategory.name)) {
+    alert('You already have a category with the name ' + standardCategory.name
+        + '. Rename your category and try again.');
+    return;
+  }
+
   // Copy the standard category in the model.
   var standardCategory = this.standardCategories[name.toLowerCase()];
-  var copy = this.model.copyCategory(standardCategory);
+  var copy = this.model.copyElement(standardCategory);
   // Update the copy in the view.
   var tab = this.view.addCategoryRow(copy.name, copy.id, this.model.getSelected() == null);
   this.addClickToSwitch(tab, copy.id);
