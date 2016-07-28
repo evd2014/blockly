@@ -397,20 +397,17 @@ FactoryController.prototype.loadCategory = function() {
     }
   } while (!this.isStandardCategoryName(name));
 
-  // Create an empty category in the model and view.
-  var standardCategory = this.standardCategories[name.toLowerCase()]
-  this.createCategory(standardCategory.name, this.model.getSelected() == null);
-  var id = this.model.getCategoryIdByName(standardCategory.name);
-  var newCategory = this.model.getElementById(id);
-  // Copy attributes of standard category to new category in the model.
-  this.model.copyElement(newCategory, standardCategory);
+  // Copy the standard category in the model.
+  var standardCategory = this.standardCategories[name.toLowerCase()];
+  var copy = this.model.copyCategory(standardCategory);
+  // Update the copy in the view.
+  this.addCategoryToView(copy.name, copy.id, this.model.getSelected() == null);
   // Color the category tab in the view.
-  if (!newCategory.color) {
-    throw new Error("No color in standard category.");
+  if (copy.color) {
+    this.view.setBorderColor(copy.id, copy.color);
   }
-  this.view.setBorderColor(id, newCategory.color);
   // Switch to loaded category.
-  this.switchElement(id);
+  this.switchCategory(copy.id);
   // Update preview.
   this.updatePreview();
 };
