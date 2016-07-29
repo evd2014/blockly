@@ -82,7 +82,14 @@ FactoryModel.prototype.hasToolbox = function() {
  * @return {!string} The ID of the category added.
  */
 FactoryModel.prototype.addCategoryToList = function(name) {
+  // Create element.
   var category = new ListElement(ListElement.CATEGORY, name);
+  // Check if need to update flags.
+  this.hasVariableCategory = category.custom == 'VARIABLE' ? true :
+      this.hasVariableCategory;
+  this.hasProcedureCategory = category.custom == 'PROCEDURE' ? true :
+      this.hasProcedureCategory;
+  // Add element to list and return ID.
   this.toolboxList.push(category);
   return category.id;
 };
@@ -93,9 +100,16 @@ FactoryModel.prototype.addCategoryToList = function(name) {
  * @param {int} index The index of the list element to delete.
  */
 FactoryModel.prototype.deleteElementFromList = function(index) {
+  // Check if index is out of bounds.
   if (index < 0 || index >= this.toolboxList.length) {
     return; // No entry to delete.
   }
+  // Check if need to update flags.
+  this.hasVariableCategory = this.toolboxList[index].custom == 'VARIABLE' ?
+      false : this.hasVariableCategory;
+  this.hasProcedureCategory = this.toolboxList[index].custom == 'PROCEDURE' ?
+      false : this.hasProcedureCategory;
+  // Remove element.
   this.toolboxList.splice(index, 1);
 };
 
@@ -307,8 +321,10 @@ FactoryModel.prototype.copyElement = function(original) {
   copy.color = original.color;
   copy.custom = original.custom;
   // Update state if the copied category has a custom tag.
-  this.hasVariableCategory = original.custom == 'VARIABLE' ? true : false;
-  this.hasProcedureCategory = original.custom == 'PROCEDURE' ? true : false;
+  this.hasVariableCategory = original.custom == 'VARIABLE' ? true :
+      this.hasVariableCategory
+  this.hasProcedureCategory = original.custom == 'PROCEDURE' ? true :
+      this.hasProcedureCategory;
   // Add copy to the category list and return it.
   this.toolboxList.push(copy);
   return copy;
