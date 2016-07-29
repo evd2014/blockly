@@ -94,6 +94,7 @@ FactoryGenerator.prototype.generateConfigXml = function() {
     this.toolboxWorkspace.clear();
     Blockly.Xml.domToWorkspace(this.model.getSelectedXml(),
         this.toolboxWorkspace);
+    this.model.markShadowBlocks(this.toolboxWorkspace.getAllBlocks());
   }
   return xmlDom;
  };

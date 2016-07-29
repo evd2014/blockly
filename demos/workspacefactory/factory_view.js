@@ -253,3 +253,14 @@ FactoryView.prototype.shouldDisableWorkspace = function(category) {
   return category != null && (category.type == ListElement.SEPARATOR ||
       category.custom == 'VARIABLE' || category.custom == 'PROCEDURE');
 };
+
+//@param {!Blockly.Block}
+FactoryView.prototype.markShadowBlock = function(block) {
+  block.setColour('#000000');
+};
+
+FactoryView.prototype.markShadowBlocks = function(blocks) {
+  for (var i = 0; i < blocks.length; i++) {
+    this.markShadowBlock(blocks[i]);
+  }
+}

@@ -205,6 +205,7 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
     this.view.setCategoryTabSelection(id, true);
     Blockly.Xml.domToWorkspace(this.model.getSelectedXml(),
         this.toolboxWorkspace);
+    this.model.markShadowBlocks(this.toolboxWorkspace.getAllBlocks());
   }
   // Update category editing buttons.
   this.view.updateState(this.model.getSelected(),
@@ -471,4 +472,13 @@ FactoryController.prototype.addSeparator = function() {
   // Switch to the separator and update the preview.
   this.switchElement(id);
   this.updatePreview();
+};
+
+FactoryController.prototype.makeShadow = function() {
+  // No block selected to make a shadow block.
+  if (!Blockly.selected) {
+    return;
+  }
+  this.view.markShadowBlock(Blockly.selected);
+  this.model.addShadowBlock(Blockly.selected.id);
 };

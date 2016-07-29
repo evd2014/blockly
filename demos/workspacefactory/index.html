@@ -59,12 +59,23 @@ goog.require('goog.ui.ColorPicker');
     <button id="button_remove">-</button>
     <p>&nbsp;</p>
     <div class='dropdown'>
-    <button id="button_edit">Edit</button>
-    <div id="dropdown_edit" class="dropdown-content">
-      <a id='dropdown_name'>Name</a>
-      <a id='dropdown_color'>Color</a>
+    <button id="button_editCategory">Edit Category</button>
+    <div id="dropdown_editCategory" class="dropdown-content">
+      <a id='dropdown_name1'>Name</a>
+      <a id='dropdown_color1'>Color</a>
     </div>
     </div>
+
+    <div class='dropdown'>
+    <button id="button_editShadow">Edit Block</button>
+    <div id="dropdown_editShadowAdd" class="dropdown-content">
+      <a id='dropdown_addShadow'>Add Shadow</a>
+    </div>
+    <div id="dropdown_editShadowAdd" class="dropdown-content">
+      <a id='dropdown_removeShadow'>Remove Shadow</a>
+    </div>
+    </div>
+
     <button id="button_up">&#8593;</button>
     <button id="button_down">&#8595;</button>
   </aside>
@@ -501,11 +512,37 @@ goog.require('goog.ui.ColorPicker');
     controller.moveElement(1);
   };
   var editWrapper = function() {
-    document.getElementById('dropdown_edit').classList.toggle("show");
+    if (!Blockly.selected) {
+      document.getElementById('dropdown_editWithShadowAdd').classList.remove
+          ("show");
+      document.getElementById('dropdown_editWithShadowRemove').classList.remove
+          ("show");
+      document.getElementById('dropdown_editNoShadow').classList.toggle("show");
+    } else {
+      document.getElementById('dropdown_editNoShadow').classList.remove("show");
+      if (controller.model.isShadowBlock(Blockly.selected.id)) {
+        document.getElementById('dropdown_editWithShadowAdd').classList.remove("show");
+        document.getElementById('dropdown_editWithShadowRemove').classList.toggle
+          ("show");
+      } else {
+        document.getElementById('dropdown_editWithShadowRemove').classList.remove("show");
+        document.getElementById('dropdown_editWithShadowAdd').classList.toggle
+          ("show");
+      }
+
+    }
   };
   var nameWrapper = function() {
     controller.changeName();
-    document.getElementById('dropdown_edit').classList.remove("show");
+    document.getElementById('dropdown_editWithShadowAdd').classList.remove("show");
+    document.getElementById('dropdown_editWithShadowRemove').classList.remove("show");
+    document.getElementById('dropdown_editNoShadow').classList.remove("show");
+  };
+  var shadowWrapper = function() {
+    controller.makeShadow();
+    document.getElementById('dropdown_editWithShadowAdd').classList.remove("show");
+    document.getElementById('dropdown_editWithShadowRemove').classList.remove("show");
+    document.getElementById('dropdown_editNoShadow').classList.remove("show");
   };
 
   document.getElementById('button_add').addEventListener
@@ -528,8 +565,12 @@ goog.require('goog.ui.ColorPicker');
       ('click', downWrapper);
   document.getElementById('button_edit').addEventListener
       ('click', editWrapper);
-  document.getElementById('dropdown_name').addEventListener
+  document.getElementById('dropdown_name1').addEventListener
       ('click', nameWrapper);
+  document.getElementById('dropdown_name2').addEventListener
+      ('click', nameWrapper);
+  document.getElementById('dropdown_shadow').addEventListener
+      ('click', shadowWrapper);
 
   // Create color picker with specific set of Blockly colors.
   var colorPicker = new goog.ui.ColorPicker();
@@ -537,16 +578,20 @@ goog.require('goog.ui.ColorPicker');
   // Create and render the popup color picker and attach to button.
   var popupPicker = new goog.ui.PopupColorPicker(null, colorPicker);
   popupPicker.render();
-  popupPicker.attach(document.getElementById('dropdown_color'));
+  popupPicker.attach(document.getElementById('dropdown_color1'));
+  popupPicker.attach(document.getElementById('dropdown_color2'));
   popupPicker.setFocusable(true);
   goog.events.listen(popupPicker, 'change', function(e) {
         controller.changeSelectedCategoryColor(popupPicker.getSelectedColor());
-        document.getElementById('dropdown_edit').classList.remove("show");
+        document.getElementById('dropdown_editWithShadowAdd').classList.remove
+            ("show");
+        document.getElementById('dropdown_editWithShadowRemove').classList.remove("show");
+        document.getElementById('dropdown_editNoShadow').classList.remove
+            ("show");
       });
 
   // Disable category editing buttons until categories are created.
   document.getElementById('button_remove').disabled = true;
-  document.getElementById('button_edit').disabled = true;
   document.getElementById('button_up').disabled = true;
   document.getElementById('button_down').disabled = true;
 

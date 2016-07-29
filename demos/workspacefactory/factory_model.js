@@ -16,6 +16,8 @@
 FactoryModel = function() {
   // Ordered list of ListElement objects.
   this.toolboxList = [];
+  // Array of shadow blocks
+  this.shadowBlocks = [];
   // String name of current selected list element, null if no list elements.
   this.selected = null;
   // Boolean for if a Variable category has been added.
@@ -326,6 +328,31 @@ FactoryModel.prototype.addSeparatorToList = function() {
   this.toolboxList.push(sep);
   return sep.id;
 }
+
+FactoryModel.prototype.addShadowBlock = function(blockId) {
+  this.shadowBlocks.push(blockId);
+};
+
+FactoryModel.prototype.isShadowBlock = function(blockId) {
+  for (var i = 0; i < this.shadowBlocks.length; i++) {
+    if (this.shadowBlocks[i] == blockId) {
+      return true;
+    }
+  }
+  return false;
+};
+
+FactoryModel.prototype.markShadowBlock = function(block) {
+  block.setColour('#000000');
+};
+
+FactoryModel.prototype.markShadowBlocks = function(blocks) {
+  for (var i = 0; i < blocks.length; i++) {
+    if (this.isShadowBlock(blocks[i].id)) {
+      this.markShadowBlock(blocks[i]);
+    }
+  }
+};
 
 /**
  * Class for a ListElement
