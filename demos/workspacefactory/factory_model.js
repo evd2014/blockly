@@ -145,7 +145,6 @@ FactoryModel.prototype.setSelectedById = function(id) {
  * @return {int} The index of the list element in toolboxList, or -1 if it
  * doesn't exist.
  */
-
 FactoryModel.prototype.getIndexByElementId = function(id) {
   for (var i = 0; i < this.toolboxList.length; i++) {
     if (this.toolboxList[i].id == id) {

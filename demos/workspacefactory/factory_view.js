@@ -1,6 +1,6 @@
 /**
  * Controls the UI elements for workspace factory, mainly the category tabs.
- * Also includes downlaoding files because that interacts directly with the DOM.
+ * Also includes downloading files because that interacts directly with the DOM.
  * Depends on FactoryController (for adding mouse listeners). Tabs for each
  * category are stored in tab map, which associates a unique ID for a
  * category with a particular tab.
@@ -13,7 +13,8 @@
   * @constructor
   */
 
-FactoryView = function(){
+FactoryView = function() {
+  // Stores td DOM element of each tab for the ID of a ListElement.
   this.tabMap = Object.create(null);
 };
 
@@ -74,7 +75,8 @@ FactoryView.prototype.deleteElementRow = function(id, index) {
  *
  * TODO(evd2014): Switch to using CSS to add/remove styles.
  *
- * @param {int} selectedIndex The index of the currently selected category.
+ * @param {int} selectedIndex The index of the currently selected category,
+ * -1 if no categories created.
  * @param {!string} selectedType The type of the selected ListElement.
  * ListElement.TYPE_CATEGORY or ListElement.TYPE_SEPARATOR.
  */

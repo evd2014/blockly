@@ -132,10 +132,10 @@ td {
 }
 
 .goog-palette-colorswatch {
-  position: relative;
-  height: 13px;
-  width: 15px;
   border: 1px solid #000000;
+  height: 13px;
+  position: relative;
+  width: 15px;
 }
 
 .goog-palette-cell-hover .goog-palette-colorswatch {

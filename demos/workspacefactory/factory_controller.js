@@ -83,7 +83,6 @@ FactoryController.prototype.addCategory = function() {
  * @param {boolean} firstCategory true if it's the first category created,
  * false otherwise
  */
-
 FactoryController.prototype.createCategory = function(name, firstCategory) {
   // Create empty category
   var id = this.model.addElementToList(ListElement.TYPE_CATEGORY, name);
