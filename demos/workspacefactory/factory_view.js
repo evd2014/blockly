@@ -89,11 +89,7 @@ FactoryView.prototype.updateState = function(selected, selectedIndex) {
   document.getElementById('button_down').disabled = selectedIndex >=
       table.rows.length - 1 || selectedIndex < 0 ? true : false;
   // Disable/enable the workspace as necessary.
-  if (this.shouldDisableWorkspace(selected)) {
-    this.disableWorkspace(true);
-  } else {
-    this.disableWorkspace(false);
-  }
+  this.disableWorkspace(this.shouldDisableWorkspace(selected));
 };
 
 /**
