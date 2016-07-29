@@ -3,8 +3,9 @@
  * in workspace factory. Each list element is either a separator or a category,
  * and each category stores its name, XML to load that category, color,
  * custom tags, and a unique ID making it possible to change category names and
- * move categories easily. Also keeps track of the currently selected list
- * element.
+ * move categories easily. Keeps track of the currently selected list
+ * element. Also keeps track of all the user-created shadow blocks and
+ * manipulates them as necessary.
  *
  * @author Emma Dauterman (evd2014)
  */
@@ -16,7 +17,7 @@
 FactoryModel = function() {
   // Ordered list of ListElement objects.
   this.toolboxList = [];
-  // Array of shadow blocks
+  // Array of block IDs for all user created shadow blocks.
   this.shadowBlocks = [];
   // String name of current selected list element, null if no list elements.
   this.selected = null;
@@ -84,7 +85,14 @@ FactoryModel.prototype.hasToolbox = function() {
  * @return {!string} The ID of the category added.
  */
 FactoryModel.prototype.addCategoryToList = function(name) {
+  // Create element.
   var category = new ListElement(ListElement.CATEGORY, name);
+  // Check if need to update flags.
+  this.hasVariableCategory = category.custom == 'VARIABLE' ? true :
+      this.hasVariableCategory;
+  this.hasProcedureCategory = category.custom == 'PROCEDURE' ? true :
+      this.hasProcedureCategory;
+  // Add element to list and return ID.
   this.toolboxList.push(category);
   return category.id;
 };
@@ -95,9 +103,16 @@ FactoryModel.prototype.addCategoryToList = function(name) {
  * @param {int} index The index of the list element to delete.
  */
 FactoryModel.prototype.deleteElementFromList = function(index) {
+  // Check if index is out of bounds.
   if (index < 0 || index >= this.toolboxList.length) {
     return; // No entry to delete.
   }
+  // Check if need to update flags.
+  this.hasVariableCategory = this.toolboxList[index].custom == 'VARIABLE' ?
+      false : this.hasVariableCategory;
+  this.hasProcedureCategory = this.toolboxList[index].custom == 'PROCEDURE' ?
+      false : this.hasProcedureCategory;
+  // Remove element.
   this.toolboxList.splice(index, 1);
 };
 
@@ -309,8 +324,10 @@ FactoryModel.prototype.copyElement = function(original) {
   copy.color = original.color;
   copy.custom = original.custom;
   // Update state if the copied category has a custom tag.
-  this.hasVariableCategory = original.custom == 'VARIABLE' ? true : false;
-  this.hasProcedureCategory = original.custom == 'PROCEDURE' ? true : false;
+  this.hasVariableCategory = original.custom == 'VARIABLE' ? true :
+      this.hasVariableCategory;
+  this.hasProcedureCategory = original.custom == 'PROCEDURE' ? true :
+      this.hasProcedureCategory;
   // Add copy to the category list and return it.
   this.toolboxList.push(copy);
   return copy;
@@ -329,26 +346,35 @@ FactoryModel.prototype.addSeparatorToList = function() {
   return sep.id;
 }
 
+/**
+ * Adds a shadow block to the list of shadow blocks.
+ *
+ * @param {!string} blockId The unique ID of block to be added.
+ */
 FactoryModel.prototype.addShadowBlock = function(blockId) {
   this.shadowBlocks.push(blockId);
 };
 
+/**
+ * Removes a shadow block ID from the list of shadow block IDs if that ID is
+ * in the list.
+ *
+ * @param {!string} blockId The unique ID of block to be removed.
+ */
 FactoryModel.prototype.removeShadowBlock = function(blockId) {
-  console.log("removing");
-  var index = null;
   for (var i = 0; i < this.shadowBlocks.length; i++) {
     if (this.shadowBlocks[i] == blockId) {
-      index = i;
-      console.log("found at index " + i);
-      break;
+      this.shadowBlocks.splice(i, 1);
+      return;
     }
   }
-  if (!index) {
-    return;
-  }
-  this.shadowBlocks.splice(index, 1);
 };
 
+/**
+ * Determines if a block is a shadow block given a unique block ID.
+ *
+ * @param {!string} blockId The unique ID of the block to examine.
+ */
 FactoryModel.prototype.isShadowBlock = function(blockId) {
   for (var i = 0; i < this.shadowBlocks.length; i++) {
     if (this.shadowBlocks[i] == blockId) {
@@ -358,24 +384,49 @@ FactoryModel.prototype.isShadowBlock = function(blockId) {
   return false;
 };
 
-
-
+/**
+ * Given a set of blocks currently loaded, visually marks all of the ones that
+ * are in the shadow block list without making them actual shadow blocks
+ * (allowing them to still be editable and movable).
+ *
+ * @param {!<Blockly.Block>} blocks Array of blocks currently loaded.
+ */
 FactoryModel.prototype.markShadowBlocks = function(blocks) {
   for (var i = 0; i < blocks.length; i++) {
     if (this.isShadowBlock(blocks[i].id)) {
-      FactoryUtils.markShadowBlock(blocks[i]);
+      this.markShadowBlock(blocks[i]);
     }
   }
 };
 
+/**
+ * Visually marks a user-generated shadow block as a shadow block in the
+ * workspace without making the block an actual shadow block (allowing it
+ * to be moved and edited).
+ * TODO(evd2014): Find a better way to mark a block visually as a shadow block.
+ *
+ * @param {!Blockly.Block} block The block that should be marked as a shadow
+ *    block.
+ */
+FactoryModel.prototype.markShadowBlock = function(block) {
+  block.setColour('#000000');
+}
 
+/**
+ * Given a set of blocks currently loaded, sets them to be shadow blocks.
+ * This should not be used to update the view, but only to generate XML so
+ * that blockToDom records them as shadow blocks instead of regular blocks.
+ *
+ * @param {!<Blockly.Block>} blocks Array of blocks currently loaded.
+ */
 FactoryModel.prototype.setShadowBlocks = function(blocks) {
   for (var i = 0; i < blocks.length; i++) {
     if (this.isShadowBlock(blocks[i].id)) {
-      FactoryUtils.setShadowBlock(blocks[i]);
+      blocks[i].setShadow(true);
     }
   }
 };
+
 /**
  * Class for a ListElement
  * @constructor

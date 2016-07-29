@@ -532,10 +532,15 @@ goog.require('goog.ui.ColorPicker');
     document.getElementById('dropdown_editShadowRemove').classList.remove("show");
   };
   var editShadowWrapper = function() {
-    if (Blockly.selected) {
+    // Allow the user to make a block a shadow block only if a block is selected
+    // and the block has a surrounding parent (necessary for the block to be
+    // a valid shadow block).
+    if (Blockly.selected && Blockly.selected.getSurroundParent() != null) {
+      // If the block is not a shadow block, let the user make it a shadow block.
       if (!controller.model.isShadowBlock(Blockly.selected.id)) {
         document.getElementById('dropdown_editShadowRemove').classList.remove("show");
         document.getElementById('dropdown_editShadowAdd').classList.toggle("show");
+      // If the block is a shadow block, let the user make it a normal block.
       } else {
         document.getElementById('dropdown_editShadowAdd').classList.remove("show");
         document.getElementById('dropdown_editShadowRemove').classList.toggle("show");
@@ -593,16 +598,22 @@ goog.require('goog.ui.ColorPicker');
   document.getElementById('button_editCategory').disabled = true;
   document.getElementById('button_editShadow').disabled = true;
 
-  // Listen for Blockly move and delete events to update preview.
-  // Not listening for Blockly create events because causes the user to drop
-  // blocks when dragging them into workspace. Could cause problems if ever load
-  // blocks into workspace directly without calling updatePreview.
+
   toolboxWorkspace.addChangeListener(function(e) {
+    // Listen for Blockly move and delete events to update preview.
+    // Not listening for Blockly create events because causes the user to drop
+    // blocks when dragging them into workspace. Could cause problems if ever load
+    // blocks into workspace directly without calling updatePreview.
     if (e.type == Blockly.Events.MOVE || e.type == Blockly.Events.DELETE) {
       controller.updatePreview();
     }
+    // Listen for Blockly UI events to correctly enable the "Edit Block" button.
+    // Only enable "Edit Block" when a block is selected and it has a surrounding
+    // parent, meaning it is nested in another block (blocks that are not
+    // nested in parents cannot be shadow blocks).
     if (e.type == Blockly.Events.UI && e.element == 'selected') {
-      if (e.newValue) {
+      var selected = toolboxWorkspace.getBlockById(e.newValue);
+      if (selected != null && selected.getSurroundParent() != null) {
         document.getElementById('button_editShadow').disabled = false;
       } else {
         document.getElementById('button_editShadow').disabled = true;

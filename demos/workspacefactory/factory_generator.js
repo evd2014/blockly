@@ -34,9 +34,9 @@ FactoryGenerator.prototype.categoryWorkspaceToDom = function(xmlDom, blocks) {
 /**
  * Generates the xml for the toolbox or flyout. If there is only a flyout,
  * only the current blocks are needed, and these are included without
- * a category. If there are categories, then each category is briefly loaded
- * and the top blocks are used to generate the xml for the flyout for that
- * category.
+ * a category. If there are categories, then each category is briefly loaded,
+ * the user marked shadow blocks are set as real shadow blocks, and the top
+ * blocks are used to generate the xml for the flyout for that category.
  *
  * @return {!Element} XML element representing toolbox or flyout corresponding
  * to toolbox workspace.
@@ -50,6 +50,11 @@ FactoryGenerator.prototype.generateConfigXml = function() {
       });
   // If no categories, use XML directly from workspace
   if (!this.model.hasToolbox()) {
+    // Save XML.
+    var xml = Blockly.Xml.workspaceToDom(this.toolboxWorkspace);
+    // Set user-generated shadow blocks as real shadow blocks.
+    this.model.setShadowBlocks(this.toolboxWorkspace.getAllBlocks());
+    // Generate XML.
     this.categoryWorkspaceToDom(xmlDom, this.toolboxWorkspace.getTopBlocks());
   }
   else {
@@ -60,6 +65,7 @@ FactoryGenerator.prototype.generateConfigXml = function() {
     // Capture any changes made by user before generating xml.
     this.model.saveCategoryInList(this.model.getSelected(),
         this.toolboxWorkspace);
+    var xml = this.model.getSelectedXml();
     var toolboxList = this.model.getToolboxList();
     // Iterate through each category to generate XML for each. Load each
     // category to make sure that all the blocks that are not top blocks are
@@ -81,7 +87,8 @@ FactoryGenerator.prototype.generateConfigXml = function() {
         if (element.custom != null) {
           categoryElement.setAttribute('custom', element.custom);
         }
-        // Load that category to workspace.
+        // Load that category to workspace, setting user-generated shadow blocks
+        // as real shadow blocks..
         this.toolboxWorkspace.clear();
         Blockly.Xml.domToWorkspace(element.xml, this.toolboxWorkspace);
         this.model.setShadowBlocks(this.toolboxWorkspace.getAllBlocks());
@@ -91,11 +98,11 @@ FactoryGenerator.prototype.generateConfigXml = function() {
         xmlDom.appendChild(categoryElement);
       }
     }
-    // Load category user was working on.
-    this.toolboxWorkspace.clear();
-    Blockly.Xml.domToWorkspace(this.model.getSelectedXml(),
-        this.toolboxWorkspace);
-    this.model.markShadowBlocks(this.toolboxWorkspace.getAllBlocks());
   }
+  // Load category user was working on, marking the shadow blocks to be shown
+  // visually without being real shadow blocks (default for editing).
+  this.toolboxWorkspace.clear();
+  Blockly.Xml.domToWorkspace(xml, this.toolboxWorkspace);
+  this.model.markShadowBlocks(this.toolboxWorkspace.getAllBlocks());
   return xmlDom;
  };

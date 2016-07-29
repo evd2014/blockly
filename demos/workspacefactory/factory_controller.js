@@ -477,18 +477,32 @@ FactoryController.prototype.addSeparator = function() {
   this.updatePreview();
 };
 
+/**
+ * Makes the currently selected block a user-generated shadow block. These
+ * blocks are not made into real shadow blocks, but recorded in the model
+ * and visually marked as shadow blocks, allowing the user to move and edit
+ * them (which would be impossible with actual shadow blocks). Updates the
+ * preview when done.
+ *
+ */
 FactoryController.prototype.addShadow = function() {
   // No block selected to make a shadow block.
   if (!Blockly.selected) {
     return;
   }
-  FactoryUtils.markShadowBlock(Blockly.selected);
+  this.model.markShadowBlock(Blockly.selected);
   this.model.addShadowBlock(Blockly.selected.id);
   this.updatePreview();
 };
 
+/**
+ * If the currently selected block is a user-generated shadow block, this
+ * function makes it a normal block again, removing it from the list of
+ * shadow blocks and loading the workspace again. Updates the preview again.
+ *
+ */
 FactoryController.prototype.removeShadow = function() {
-  // No block selected to make a shadow block.
+  // No block selected modify.
   if (!Blockly.selected) {
     return;
   }
@@ -498,4 +512,4 @@ FactoryController.prototype.removeShadow = function() {
   Blockly.Xml.domToWorkspace(xml, this.toolboxWorkspace);
   this.model.markShadowBlocks(this.toolboxWorkspace.getAllBlocks());
   this.updatePreview();
-}
+};
