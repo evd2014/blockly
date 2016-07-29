@@ -169,11 +169,13 @@ FactoryController.prototype.promptForNewCategoryName = function(promptString) {
 /**
  * Switches to a new tab for the element given by ID. Stores XML and blocks
  * to reload later, updates selected accordingly, and clears the workspace
- * and clears undo, then loads the new element.
+ * and clears undo, then loads the new element. Disables events while switching
+ * so that Blockly delete and create events don't update the preview repeatedly.
  *
  * @param {!string} id ID of tab to be opened, must be valid element ID.
  */
 FactoryController.prototype.switchElement = function(id) {
+  Blockly.Events.disable();
   // Caches information to reload or generate xml if switching to/from element.
   // Only saves if a category is selected.
   if (this.model.getSelectedId() != null && id != null) {
@@ -182,6 +184,7 @@ FactoryController.prototype.switchElement = function(id) {
   }
   // Load element.
   this.clearAndLoadElement(id);
+  Blockly.Events.enable();
 };
 
 /**
