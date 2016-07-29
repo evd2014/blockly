@@ -35,7 +35,7 @@ FactoryGenerator.prototype.categoryWorkspaceToDom = function(xmlDom, blocks) {
  * Generates the xml for the toolbox or flyout. If there is only a flyout,
  * only the current blocks are needed, and these are included without
  * a category. If there are categories, then each category is briefly loaded,
- * the user marked shadow blocks are set as real shadow blocks, and the top
+ * the user-generated shadow blocks are set as real shadow blocks, and the top
  * blocks are used to generate the xml for the flyout for that category.
  *
  * @return {!Element} XML element representing toolbox or flyout corresponding
