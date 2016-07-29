@@ -143,7 +143,7 @@ FactoryModel.prototype.setSelectedById = function(id) {
  *
  * @param {!string} id The ID of list element to search for.
  * @return {int} The index of the list element in toolboxList, or -1 if it
- * doesn't exist.
+ *     doesn't exist.
  */
 FactoryModel.prototype.getIndexByElementId = function(id) {
   for (var i = 0; i < this.toolboxList.length; i++) {
@@ -159,7 +159,7 @@ FactoryModel.prototype.getIndexByElementId = function(id) {
  *
  * @param {!string} id The ID of element to search for.
  * @return {ListElement} Corresponding ListElement object in toolboxList, or
- * null if that element does not exist.
+ *     null if that element does not exist.
  */
 
 FactoryModel.prototype.getElementById = function(id) {
