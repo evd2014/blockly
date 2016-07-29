@@ -49,20 +49,12 @@ FactoryModel.prototype.hasToolbox = function() {
 };
 
 /**
- * Given a type and an optional name (if the element is a category,
- * adds an empty element, updating state variables accordingly. Generates
- * the unique ID for the element and adds the element to the end of the list.
+ * Given a ListElement, adds it to the toolbox list.
  *
- * @param {!string} type The type of the element to be added.
- * @param {string} opt_name The name of the element to be added (optional, only
- * if category).
- * @return {!string} The ID of the element added.
+ * @param {!ListElement} element The element to be added to the list.
  */
-FactoryModel.prototype.addElementToList = function(type, opt_name) {
-  var element= opt_name ? new ListElement(type, opt_name) :
-      new ListElement(type);
+FactoryModel.prototype.addElementToList = function(element) {
   this.toolboxList.push(element);
-  return element.id;
 };
 
 /**
@@ -303,4 +295,21 @@ ListElement.prototype.changeColor = function (color) {
     return;
   }
   this.color = color;
+};
+
+/**
+ * Makes a copy of the original element and returns it. Everything about the
+ * copy is identical except for its ID.
+ *
+ * @return {!ListElement} The copy of the ListElement.
+ */
+ListElement.prototype.copy = function() {
+  copy = new ListElement(this.type);
+  // Copy all attributes except ID.
+  copy.name = this.name;
+  copy.xml = this.xml;
+  copy.color = this.color;
+  copy.custom = this.custom;
+  // Return copy.
+  return copy;
 };

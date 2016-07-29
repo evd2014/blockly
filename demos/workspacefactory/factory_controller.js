@@ -85,10 +85,11 @@ FactoryController.prototype.addCategory = function() {
  */
 FactoryController.prototype.createCategory = function(name, firstCategory) {
   // Create empty category
-  var id = this.model.addElementToList(ListElement.TYPE_CATEGORY, name);
+  var category = new ListElement(ListElement.TYPE_CATEGORY, name);
+  this.model.addElementToList(category);
   // Create new category.
-  var tab = this.view.addCategoryRow(name, id, firstCategory);
-  this.addClickToSwitch(tab, id);
+  var tab = this.view.addCategoryRow(name, category.id, firstCategory);
+  this.addClickToSwitch(tab, category.id);
 
 };
 
@@ -408,7 +409,8 @@ FactoryController.prototype.loadCategory = function() {
 
   // Copy the standard category in the model.
   var standardCategory = this.standardCategories[name.toLowerCase()];
-  var copy = this.model.copyElement(standardCategory);
+  var copy = standardCategory.copy();
+  this.model.addElementToList(copy);
   // Update the copy in the view.
   var tab = this.view.addCategoryRow(copy.name, copy.id, this.model.getSelected() == null);
   this.addClickToSwitch(tab, copy.id);
@@ -451,11 +453,12 @@ FactoryController.prototype.addSeparator = function() {
     return;
   }
   // Create the separator in the model.
-  var id = this.model.addElementToList(ListElement.TYPE_SEPARATOR);
+  var separator = new ListElement(ListElement.TYPE_SEPARATOR);
+  this.model.addElementToList(separator);
   // Create the separator in the view.
-  var tab = this.view.addSeparatorTab(id);
-  this.addClickToSwitch(tab, id);
+  var tab = this.view.addSeparatorTab(separator.id);
+  this.addClickToSwitch(tab, separator.id);
   // Switch to the separator and update the preview.
-  this.switchElement(id);
+  this.switchElement(separator.id);
   this.updatePreview();
 };
