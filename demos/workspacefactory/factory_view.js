@@ -14,7 +14,7 @@
   */
 
 FactoryView = function() {
-  // Stores td DOM element of each tab for the ID of a ListElement.
+  // For each tab, maps ID of a ListElement to the td DOM element.
   this.tabMap = Object.create(null);
 };
 

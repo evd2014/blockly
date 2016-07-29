@@ -161,7 +161,6 @@ FactoryModel.prototype.getIndexByElementId = function(id) {
  * @return {ListElement} Corresponding ListElement object in toolboxList, or
  *     null if that element does not exist.
  */
-
 FactoryModel.prototype.getElementById = function(id) {
   for (var i = 0; i < this.toolboxList.length; i++) {
     if (this.toolboxList[i].id == id) {
