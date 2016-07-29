@@ -58,8 +58,7 @@ FactoryGenerator.prototype.generateConfigXml = function() {
       throw new Error('Selected is null when there are categories');
     }
     // Capture any changes made by user before generating xml.
-    this.model.saveCategoryInList(this.model.getSelected(),
-        this.toolboxWorkspace);
+    this.model.getSelected().saveFromWorkspace(this.toolboxWorkspace);
     var toolboxList = this.model.getToolboxList();
     // Iterate through each category to generate XML for each. Load each
     // category to make sure that all the blocks that are not top blocks are
@@ -67,7 +66,7 @@ FactoryGenerator.prototype.generateConfigXml = function() {
     for (var i = 0; i < toolboxList.length; i++) {
       // Create category DOM element.
       var element = toolboxList[i];
-      if (element.type == ListElement.SEPARATOR) {
+      if (element.type == ListElement.TYPE_SEPARATOR) {
         var sepElement = goog.dom.createDom('sep');
         xmlDom.appendChild(sepElement);
       } else {

@@ -30,7 +30,7 @@ FactoryModel.prototype.selected = null;
  */
 FactoryModel.prototype.hasCategoryByName = function(name) {
   for (var i = 0; i < this.toolboxList.length; i++) {
-    if (this.toolboxList[i].type == ListElement.CATEGORY &&
+    if (this.toolboxList[i].type == ListElement.TYPE_CATEGORY &&
         this.toolboxList[i].name == name) {
       return true;
     }
@@ -49,16 +49,20 @@ FactoryModel.prototype.hasToolbox = function() {
 };
 
 /**
- * Adds an empty category entry, updating state variables accordingly. Generates
- * the unique ID for the category and adds the category to the end of the list.
+ * Given a type and an optional name (if the element is a category,
+ * adds an empty element, updating state variables accordingly. Generates
+ * the unique ID for the element and adds the element to the end of the list.
  *
- * @param {string} name The name of category to be added.
- * @return {!string} The ID of the category added.
+ * @param {!string} type The type of the element to be added.
+ * @param {string} opt_name The name of the element to be added (optional, only
+ * if category).
+ * @return {!string} The ID of the element added.
  */
-FactoryModel.prototype.addCategoryToList = function(name) {
-  var category = new ListElement(ListElement.CATEGORY, name);
-  this.toolboxList.push(category);
-  return category.id;
+FactoryModel.prototype.addElementToList = function(type, opt_name) {
+  var element= opt_name ? new ListElement(type, opt_name) :
+      new ListElement(type);
+  this.toolboxList.push(element);
+  return element.id;
 };
 
 /**
@@ -71,37 +75,6 @@ FactoryModel.prototype.deleteElementFromList = function(index) {
     return; // No entry to delete.
   }
   this.toolboxList.splice(index, 1);
-};
-
-/**
- * Saves the current category by updating its XML (does not save XML for
- * elements that are not categories).
- *
- * @param {ListElement} category The Category object to save.
- * @param {Blockly.workspace} workspace The workspace to save category entry
- * from.
- */
-FactoryModel.prototype.saveCategoryInList = function(category, workspace) {
-  // Only save list elements that are categories.
-  if (!category || category.type != ListElement.CATEGORY) {
-    return;
-  }
-  category.xml = Blockly.Xml.workspaceToDom(workspace);
-};
-
-/**
- * Changes the name of a category object given a new name. Returns if
- * category is null or not a category.
- *
- * @param {string} newName New name of category.
- * @param {ListElement} category The category to be updated.
- */
-FactoryModel.prototype.changeCategoryName = function (newName, category) {
-  // Only update list elements that are categories.
-  if (!category || category.type != ListElement.CATEGORY) {
-    return;
-  }
-  category.name = newName;
 };
 
 /**
@@ -248,21 +221,6 @@ FactoryModel.prototype.getCategoryIdByName = function(name) {
 };
 
 /**
- * Given the ID of a category, sets the color of that category. If tries to
- * set the color of something other than a category, returns.
- *
- * @param {!string} id The ID of the category to update.
- * @param {!string} color The color that should be used for that category.
- */
-FactoryModel.prototype.setCategoryColorById = function (id, color) {
-  var category = this.getElementById(id);
-  if (category.type != ListElement.CATEGORY) {
-    return;
-  }
-  category.color = color;
-};
-
-/**
  * Makes a copy of the original element, adds it to the toolboxList, and
  * returns it. Everything about the copy is identical except for its ID. Throws
  * an error if the original element is null.
@@ -274,7 +232,7 @@ FactoryModel.prototype.copyElement = function(original) {
   if (!original) {
     throw new Error('Trying to copy null category.');
   }
-  copy = new ListElement(ListElement.CATEGORY, original.name);
+  copy = new ListElement(ListElement.TYPE_CATEGORY, original.name);
   // Copy all attributes except ID.
   copy.type = original.type;
   copy.xml = original.xml;
@@ -285,18 +243,6 @@ FactoryModel.prototype.copyElement = function(original) {
   return copy;
 };
 
-
-/**
- * Creates a new separator, adds it to the toolbox list, and returns the ID
- * of the separator.
- *
- * @return {!string} The ID of the separator added.
- */
-FactoryModel.prototype.addSeparatorToList = function() {
-  var sep = new ListElement(ListElement.SEPARATOR);
-  this.toolboxList.push(sep);
-  return sep.id;
-}
 
 /**
  * Class for a ListElement
@@ -316,5 +262,47 @@ ListElement = function(type, opt_name) {
   this.custom = null;
 };
 // List element types.
-ListElement.CATEGORY = 'category';
-ListElement.SEPARATOR = 'separator';
+ListElement.TYPE_CATEGORY = 'category';
+ListElement.TYPE_SEPARATOR = 'separator';
+
+/**
+ * Saves a category by updating its XML (does not save XML for
+ * elements that are not categories).
+ *
+ * @param {!Blockly.workspace} workspace The workspace to save category entry
+ * from.
+ */
+ListElement.prototype.saveFromWorkspace = function(workspace) {
+  // Only save list elements that are categories.
+  if (this.type != ListElement.TYPE_CATEGORY) {
+    return;
+  }
+  this.xml = Blockly.Xml.workspaceToDom(workspace);
+};
+
+/**
+ * Changes the name of a category object given a new name. Returns if
+ * not a category.
+ *
+ * @param {string} name New name of category.
+ */
+ListElement.prototype.changeName = function (name) {
+  // Only update list elements that are categories.
+  if (this.type != ListElement.TYPE_CATEGORY) {
+    return;
+  }
+  this.name = name;
+};
+
+/**
+ * Sets the color of a category. If tries to set the color of something other
+ * than a category, returns.
+ *
+ * @param {!string} color The color that should be used for that category.
+ */
+ListElement.prototype.changeColor = function (color) {
+  if (this.type != ListElement.TYPE_CATEGORY) {
+    return;
+  }
+  this.color = color;
+};

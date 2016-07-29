@@ -10,7 +10,7 @@
 FactoryController.prototype.standardCategories = Object.create(null);
 
 FactoryController.prototype.standardCategories['logic'] =
-    new ListElement(ListElement.CATEGORY, 'Logic');
+    new ListElement(ListElement.TYPE_CATEGORY, 'Logic');
 FactoryController.prototype.standardCategories['logic'].xml =
     Blockly.Xml.textToDom(
     '<xml>' +
@@ -25,7 +25,7 @@ FactoryController.prototype.standardCategories['logic'].xml =
 FactoryController.prototype.standardCategories['logic'].color = '#5C81A6';
 
 FactoryController.prototype.standardCategories['loops'] =
-    new ListElement(ListElement.CATEGORY, 'Loops');
+    new ListElement(ListElement.TYPE_CATEGORY, 'Loops');
 FactoryController.prototype.standardCategories['loops'].xml =
     Blockly.Xml.textToDom(
     '<xml>' +
@@ -60,7 +60,7 @@ FactoryController.prototype.standardCategories['loops'].xml =
 FactoryController.prototype.standardCategories['loops'].color = '#5CA65C';
 
 FactoryController.prototype.standardCategories['math'] =
-    new ListElement(ListElement.CATEGORY, 'Math');
+    new ListElement(ListElement.TYPE_CATEGORY, 'Math');
 FactoryController.prototype.standardCategories['math'].xml =
     Blockly.Xml.textToDom(
     '<xml>' +
@@ -160,7 +160,7 @@ FactoryController.prototype.standardCategories['math'].xml =
 FactoryController.prototype.standardCategories['math'].color = '#5C68A6';
 
 FactoryController.prototype.standardCategories['text'] =
-    new ListElement(ListElement.CATEGORY, 'Text');
+    new ListElement(ListElement.TYPE_CATEGORY, 'Text');
 FactoryController.prototype.standardCategories['text'].xml =
     Blockly.Xml.textToDom(
     '<xml>' +
@@ -243,7 +243,7 @@ FactoryController.prototype.standardCategories['text'].xml =
 FactoryController.prototype.standardCategories['text'].color = '#5CA68D';
 
 FactoryController.prototype.standardCategories['lists'] =
-    new ListElement(ListElement.CATEGORY, 'Lists');
+    new ListElement(ListElement.TYPE_CATEGORY, 'Lists');
 FactoryController.prototype.standardCategories['lists'].xml =
     Blockly.Xml.textToDom(
     '<xml>' +
@@ -300,7 +300,7 @@ FactoryController.prototype.standardCategories['lists'].xml =
 FactoryController.prototype.standardCategories['lists'].color = '#745CA6';
 
 FactoryController.prototype.standardCategories['colour'] =
-    new ListElement(ListElement.CATEGORY, 'Colour');
+    new ListElement(ListElement.TYPE_CATEGORY, 'Colour');
 FactoryController.prototype.standardCategories['colour'].xml =
     Blockly.Xml.textToDom(
     '<xml>' +
@@ -344,12 +344,12 @@ FactoryController.prototype.standardCategories['colour'].xml =
 FactoryController.prototype.standardCategories['colour'].color = '#A6745C';
 
 FactoryController.prototype.standardCategories['functions'] =
-    new ListElement(ListElement.CATEGORY, 'Functions');
+    new ListElement(ListElement.TYPE_CATEGORY, 'Functions');
 FactoryController.prototype.standardCategories['functions'].color = '#9A5CA6'
 FactoryController.prototype.standardCategories['functions'].custom =
     'PROCEDURE';
 
 FactoryController.prototype.standardCategories['variables'] =
-    new ListElement(ListElement.CATEGORY, 'Variables');
+    new ListElement(ListElement.TYPE_CATEGORY, 'Variables');
 FactoryController.prototype.standardCategories['variables'].color = '#A65C81';
 FactoryController.prototype.standardCategories['variables'].custom = 'VARIABLE';

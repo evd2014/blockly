@@ -76,11 +76,11 @@ FactoryView.prototype.deleteElementRow = function(id, index) {
  *
  * @param {int} selectedIndex The index of the currently selected category.
  * @param {!string} selectedType The type of the selected ListElement.
- * ListElement.CATEGORY or ListElement.SEPARATOR.
+ * ListElement.TYPE_CATEGORY or ListElement.TYPE_SEPARATOR.
  */
 FactoryView.prototype.updateState = function(selectedIndex, selectedType) {
   document.getElementById('button_edit').disabled = selectedIndex < 0 ||
-      selectedType != ListElement.CATEGORY;
+      selectedType != ListElement.TYPE_CATEGORY;
   document.getElementById('button_remove').disabled = selectedIndex < 0;
   document.getElementById('button_up').disabled =
       selectedIndex <= 0 ? true : false;

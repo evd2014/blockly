@@ -86,7 +86,7 @@ FactoryController.prototype.addCategory = function() {
 
 FactoryController.prototype.createCategory = function(name, firstCategory) {
   // Create empty category
-  var id = this.model.addCategoryToList(name);
+  var id = this.model.addElementToList(ListElement.TYPE_CATEGORY, name);
   // Create new category.
   var tab = this.view.addCategoryRow(name, id, firstCategory);
   this.addClickToSwitch(tab, id);
@@ -177,8 +177,7 @@ FactoryController.prototype.switchElement = function(id) {
   // Caches information to reload or generate xml if switching to/from element.
   // Only saves if a category is selected.
   if (this.model.getSelectedId() != null && id != null) {
-    this.model.saveCategoryInList(this.model.getSelected(),
-        this.toolboxWorkspace);
+    this.model.getSelected().saveFromWorkspace(this.toolboxWorkspace);
   }
   // Load element.
   this.clearAndLoadElement(id);
@@ -197,7 +196,7 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
   }
   // If switching from a separator, enable workspace in view.
   if (this.model.getSelectedId() != null && this.model.getSelected().type ==
-      ListElement.SEPARATOR) {
+      ListElement.TYPE_SEPARATOR) {
     this.view.disableWorkspace(false);
   }
   // Set next category.
@@ -211,7 +210,7 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
     Blockly.Xml.domToWorkspace(this.model.getSelectedXml(),
         this.toolboxWorkspace);
     // Disable workspace if switching to a separator.
-    if (this.model.getSelected().type == ListElement.SEPARATOR) {
+    if (this.model.getSelected().type == ListElement.TYPE_SEPARATOR) {
       this.view.disableWorkspace(true);
     }
   }
@@ -310,10 +309,10 @@ FactoryController.prototype.reinjectPreview = function(tree) {
  * Continues prompting the user until they input a category name that is not
  * currently in use, exits if user presses cancel.
  */
-FactoryController.prototype.changeName = function() {
+FactoryController.prototype.changeCategoryName = function() {
   // Return if no category selected or element a separator.
   if (!this.model.getSelected() ||
-      this.model.getSelected().type == ListElement.SEPARATOR) {
+      this.model.getSelected().type == ListElement.TYPE_SEPARATOR) {
     return;
   }
   // Get new name from user.
@@ -323,14 +322,14 @@ FactoryController.prototype.changeName = function() {
     return;
   }
   // Change category name.
-  this.model.changeCategoryName(newName, this.model.getSelected());
+  this.model.getSelected().changeName(newName);
   this.view.updateCategoryName(newName, this.model.getSelectedId());
   // Update preview.
   this.updatePreview();
 };
 
 /**
- * Tied to arrow up and arrow down buttons. Swaps with the elementabove or
+ * Tied to arrow up and arrow down buttons. Swaps with the element above or
  * below the currently selected element (offset categories away from the
  * current element). Updates state to enable the correct element editing
  * buttons.
@@ -383,13 +382,12 @@ FactoryController.prototype.moveElementToIndex = function(element, newIndex,
 FactoryController.prototype.changeSelectedCategoryColor = function(color) {
   // Return if no category selected or element a separator.
   if (!this.model.getSelected() ||
-      this.model.getSelected().type == ListElement.SEPARATOR) {
+      this.model.getSelected().type == ListElement.TYPE_SEPARATOR) {
     return;
   }
   // Change color of selected category.
-  var selectedId = this.model.getSelectedId();
-  this.model.setCategoryColorById(selectedId, color);
-  this.view.setBorderColor(selectedId, color);
+  this.model.getSelected().changeColor(color);
+  this.view.setBorderColor(this.model.getSelectedId(), color);
   this.updatePreview();
 };
 
@@ -454,7 +452,7 @@ FactoryController.prototype.addSeparator = function() {
     return;
   }
   // Create the separator in the model.
-  var id = this.model.addSeparatorToList();
+  var id = this.model.addElementToList(ListElement.TYPE_SEPARATOR);
   // Create the separator in the view.
   var tab = this.view.addSeparatorTab(id);
   this.addClickToSwitch(tab, id);
