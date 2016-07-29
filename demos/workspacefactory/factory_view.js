@@ -80,7 +80,7 @@ FactoryView.prototype.deleteElementRow = function(id, index) {
  */
 FactoryView.prototype.updateState = function(selected, selectedIndex) {
   // Disable/enable editing buttons as necessary.
-  document.getElementById('button_edit').disabled = selectedIndex < 0 ||
+  document.getElementById('button_editCategory').disabled = selectedIndex < 0 ||
       selected.type != ListElement.CATEGORY;
   document.getElementById('button_remove').disabled = selectedIndex < 0;
   document.getElementById('button_up').disabled =
@@ -254,13 +254,3 @@ FactoryView.prototype.shouldDisableWorkspace = function(category) {
       category.custom == 'VARIABLE' || category.custom == 'PROCEDURE');
 };
 
-//@param {!Blockly.Block}
-FactoryView.prototype.markShadowBlock = function(block) {
-  block.setColour('#000000');
-};
-
-FactoryView.prototype.markShadowBlocks = function(blocks) {
-  for (var i = 0; i < blocks.length; i++) {
-    this.markShadowBlock(blocks[i]);
-  }
-}

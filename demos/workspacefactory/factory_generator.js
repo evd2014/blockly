@@ -84,6 +84,7 @@ FactoryGenerator.prototype.generateConfigXml = function() {
         // Load that category to workspace.
         this.toolboxWorkspace.clear();
         Blockly.Xml.domToWorkspace(element.xml, this.toolboxWorkspace);
+        this.model.setShadowBlocks(this.toolboxWorkspace.getAllBlocks());
         // Generate XML for that category, append to DOM for all XML.
         this.categoryWorkspaceToDom(categoryElement,
             this.toolboxWorkspace.getTopBlocks());

@@ -333,6 +333,22 @@ FactoryModel.prototype.addShadowBlock = function(blockId) {
   this.shadowBlocks.push(blockId);
 };
 
+FactoryModel.prototype.removeShadowBlock = function(blockId) {
+  console.log("removing");
+  var index = null;
+  for (var i = 0; i < this.shadowBlocks.length; i++) {
+    if (this.shadowBlocks[i] == blockId) {
+      index = i;
+      console.log("found at index " + i);
+      break;
+    }
+  }
+  if (!index) {
+    return;
+  }
+  this.shadowBlocks.splice(index, 1);
+};
+
 FactoryModel.prototype.isShadowBlock = function(blockId) {
   for (var i = 0; i < this.shadowBlocks.length; i++) {
     if (this.shadowBlocks[i] == blockId) {
@@ -342,18 +358,24 @@ FactoryModel.prototype.isShadowBlock = function(blockId) {
   return false;
 };
 
-FactoryModel.prototype.markShadowBlock = function(block) {
-  block.setColour('#000000');
-};
+
 
 FactoryModel.prototype.markShadowBlocks = function(blocks) {
   for (var i = 0; i < blocks.length; i++) {
     if (this.isShadowBlock(blocks[i].id)) {
-      this.markShadowBlock(blocks[i]);
+      FactoryUtils.markShadowBlock(blocks[i]);
     }
   }
 };
 
+
+FactoryModel.prototype.setShadowBlocks = function(blocks) {
+  for (var i = 0; i < blocks.length; i++) {
+    if (this.isShadowBlock(blocks[i].id)) {
+      FactoryUtils.setShadowBlock(blocks[i]);
+    }
+  }
+};
 /**
  * Class for a ListElement
  * @constructor

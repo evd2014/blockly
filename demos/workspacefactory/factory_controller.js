@@ -474,11 +474,25 @@ FactoryController.prototype.addSeparator = function() {
   this.updatePreview();
 };
 
-FactoryController.prototype.makeShadow = function() {
+FactoryController.prototype.addShadow = function() {
   // No block selected to make a shadow block.
   if (!Blockly.selected) {
     return;
   }
-  this.view.markShadowBlock(Blockly.selected);
+  FactoryUtils.markShadowBlock(Blockly.selected);
   this.model.addShadowBlock(Blockly.selected.id);
+  this.updatePreview();
 };
+
+FactoryController.prototype.removeShadow = function() {
+  // No block selected to make a shadow block.
+  if (!Blockly.selected) {
+    return;
+  }
+  this.model.removeShadowBlock(Blockly.selected.id);
+  var xml = Blockly.Xml.workspaceToDom(this.toolboxWorkspace);
+  this.toolboxWorkspace.clear();
+  Blockly.Xml.domToWorkspace(xml, this.toolboxWorkspace);
+  this.model.markShadowBlocks(this.toolboxWorkspace.getAllBlocks());
+  this.updatePreview();
+}

@@ -9,6 +9,7 @@
 <script src="factory_controller.js"></script>
 <script src="factory_view.js"></script>
 <script src="factory_generator.js"></script>
+<script src="factory_utils.js"></script>
 <script src="standard_categories.js"></script>
 <script src="../../../closure-library/closure/goog/base.js"></script>
 <link rel="stylesheet" href="style.css">
@@ -48,6 +49,7 @@ goog.require('goog.ui.ColorPicker');
       <td id="tab_help">Your categories will appear here</td>
     </table>
     <p>&nbsp;</p>
+
     <div class='dropdown'>
     <button id="button_add">+</button>
     <div id="dropdown_add" class="dropdown-content">
@@ -56,13 +58,18 @@ goog.require('goog.ui.ColorPicker');
       <a id='dropdown_separator'>Separator</a>
     </div>
     </div>
+
     <button id="button_remove">-</button>
+
+    <button id="button_up">&#8593;</button>
+    <button id="button_down">&#8595;</button>
+
     <p>&nbsp;</p>
     <div class='dropdown'>
     <button id="button_editCategory">Edit Category</button>
     <div id="dropdown_editCategory" class="dropdown-content">
-      <a id='dropdown_name1'>Name</a>
-      <a id='dropdown_color1'>Color</a>
+      <a id='dropdown_name'>Name</a>
+      <a id='dropdown_color'>Color</a>
     </div>
     </div>
 
@@ -71,13 +78,11 @@ goog.require('goog.ui.ColorPicker');
     <div id="dropdown_editShadowAdd" class="dropdown-content">
       <a id='dropdown_addShadow'>Add Shadow</a>
     </div>
-    <div id="dropdown_editShadowAdd" class="dropdown-content">
+    <div id="dropdown_editShadowRemove" class="dropdown-content">
       <a id='dropdown_removeShadow'>Remove Shadow</a>
     </div>
     </div>
 
-    <button id="button_up">&#8593;</button>
-    <button id="button_down">&#8595;</button>
   </aside>
 </section>
 
@@ -511,38 +516,31 @@ goog.require('goog.ui.ColorPicker');
   var downWrapper = function() {
     controller.moveElement(1);
   };
-  var editWrapper = function() {
-    if (!Blockly.selected) {
-      document.getElementById('dropdown_editWithShadowAdd').classList.remove
-          ("show");
-      document.getElementById('dropdown_editWithShadowRemove').classList.remove
-          ("show");
-      document.getElementById('dropdown_editNoShadow').classList.toggle("show");
-    } else {
-      document.getElementById('dropdown_editNoShadow').classList.remove("show");
-      if (controller.model.isShadowBlock(Blockly.selected.id)) {
-        document.getElementById('dropdown_editWithShadowAdd').classList.remove("show");
-        document.getElementById('dropdown_editWithShadowRemove').classList.toggle
-          ("show");
-      } else {
-        document.getElementById('dropdown_editWithShadowRemove').classList.remove("show");
-        document.getElementById('dropdown_editWithShadowAdd').classList.toggle
-          ("show");
-      }
-
-    }
+  var editCategoryWrapper = function() {
+    document.getElementById('dropdown_editCategory').classList.toggle("show");
   };
   var nameWrapper = function() {
     controller.changeName();
-    document.getElementById('dropdown_editWithShadowAdd').classList.remove("show");
-    document.getElementById('dropdown_editWithShadowRemove').classList.remove("show");
-    document.getElementById('dropdown_editNoShadow').classList.remove("show");
+    document.getElementById('dropdown_editCategory').classList.remove("show");
   };
-  var shadowWrapper = function() {
-    controller.makeShadow();
-    document.getElementById('dropdown_editWithShadowAdd').classList.remove("show");
-    document.getElementById('dropdown_editWithShadowRemove').classList.remove("show");
-    document.getElementById('dropdown_editNoShadow').classList.remove("show");
+  var shadowAddWrapper = function() {
+    controller.addShadow();
+    document.getElementById('dropdown_editShadowAdd').classList.remove("show");
+  };
+    var shadowRemoveWrapper = function() {
+    controller.removeShadow();
+    document.getElementById('dropdown_editShadowRemove').classList.remove("show");
+  };
+  var editShadowWrapper = function() {
+    if (Blockly.selected) {
+      if (!controller.model.isShadowBlock(Blockly.selected.id)) {
+        document.getElementById('dropdown_editShadowRemove').classList.remove("show");
+        document.getElementById('dropdown_editShadowAdd').classList.toggle("show");
+      } else {
+        document.getElementById('dropdown_editShadowAdd').classList.remove("show");
+        document.getElementById('dropdown_editShadowRemove').classList.toggle("show");
+      }
+    }
   };
 
   document.getElementById('button_add').addEventListener
@@ -563,14 +561,16 @@ goog.require('goog.ui.ColorPicker');
       ('click', upWrapper);
   document.getElementById('button_down').addEventListener
       ('click', downWrapper);
-  document.getElementById('button_edit').addEventListener
-      ('click', editWrapper);
-  document.getElementById('dropdown_name1').addEventListener
+  document.getElementById('button_editCategory').addEventListener
+      ('click', editCategoryWrapper);
+  document.getElementById('button_editShadow').addEventListener
+      ('click', editShadowWrapper);
+  document.getElementById('dropdown_name').addEventListener
       ('click', nameWrapper);
-  document.getElementById('dropdown_name2').addEventListener
-      ('click', nameWrapper);
-  document.getElementById('dropdown_shadow').addEventListener
-      ('click', shadowWrapper);
+  document.getElementById('dropdown_editShadowAdd').addEventListener
+      ('click', shadowAddWrapper);
+    document.getElementById('dropdown_editShadowRemove').addEventListener
+      ('click', shadowRemoveWrapper);
 
   // Create color picker with specific set of Blockly colors.
   var colorPicker = new goog.ui.ColorPicker();
@@ -578,15 +578,11 @@ goog.require('goog.ui.ColorPicker');
   // Create and render the popup color picker and attach to button.
   var popupPicker = new goog.ui.PopupColorPicker(null, colorPicker);
   popupPicker.render();
-  popupPicker.attach(document.getElementById('dropdown_color1'));
-  popupPicker.attach(document.getElementById('dropdown_color2'));
+  popupPicker.attach(document.getElementById('dropdown_color'));
   popupPicker.setFocusable(true);
   goog.events.listen(popupPicker, 'change', function(e) {
         controller.changeSelectedCategoryColor(popupPicker.getSelectedColor());
-        document.getElementById('dropdown_editWithShadowAdd').classList.remove
-            ("show");
-        document.getElementById('dropdown_editWithShadowRemove').classList.remove("show");
-        document.getElementById('dropdown_editNoShadow').classList.remove
+        document.getElementById('dropdown_editCategory').classList.remove
             ("show");
       });
 
@@ -594,6 +590,8 @@ goog.require('goog.ui.ColorPicker');
   document.getElementById('button_remove').disabled = true;
   document.getElementById('button_up').disabled = true;
   document.getElementById('button_down').disabled = true;
+  document.getElementById('button_editCategory').disabled = true;
+  document.getElementById('button_editShadow').disabled = true;
 
   // Listen for Blockly move and delete events to update preview.
   // Not listening for Blockly create events because causes the user to drop
@@ -602,6 +600,15 @@ goog.require('goog.ui.ColorPicker');
   toolboxWorkspace.addChangeListener(function(e) {
     if (e.type == Blockly.Events.MOVE || e.type == Blockly.Events.DELETE) {
       controller.updatePreview();
+    }
+    if (e.type == Blockly.Events.UI && e.element == 'selected') {
+      if (e.newValue) {
+        document.getElementById('button_editShadow').disabled = false;
+      } else {
+        document.getElementById('button_editShadow').disabled = true;
+        document.getElementById('dropdown_editShadowRemove').classList.remove("show");
+        document.getElementById('dropdown_editShadowAdd').classList.remove("show");
+      }
     }
   });
 </script>
