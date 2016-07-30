@@ -169,12 +169,13 @@ FactoryController.prototype.promptForNewCategoryName = function(promptString) {
 /**
  * Switches to a new tab for the element given by ID. Stores XML and blocks
  * to reload later, updates selected accordingly, and clears the workspace
- * and clears undo, then loads the new element. Disables events while switching
- * so that Blockly delete and create events don't update the preview repeatedly.
+ * and clears undo, then loads the new element.
  *
  * @param {!string} id ID of tab to be opened, must be valid element ID.
  */
 FactoryController.prototype.switchElement = function(id) {
+  // Disables events while switching so that Blockly delete and create events
+  // don't update the preview repeatedly.
   Blockly.Events.disable();
   // Caches information to reload or generate xml if switching to/from element.
   // Only saves if a category is selected.
@@ -184,6 +185,7 @@ FactoryController.prototype.switchElement = function(id) {
   }
   // Load element.
   this.clearAndLoadElement(id);
+  // Enable Blockly events again.
   Blockly.Events.enable();
 };
 
@@ -502,11 +504,12 @@ FactoryController.prototype.addShadow = function() {
  *
  */
 FactoryController.prototype.removeShadow = function() {
-  // No block selected modify.
+  // No block selected to modify.
   if (!Blockly.selected) {
     return;
   }
   this.model.removeShadowBlock(Blockly.selected.id);
+  // Update the shadow blocks in the workspace to reflect the updated model.
   var xml = Blockly.Xml.workspaceToDom(this.toolboxWorkspace);
   this.toolboxWorkspace.clear();
   Blockly.Xml.domToWorkspace(xml, this.toolboxWorkspace);
