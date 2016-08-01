@@ -21,8 +21,11 @@
  * dragged into corresponding categories
  * @param {!Blockly.workspace} previewWorkspace workspace that shows preview
  * of what workspace would look like using generated XML
+ * @param {!Blockly.workspace} hiddenWorkspace workspace not visible to user
+ * used to generate XML.
  */
-FactoryController = function(toolboxWorkspace, previewWorkspace) {
+FactoryController = function(toolboxWorkspace, previewWorkspace,
+    hiddenWorkspace) {
   // Workspace for user to drag blocks in for a certain category.
   this.toolboxWorkspace = toolboxWorkspace;
   // Workspace for user to preview their changes.
@@ -32,7 +35,8 @@ FactoryController = function(toolboxWorkspace, previewWorkspace) {
   // Updates the category tabs.
   this.view = new FactoryView();
   // Generates XML for categories.
-  this.generator = new FactoryGenerator(this.model, this.toolboxWorkspace);
+  this.generator = new FactoryGenerator(this.model, this.toolboxWorkspace,
+      hiddenWorkspace);
 };
 
 /**
@@ -210,7 +214,8 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
     this.view.setCategoryTabSelection(id, true);
     Blockly.Xml.domToWorkspace(this.model.getSelectedXml(),
         this.toolboxWorkspace);
-    this.model.markShadowBlocks(this.toolboxWorkspace.getAllBlocks());
+    this.view.markShadowBlocks(this.model.getShadowBlocksInWorkspace
+        (toolboxWorkspace.getAllBlocks()));
   }
   // Update category editing buttons.
   this.view.updateState(this.model.getSelected(),
@@ -492,7 +497,7 @@ FactoryController.prototype.addShadow = function() {
   if (!Blockly.selected) {
     return;
   }
-  this.model.markShadowBlock(Blockly.selected);
+  this.view.markShadowBlock(Blockly.selected);
   this.model.addShadowBlock(Blockly.selected.id);
   this.updatePreview();
 };
@@ -509,10 +514,6 @@ FactoryController.prototype.removeShadow = function() {
     return;
   }
   this.model.removeShadowBlock(Blockly.selected.id);
-  // Update the shadow blocks in the workspace to reflect the updated model.
-  var xml = Blockly.Xml.workspaceToDom(this.toolboxWorkspace);
-  this.toolboxWorkspace.clear();
-  Blockly.Xml.domToWorkspace(xml, this.toolboxWorkspace);
-  this.model.markShadowBlocks(this.toolboxWorkspace.getAllBlocks());
+  this.view.unmarkShadowBlock(Blockly.selected);
   this.updatePreview();
 };

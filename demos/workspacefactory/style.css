@@ -91,6 +91,11 @@ td {
   width: 100%;
 }
 
+#hidden_blocks {
+  height: 0px;
+  width: 0px;
+}
+
 #createDiv {
   width: 70%;
 }

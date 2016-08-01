@@ -9,7 +9,6 @@
 <script src="factory_controller.js"></script>
 <script src="factory_view.js"></script>
 <script src="factory_generator.js"></script>
-<script src="factory_utils.js"></script>
 <script src="standard_categories.js"></script>
 <script src="../../../closure-library/closure/goog/base.js"></script>
 <link rel="stylesheet" href="style.css">
@@ -43,6 +42,7 @@ goog.require('goog.ui.ColorPicker');
   <section id="toolbox_section">
     <div id="toolbox_blocks" class="content"></div>
     <div id='disable_div'></div>
+    <div id="hidden_blocks" class="content"></div>
   </section>
   <aside id="category_section">
     <table id="categoryTable">
@@ -483,7 +483,11 @@ goog.require('goog.ui.ColorPicker');
         wheel: true}
     });
 
-  var controller = new FactoryController(toolboxWorkspace, previewWorkspace);
+  // Create a hidden workspace for the generator to use.
+  var hiddenWorkspace = Blockly.inject('hidden_blocks');
+
+  var controller = new FactoryController(toolboxWorkspace, previewWorkspace,
+      hiddenWorkspace);
 
   // Wrappers to attach buttons to method calls for the controller object
   var addWrapper = function() {
@@ -614,7 +618,10 @@ goog.require('goog.ui.ColorPicker');
     // Only enable "Edit Block" when a block is selected and it has a surrounding
     // parent, meaning it is nested in another block (blocks that are not
     // nested in parents cannot be shadow blocks).
-    if (e.type == Blockly.Events.UI && e.element == 'selected') {
+    // TODO(evd2014): Listen for when the user has moved a block to be nested inside
+    // another (currently have to unselect and reselect that block).
+    if (e.type == Blockly.Events.MOVE || (e.type == Blockly.Events.UI &&
+        e.element == 'selected')) {
       var selected = toolboxWorkspace.getBlockById(e.newValue);
       if (selected != null && selected.getSurroundParent() != null) {
         document.getElementById('button_editShadow').disabled = false;

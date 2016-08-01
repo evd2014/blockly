@@ -249,3 +249,38 @@ FactoryView.prototype.shouldDisableWorkspace = function(category) {
   return category != null && (category.type == ListElement.SEPARATOR ||
       category.custom == 'VARIABLE' || category.custom == 'PROCEDURE');
 };
+
+/**
+ * Given a set of blocks currently loaded user-generated shadow blocks, visually
+ * marks them without making them actual shadow blocks (allowing them to still
+ * be editable and movable).
+ *
+ * @param {!<Blockly.Block>} blocks Array of user-generated shadow blocks
+ * currently loaded.
+ */
+FactoryView.prototype.markShadowBlocks = function(blocks) {
+  for (var i = 0; i < blocks.length; i++) {
+    this.markShadowBlock(blocks[i]);
+  }
+};
+
+/**
+ * Visually marks a user-generated shadow block as a shadow block in the
+ * workspace without making the block an actual shadow block (allowing it
+ * to be moved and edited).
+ *
+ * @param {!Blockly.Block} block The block that should be marked as a shadow
+ *    block.
+ */
+FactoryView.prototype.markShadowBlock = function(block) {
+  // Add Blockly CSS for disabled blocks.
+  Blockly.addClass_(block.svgGroup_, 'blocklyDisabled');
+}
+
+FactoryView.prototype.unmarkShadowBlock = function(block) {
+  // Remove Blockly CSS for disabled blocks.
+  if (Blockly.hasClass_(block.svgGroup_, 'blocklyDisabled')) {
+    Blockly.removeClass_(block.svgGroup_, 'blocklyDisabled');
+  }
+}
+

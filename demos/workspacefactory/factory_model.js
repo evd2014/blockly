@@ -385,46 +385,21 @@ FactoryModel.prototype.isShadowBlock = function(blockId) {
 };
 
 /**
- * Given a set of blocks currently loaded, visually marks all of the ones that
- * are in the shadow block list without making them actual shadow blocks
- * (allowing them to still be editable and movable).
+ * Given a set of blocks currently loaded, returns all blocks in the workspace
+ * that are user generated shadow blocks.
  *
  * @param {!<Blockly.Block>} blocks Array of blocks currently loaded.
+ * @return {!<Blockly.Block>} Array of user-generated shadow blocks currently
+ * loaded.
  */
-FactoryModel.prototype.markShadowBlocks = function(blocks) {
-  for (var i = 0; i < blocks.length; i++) {
-    if (this.isShadowBlock(blocks[i].id)) {
-      this.markShadowBlock(blocks[i]);
+FactoryModel.prototype.getShadowBlocksInWorkspace = function(workspaceBlocks) {
+  var shadowsInWorkspace = [];
+  for (var i = 0; i < workspaceBlocks.length; i++) {
+    if (this.isShadowBlock(workspaceBlocks[i].id)) {
+      shadowsInWorkspace.push(workspaceBlocks[i]);
     }
   }
-};
-
-/**
- * Visually marks a user-generated shadow block as a shadow block in the
- * workspace without making the block an actual shadow block (allowing it
- * to be moved and edited).
- * TODO(evd2014): Find a better way to mark a block visually as a shadow block.
- *
- * @param {!Blockly.Block} block The block that should be marked as a shadow
- *    block.
- */
-FactoryModel.prototype.markShadowBlock = function(block) {
-  block.setColour('#000000');
-}
-
-/**
- * Given a set of blocks currently loaded, sets them to be shadow blocks.
- * This should not be used to update the view, but only to generate XML so
- * that blockToDom records them as shadow blocks instead of regular blocks.
- *
- * @param {!<Blockly.Block>} blocks Array of blocks currently loaded.
- */
-FactoryModel.prototype.setShadowBlocks = function(blocks) {
-  for (var i = 0; i < blocks.length; i++) {
-    if (this.isShadowBlock(blocks[i].id)) {
-      blocks[i].setShadow(true);
-    }
-  }
+  return shadowsInWorkspace;
 };
 
 /**

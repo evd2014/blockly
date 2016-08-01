@@ -2,7 +2,8 @@
  * @fileoverview Generates the configuration xml used to update the preview
  * workspace or print to the console or download to a file. Leverages
  * Blockly.Xml and depends on information in the model and in toolboxWorkspace,
- * by holding references to them.
+ * by holding references to them. Depends on a hidden workspace to load saved
+ * XML in order to generate toolbox XML.
  *
  * @author Emma Dauterman (evd2014)
  */
@@ -11,19 +12,24 @@
  * Class for a FactoryGenerator
  * @constructor
  */
-FactoryGenerator = function(model, toolboxWorkspace) {
+FactoryGenerator = function(model, toolboxWorkspace, hiddenWorkspace) {
+  // Model to share information about categories and shadow blocks.
   this.model = model;
+  // Toolbox workspace to retrieve blocks chosen by user.
   this.toolboxWorkspace = toolboxWorkspace;
+  // Hidden workspace to load saved XML to generate toolbox XML.
+  this.hiddenWorkspace = hiddenWorkspace;
 };
 
 /**
  * Encodes workspace for a particular category in a XML DOM element. Very
- * similar to workspaceToDom, but doesn't capture IDs.
+ * similar to workspaceToDom, but doesn't capture IDs. Uses the top-level
+ * blocks loaded in hiddenWorkspace.
  *
  * @param {!Element} xmlDom Tree of XML elements to be appended to.
- * @param {!Array.<!Blockly.Block>} topBlocks top level blocks to add to xmlDom
  */
-FactoryGenerator.prototype.categoryWorkspaceToDom = function(xmlDom, blocks) {
+FactoryGenerator.prototype.categoryWorkspaceToDom = function(xmlDom) {
+  var blocks = this.hiddenWorkspace.getTopBlocks();
   for (var i = 0, block; block = blocks[i]; i++) {
     var blockChild = Blockly.Xml.blockToDom(block);
     blockChild.removeAttribute('id');
@@ -50,12 +56,14 @@ FactoryGenerator.prototype.generateConfigXml = function() {
       });
   // If no categories, use XML directly from workspace
   if (!this.model.hasToolbox()) {
-    // Save XML.
+    // Load current XML to hidden workspace.
     var xml = Blockly.Xml.workspaceToDom(this.toolboxWorkspace);
+    this.hiddenWorkspace.clear();
+    Blockly.Xml.domToWorkspace(xml, this.hiddenWorkspace);
     // Set user-generated shadow blocks as real shadow blocks.
-    this.model.setShadowBlocks(this.toolboxWorkspace.getAllBlocks());
-    // Generate XML.
-    this.categoryWorkspaceToDom(xmlDom, this.toolboxWorkspace.getTopBlocks());
+    this.setShadowBlocks();
+    // Generate XML from hidden workspace.
+    this.categoryWorkspaceToDom(xmlDom);
   }
   else {
     // Assert that selected != null
@@ -87,22 +95,31 @@ FactoryGenerator.prototype.generateConfigXml = function() {
         if (element.custom != null) {
           categoryElement.setAttribute('custom', element.custom);
         }
-        // Load that category to workspace, setting user-generated shadow blocks
-        // as real shadow blocks..
-        this.toolboxWorkspace.clear();
-        Blockly.Xml.domToWorkspace(element.xml, this.toolboxWorkspace);
-        this.model.setShadowBlocks(this.toolboxWorkspace.getAllBlocks());
+        // Load that category to hidden workspace, setting user-generated shadow
+        // blocks as real shadow blocks..
+        this.hiddenWorkspace.clear();
+        Blockly.Xml.domToWorkspace(element.xml, this.hiddenWorkspace);
+        this.setShadowBlocks();
         // Generate XML for that category, append to DOM for all XML.
-        this.categoryWorkspaceToDom(categoryElement,
-            this.toolboxWorkspace.getTopBlocks());
+        this.categoryWorkspaceToDom(categoryElement);
         xmlDom.appendChild(categoryElement);
       }
     }
   }
-  // Load category user was working on, marking the shadow blocks to be shown
-  // visually without being real shadow blocks (default for editing).
-  this.toolboxWorkspace.clear();
-  Blockly.Xml.domToWorkspace(xml, this.toolboxWorkspace);
-  this.model.markShadowBlocks(this.toolboxWorkspace.getAllBlocks());
   return xmlDom;
  };
+
+/**
+ * Sets the user-generated shadow blocks loaded into hiddenWorkspace to be
+ * actual shadow blocks. This is done so that blockToDom records them as
+ * shadow blocks instead of regular blocks.
+ *
+ */
+FactoryGenerator.prototype.setShadowBlocks = function() {
+  var blocks = this.hiddenWorkspace.getAllBlocks();
+  for (var i = 0; i < blocks.length; i++) {
+    if (this.model.isShadowBlock(blocks[i].id)) {
+      blocks[i].setShadow(true);
+    }
+  }
+};
