@@ -270,17 +270,23 @@ FactoryView.prototype.markShadowBlocks = function(blocks) {
  * to be moved and edited).
  *
  * @param {!Blockly.Block} block The block that should be marked as a shadow
- *    block.
+ *    block (must be rendered).
  */
 FactoryView.prototype.markShadowBlock = function(block) {
   // Add Blockly CSS for disabled blocks.
   Blockly.addClass_(block.svgGroup_, 'blocklyDisabled');
-}
+};
 
+/**
+ * Removes visual marking for a shadow block given a rendered block.
+ *
+ * @param {!Blockly.Block} block The block that should be unmarked as a shadow
+ *    block (must be rendered).
+ */
 FactoryView.prototype.unmarkShadowBlock = function(block) {
   // Remove Blockly CSS for disabled blocks.
   if (Blockly.hasClass_(block.svgGroup_, 'blocklyDisabled')) {
     Blockly.removeClass_(block.svgGroup_, 'blocklyDisabled');
   }
-}
+};
 
