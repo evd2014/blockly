@@ -233,6 +233,11 @@ FactoryModel.prototype.copyElement = function(original) {
   return copy;
 };
 
+FactoryModel.prototype.clearToolboxList = function() {
+  this.toolboxList = [];
+  // TODO: when merge changes, also clear shadowList
+};
+
 
 /**
  * Class for a ListElement

@@ -61,11 +61,16 @@ FactoryView.prototype.deleteElementRow = function(id, index) {
   table.deleteRow(index);
   // If last category removed, add category help text and disable category
   // buttons.
-  if (count == 1) {
+  this.addEmptyCategoryMessage();
+};
+
+FactoryView.prototype.addEmptyCategoryMessage = function() {
+  var table = document.getElementById('categoryTable');
+  if (table.rows.length == 0) {
     var row = table.insertRow(0);
     row.textContent = 'Your categories will appear here';
   }
-};
+}
 
 /**
  * Given the index of the currently selected category, updates the state of
@@ -237,3 +242,11 @@ FactoryView.prototype.addSeparatorTab = function(id) {
 FactoryView.prototype.disableWorkspace = function(disable) {
   document.getElementById('disable_div').style.zIndex = disable ? 1 : -1;
 };
+
+FactoryView.prototype.clearToolboxTabs = function() {
+  this.tabMap = [];
+  var oldCategoryTable = document.getElementById('categoryTable');
+  var newCategoryTable = document.createElement('table');
+  newCategoryTable.id = 'categoryTable';
+  oldCategoryTable.parentElement.replaceChild(newCategoryTable, oldCategoryTable);
+}
