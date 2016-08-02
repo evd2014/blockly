@@ -21,8 +21,6 @@
  * dragged into corresponding categories
  * @param {!Blockly.workspace} previewWorkspace workspace that shows preview
  * of what workspace would look like using generated XML
- * @param {!Blockly.workspace} hiddenWorkspace workspace not visible to user
- * used to generate XML.
  */
 FactoryController = function(toolboxWorkspace, previewWorkspace) {
   // Workspace for user to drag blocks in for a certain category.
