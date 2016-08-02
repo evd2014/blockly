@@ -91,11 +91,6 @@ td {
   width: 100%;
 }
 
-#hidden_blocks {
-  height: 0px;
-  width: 0px;
-}
-
 #createDiv {
   width: 70%;
 }
@@ -194,4 +189,14 @@ td {
 /* Show the dropdown menu */
 .show {
   display: block;
+}
+
+.shadowBlock>.blocklyPath {
+  fill-opacity: .5;
+  stroke-opacity: .5;
+}
+
+.shadowBlock>.blocklyPathLight,
+.shadowBlock>.blocklyPathDark {
+  display: none;
 }

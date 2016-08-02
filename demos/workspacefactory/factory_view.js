@@ -273,8 +273,8 @@ FactoryView.prototype.markShadowBlocks = function(blocks) {
  *    block (must be rendered).
  */
 FactoryView.prototype.markShadowBlock = function(block) {
-  // Add Blockly CSS for disabled blocks.
-  Blockly.addClass_(block.svgGroup_, 'blocklyDisabled');
+  // Add Blockly CSS for user-generated shadow blocks.
+  Blockly.addClass_(block.svgGroup_, 'shadowBlock');
 };
 
 /**
@@ -284,9 +284,9 @@ FactoryView.prototype.markShadowBlock = function(block) {
  *    block (must be rendered).
  */
 FactoryView.prototype.unmarkShadowBlock = function(block) {
-  // Remove Blockly CSS for disabled blocks.
-  if (Blockly.hasClass_(block.svgGroup_, 'blocklyDisabled')) {
-    Blockly.removeClass_(block.svgGroup_, 'blocklyDisabled');
+  // Remove Blockly CSS for user-generated shadow blocks.
+  if (Blockly.hasClass_(block.svgGroup_, 'shadowBlock')) {
+    Blockly.removeClass_(block.svgGroup_, 'shadowBlock');
   }
 };
 

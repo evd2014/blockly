@@ -42,7 +42,6 @@ goog.require('goog.ui.ColorPicker');
   <section id="toolbox_section">
     <div id="toolbox_blocks" class="content"></div>
     <div id='disable_div'></div>
-    <div id="hidden_blocks" class="content"></div>
   </section>
   <aside id="category_section">
     <table id="categoryTable">
@@ -483,11 +482,7 @@ goog.require('goog.ui.ColorPicker');
         wheel: true}
     });
 
-  // Create a hidden workspace for the generator to use.
-  var hiddenWorkspace = Blockly.inject('hidden_blocks');
-
-  var controller = new FactoryController(toolboxWorkspace, previewWorkspace,
-      hiddenWorkspace);
+  var controller = new FactoryController(toolboxWorkspace, previewWorkspace);
 
   // Wrappers to attach buttons to method calls for the controller object
   var addWrapper = function() {

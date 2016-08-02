@@ -1,9 +1,9 @@
 /**
  * @fileoverview Generates the configuration xml used to update the preview
  * workspace or print to the console or download to a file. Leverages
- * Blockly.Xml and depends on information in the model and in toolboxWorkspace,
- * by holding references to them. Depends on a hidden workspace to load saved
- * XML in order to generate toolbox XML.
+ * Blockly.Xml and depends on information in the model (holds a reference).
+ * Depends on a hidden workspace created in the generator to load saved XML in
+ * order to generate toolbox XML.
  *
  * @author Emma Dauterman (evd2014)
  */
@@ -12,13 +12,15 @@
  * Class for a FactoryGenerator
  * @constructor
  */
-FactoryGenerator = function(model, toolboxWorkspace, hiddenWorkspace) {
+FactoryGenerator = function(model) {
   // Model to share information about categories and shadow blocks.
   this.model = model;
-  // Toolbox workspace to retrieve blocks chosen by user.
-  this.toolboxWorkspace = toolboxWorkspace;
-  // Hidden workspace to load saved XML to generate toolbox XML.
-  this.hiddenWorkspace = hiddenWorkspace;
+  // Create hidden workspace to load saved XML to generate toolbox XML.
+  var hiddenBlocks = document.createElement('div');
+  hiddenBlocks.id = 'hidden_blocks';
+  document.body.appendChild(hiddenBlocks);
+  hiddenBlocks.style.display = 'none';
+  this.hiddenWorkspace = Blockly.inject('hidden_blocks');
 };
 
 /**
@@ -44,10 +46,12 @@ FactoryGenerator.prototype.categoryWorkspaceToDom = function(xmlDom) {
  * the user-generated shadow blocks are set as real shadow blocks, and the top
  * blocks are used to generate the xml for the flyout for that category.
  *
+ * @param {!Blockly.workspace} toolboxWorkspace Toolbox editing workspace where
+ * blocks are added by user to be part of the toolbox.
  * @return {!Element} XML element representing toolbox or flyout corresponding
  * to toolbox workspace.
  */
-FactoryGenerator.prototype.generateConfigXml = function() {
+FactoryGenerator.prototype.generateConfigXml = function(toolboxWorkspace) {
   // Create DOM for XML.
   var xmlDom = goog.dom.createDom('xml',
       {
@@ -57,7 +61,7 @@ FactoryGenerator.prototype.generateConfigXml = function() {
   // If no categories, use XML directly from workspace
   if (!this.model.hasToolbox()) {
     // Load current XML to hidden workspace.
-    var xml = Blockly.Xml.workspaceToDom(this.toolboxWorkspace);
+    var xml = Blockly.Xml.workspaceToDom(toolboxWorkspace);
     this.hiddenWorkspace.clear();
     Blockly.Xml.domToWorkspace(xml, this.hiddenWorkspace);
     // Set user-generated shadow blocks as real shadow blocks.
@@ -68,11 +72,11 @@ FactoryGenerator.prototype.generateConfigXml = function() {
   else {
     // Assert that selected != null
     if (!this.model.getSelected()) {
-      throw new Error('Selected is null when there are categories');
+      throw new Error('Selected is null when the toolbox is empty.');
     }
     // Capture any changes made by user before generating xml.
     this.model.saveCategoryInList(this.model.getSelected(),
-        this.toolboxWorkspace);
+        toolboxWorkspace);
     var xml = this.model.getSelectedXml();
     var toolboxList = this.model.getToolboxList();
     // Iterate through each category to generate XML for each. Load each

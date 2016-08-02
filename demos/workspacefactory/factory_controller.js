@@ -24,8 +24,7 @@
  * @param {!Blockly.workspace} hiddenWorkspace workspace not visible to user
  * used to generate XML.
  */
-FactoryController = function(toolboxWorkspace, previewWorkspace,
-    hiddenWorkspace) {
+FactoryController = function(toolboxWorkspace, previewWorkspace) {
   // Workspace for user to drag blocks in for a certain category.
   this.toolboxWorkspace = toolboxWorkspace;
   // Workspace for user to preview their changes.
@@ -35,8 +34,7 @@ FactoryController = function(toolboxWorkspace, previewWorkspace,
   // Updates the category tabs.
   this.view = new FactoryView();
   // Generates XML for categories.
-  this.generator = new FactoryGenerator(this.model, this.toolboxWorkspace,
-      hiddenWorkspace);
+  this.generator = new FactoryGenerator(this.model);
 };
 
 /**
@@ -229,7 +227,7 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
 FactoryController.prototype.exportConfig = function() {
   // Generate XML.
   var configXml = Blockly.Xml.domToPrettyText
-      (this.generator.generateConfigXml());
+      (this.generator.generateConfigXml(this.toolboxWorkspace));
   // Get file name.
   var fileName = prompt("File Name: ");
   if (!fileName) { // If cancelled
@@ -246,7 +244,7 @@ FactoryController.prototype.exportConfig = function() {
  */
 FactoryController.prototype.printConfig = function() {
   window.console.log(Blockly.Xml.domToPrettyText
-      (this.generator.generateConfigXml()));
+      (this.generator.generateConfigXml(this.toolboxWorkspace)));
 };
 
 /**
@@ -262,7 +260,7 @@ FactoryController.prototype.updatePreview = function() {
   // through event handlers.
   Blockly.Events.disable();
   var tree = Blockly.Options.parseToolboxTree
-      (this.generator.generateConfigXml());
+      (this.generator.generateConfigXml(this.toolboxWorkspace));
   // No categories, creates a simple flyout.
   if (tree.getElementsByTagName('category').length == 0) {
     if (this.previewWorkspace.toolbox_) {
