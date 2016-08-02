@@ -467,9 +467,8 @@ FactoryController.prototype.addSeparator = function() {
  * Connected to the import button. Given the file path inputted by the user
  * from file input, this function loads that toolbox XML to the workspace,
  * creating category and separator tabs as necessary. This allows the user
- * to be able to edit toolboxes given their XML form. There is currently no
- * error checking for file reading if the file is not valid toolbox XML.
- * TODO(evd2014): Add better error checking for file reading.
+ * to be able to edit toolboxes given their XML form. Catches errors from
+ * file reading and prints an error message alerting the user.
  *
  * @param {string} file The path for the file to be imported into the workspace.
  * Should contain valid toolbox XML.
@@ -482,8 +481,14 @@ FactoryController.prototype.import = function(file) {
   var reader = new FileReader();
   // To be executed when the reader has read the file.
   reader.onload = function() {
-    var tree = Blockly.Xml.textToDom(reader.result);
-    controller.importFromTree(tree);
+    // Try to parse XML from file and load it into toolbox editing area.
+    // Print error message if fail.
+    try {
+      var tree = Blockly.Xml.textToDom(reader.result);
+      controller.importFromTree(tree);
+    } catch(e) {
+      alert('Cannot load XML from file.');
+    }
   }
   // Read the file.
   reader.readAsText(file);
@@ -505,29 +510,28 @@ FactoryController.prototype.importFromTree = function(tree) {
     // Load all the blocks into a single category.
     Blockly.Xml.domToWorkspace(tree, this.toolboxWorkspace);
     // Evenly space the blocks.
-    var topBlocks = this.toolboxWorkspace.getTopBlocks();
-    for (var i = 0, block; block = topBlocks[i]; i++) {
-      block.moveBy(0, i * 100);
-    }
+    this.view.distributeBlocks(this.toolboxWorkspace.getTopBlocks());
     // Add message to denote empty category.
     this.view.addEmptyCategoryMessage();
   // Categories present.
   } else {
     for (var i = 0, item; item = tree.children[i]; i++) {
       // If the element is a category, create a new category and switch to it
-      // TODO NOW: UNIFY SPACING OUT
       if (item.tagName == 'category') {
         this.createCategory(item.getAttribute('name'), false);
         this.switchElement(this.model.getElementByIndex(i).id);
         var category = this.model.getElementByIndex(i);
+        // Add all blocks to the category
         for (var j = 0, blockXml; blockXml = item.children[j]; j++) {
           var block = Blockly.Xml.domToBlock(blockXml, this.toolboxWorkspace);
-          block.moveBy(0, j * 100);
         }
+        // Evenly space the blocks.
+        this.view.distributeBlocks(this.toolboxWorkspace.getTopBlocks());
+        // Set category color.
         if (item.color) {
           category.changeColor(item.color);
         }
-        category.saveFromWorkspace(this.toolboxWorkspace);
+      // If the element is a separator, add the separator and switch to it.
       } else {
         this.addSeparator();
         this.switchElement(this.model.getElementByIndex(i).id);
@@ -537,6 +541,10 @@ FactoryController.prototype.importFromTree = function(tree) {
   this.updatePreview();
 };
 
+/**
+ * Clears the toolbox editing area completely, deleting all categories and all
+ * blocks in the model and view.
+ */
 FactoryController.prototype.clear = function() {
   this.model.clearToolboxList();
   this.view.clearToolboxTabs();

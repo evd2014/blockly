@@ -233,9 +233,12 @@ FactoryModel.prototype.copyElement = function(original) {
   return copy;
 };
 
+/**
+ * Clears the toolbox list, deleting all ListElements.
+ */
 FactoryModel.prototype.clearToolboxList = function() {
   this.toolboxList = [];
-  // TODO: when merge changes, also clear shadowList
+  // TODO: When merge changes, also clear shadowList.
 };
 
 

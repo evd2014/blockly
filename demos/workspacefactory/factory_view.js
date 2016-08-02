@@ -243,10 +243,28 @@ FactoryView.prototype.disableWorkspace = function(disable) {
   document.getElementById('disable_div').style.zIndex = disable ? 1 : -1;
 };
 
+/**
+ * Removes all categories and separators in the view. Clears the tabMap to
+ * reflect this.
+ */
 FactoryView.prototype.clearToolboxTabs = function() {
   this.tabMap = [];
   var oldCategoryTable = document.getElementById('categoryTable');
   var newCategoryTable = document.createElement('table');
   newCategoryTable.id = 'categoryTable';
   oldCategoryTable.parentElement.replaceChild(newCategoryTable, oldCategoryTable);
-}
+};
+
+/**
+ * Given a set of blocks stacked on top of each other, evenly distributes them
+ * across the workspace without changing Blockly order (the order in which
+ * they appear in the flyout).
+ *
+ * @param {<!Blockly.Block>} blocks The blocks displayed in the workspace to
+ * be moved. Must be rendered.
+ */
+FactoryView.prototype.distributeBlocks = function(blocks) {
+  for (var i = 0, block; block = blocks[i]; i++) {
+    block.moveBy(0, i * 100);
+  }
+};
