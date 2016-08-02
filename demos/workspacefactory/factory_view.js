@@ -59,11 +59,17 @@ FactoryView.prototype.deleteElementRow = function(id, index) {
   var table = document.getElementById('categoryTable');
   var count = table.rows.length;
   table.deleteRow(index);
+
   // If last category removed, add category help text and disable category
   // buttons.
   this.addEmptyCategoryMessage();
 };
 
+/**
+ * If there are no toolbox elements created, adds a help message to show
+ * where categories will appear. Should be called when deleting list elements
+ * in case the last element is deleted.
+ */
 FactoryView.prototype.addEmptyCategoryMessage = function() {
   var table = document.getElementById('categoryTable');
   if (table.rows.length == 0) {
@@ -260,6 +266,8 @@ FactoryView.prototype.clearToolboxTabs = function() {
  * Given a set of blocks stacked on top of each other, evenly distributes them
  * across the workspace without changing Blockly order (the order in which
  * they appear in the flyout).
+ * TODO (evd2014): Space by the size of blocks, check to see if a Blockly
+ * function for this already exists.
  *
  * @param {<!Blockly.Block>} blocks The blocks displayed in the workspace to
  * be moved. Must be rendered.

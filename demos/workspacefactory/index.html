@@ -30,10 +30,10 @@ goog.require('goog.ui.ColorPicker');
   <tr>
     <td>
       <p>
-        <button id="button_export">Export</button>
-        <button id="button_print">Print</button>
         <input type="file" id="input_import" class="inputfile"></input>
         <label for="input_import">Import</label>
+        <button id="button_export">Export</button>
+        <button id="button_print">Print</button>
         <button id="button_clear">Clear</button>
       </p>
     </td>
@@ -511,7 +511,7 @@ goog.require('goog.ui.ColorPicker');
     document.getElementById('dropdown_edit').classList.remove("show");
   };
   var importWrapper = function(event) {
-    controller.import(event.target.files[0]);
+    controller.importFile(event.target.files[0]);
   };
   var clearWrapper = function() {
     controller.clear();

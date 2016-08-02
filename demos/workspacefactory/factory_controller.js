@@ -473,7 +473,7 @@ FactoryController.prototype.addSeparator = function() {
  * @param {string} file The path for the file to be imported into the workspace.
  * Should contain valid toolbox XML.
  */
-FactoryController.prototype.import = function(file) {
+FactoryController.prototype.importFile = function(file) {
   // Exit if cancelled.
   if (!file) {
     return;
@@ -499,44 +499,50 @@ FactoryController.prototype.import = function(file) {
  * user can continue editing their work. Assumes that tree is in valid toolbox
  * XML format.
  *
+ * @package
  * @param {!Element} tree XML tree to be loaded to toolbox editing area.
  */
 FactoryController.prototype.importFromTree = function(tree) {
   // Clear current editing area.
   this.model.clearToolboxList();
   this.view.clearToolboxTabs();
-  // No categories present.
+
   if (tree.getElementsByTagName('category').length == 0) {
+    // No categories present.
     // Load all the blocks into a single category evenly spaced.
     Blockly.Xml.domToWorkspace(tree, this.toolboxWorkspace);
     this.view.distributeBlocks(this.toolboxWorkspace.getTopBlocks());
     // Add message to denote empty category.
     this.view.addEmptyCategoryMessage();
-  // Categories/separators present.
   } else {
+    // Categories/separators present.
     for (var i = 0, item; item = tree.children[i]; i++) {
-      // If the element is a category, create a new category and switch to it
       if (item.tagName == 'category') {
+      // If the element is a category, create a new category and switch to it.
         this.createCategory(item.getAttribute('name'), false);
-        this.switchElement(this.model.getElementByIndex(i).id);
         var category = this.model.getElementByIndex(i);
-        // Add all blocks to the category.
+        this.switchElement(category.id);
+
+        // Load all blocks in that category to the workspace to be evenly
+        // spaced and saved to that category.
         for (var j = 0, blockXml; blockXml = item.children[j]; j++) {
           var block = Blockly.Xml.domToBlock(blockXml, this.toolboxWorkspace);
         }
+
         // Evenly space the blocks.
         this.view.distributeBlocks(this.toolboxWorkspace.getTopBlocks());
         // Set category color.
         if (item.color) {
           category.changeColor(item.color);
         }
-      // If the element is a separator, add the separator and switch to it.
       } else {
+      // If the element is a separator, add the separator and switch to it.
         this.addSeparator();
         this.switchElement(this.model.getElementByIndex(i).id);
       }
     }
   }
+
   this.updatePreview();
 };
 
