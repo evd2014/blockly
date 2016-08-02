@@ -252,7 +252,8 @@ FactoryView.prototype.clearToolboxTabs = function() {
   var oldCategoryTable = document.getElementById('categoryTable');
   var newCategoryTable = document.createElement('table');
   newCategoryTable.id = 'categoryTable';
-  oldCategoryTable.parentElement.replaceChild(newCategoryTable, oldCategoryTable);
+  oldCategoryTable.parentElement.replaceChild(newCategoryTable,
+      oldCategoryTable);
 };
 
 /**

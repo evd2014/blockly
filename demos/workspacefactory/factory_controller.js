@@ -507,13 +507,12 @@ FactoryController.prototype.importFromTree = function(tree) {
   this.view.clearToolboxTabs();
   // No categories present.
   if (tree.getElementsByTagName('category').length == 0) {
-    // Load all the blocks into a single category.
+    // Load all the blocks into a single category evenly spaced.
     Blockly.Xml.domToWorkspace(tree, this.toolboxWorkspace);
-    // Evenly space the blocks.
     this.view.distributeBlocks(this.toolboxWorkspace.getTopBlocks());
     // Add message to denote empty category.
     this.view.addEmptyCategoryMessage();
-  // Categories present.
+  // Categories/separators present.
   } else {
     for (var i = 0, item; item = tree.children[i]; i++) {
       // If the element is a category, create a new category and switch to it
