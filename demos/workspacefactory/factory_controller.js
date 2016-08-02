@@ -520,7 +520,7 @@ FactoryController.prototype.importFromTree = function(tree) {
         this.createCategory(item.getAttribute('name'), false);
         this.switchElement(this.model.getElementByIndex(i).id);
         var category = this.model.getElementByIndex(i);
-        // Add all blocks to the category
+        // Add all blocks to the category.
         for (var j = 0, blockXml; blockXml = item.children[j]; j++) {
           var block = Blockly.Xml.domToBlock(blockXml, this.toolboxWorkspace);
         }
