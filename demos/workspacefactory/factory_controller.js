@@ -485,7 +485,7 @@ FactoryController.prototype.importFile = function(file) {
     // Print error message if fail.
     try {
       var tree = Blockly.Xml.textToDom(reader.result);
-      controller.importFromTree(tree);
+      controller.importFromTree_(tree);
     } catch(e) {
       alert('Cannot load XML from file.');
     }
@@ -498,11 +498,11 @@ FactoryController.prototype.importFile = function(file) {
  * Given a XML DOM tree, loads it into the toolbox editing area so that the
  * user can continue editing their work. Assumes that tree is in valid toolbox
  * XML format.
+ * @private
  *
- * @package
  * @param {!Element} tree XML tree to be loaded to toolbox editing area.
  */
-FactoryController.prototype.importFromTree = function(tree) {
+FactoryController.prototype.importFromTree_ = function(tree) {
   // Clear current editing area.
   this.model.clearToolboxList();
   this.view.clearToolboxTabs();
@@ -526,7 +526,7 @@ FactoryController.prototype.importFromTree = function(tree) {
         // Load all blocks in that category to the workspace to be evenly
         // spaced and saved to that category.
         for (var j = 0, blockXml; blockXml = item.children[j]; j++) {
-          var block = Blockly.Xml.domToBlock(blockXml, this.toolboxWorkspace);
+          Blockly.Xml.domToBlock(blockXml, this.toolboxWorkspace);
         }
 
         // Evenly space the blocks.
