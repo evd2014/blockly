@@ -135,7 +135,7 @@ FactoryGenerator.prototype.appendHiddenWorkspaceToDom_ = function(xmlDom) {
  * @private
  *
  */
-FactoryGenerator.prototype.setShadowBlocksInHiddenWorkspace = function() {
+FactoryGenerator.prototype.setShadowBlocksInHiddenWorkspace_ = function() {
   var blocks = this.hiddenWorkspace.getAllBlocks();
   for (var i = 0; i < blocks.length; i++) {
     if (this.model.isShadowBlock(blocks[i].id)) {
