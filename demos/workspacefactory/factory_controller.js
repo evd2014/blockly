@@ -511,7 +511,7 @@ FactoryController.prototype.importFromTree = function(tree) {
     // No categories present.
     // Load all the blocks into a single category evenly spaced.
     Blockly.Xml.domToWorkspace(tree, this.toolboxWorkspace);
-    this.view.distributeBlocks(this.toolboxWorkspace.getTopBlocks());
+    this.toolboxWorkspace.cleanUp_();
     // Add message to denote empty category.
     this.view.addEmptyCategoryMessage();
   } else {
@@ -530,7 +530,9 @@ FactoryController.prototype.importFromTree = function(tree) {
         }
 
         // Evenly space the blocks.
-        this.view.distributeBlocks(this.toolboxWorkspace.getTopBlocks());
+        // TODO(evd2014): Change to cleanUp once cleanUp_ is made public in
+        // master.
+        this.toolboxWorkspace.cleanUp_();
         // Set category color.
         if (item.color) {
           category.changeColor(item.color);
