@@ -525,6 +525,7 @@ FactoryController.prototype.importFile = function(file) {
       var tree = Blockly.Xml.textToDom(reader.result);
       controller.importFromTree_(tree);
     } catch(e) {
+      console.log(e);
       alert('Cannot load XML from file.');
     }
   }
@@ -560,30 +561,10 @@ FactoryController.prototype.importFromTree_ = function(tree) {
   } else {
     // Categories/separators present.
     for (var i = 0, item; item = tree.children[i]; i++) {
+      console.log(item.tagName);
       if (item.tagName == 'category') {
-        // If the element is a category, create a new category and switch to it.
-        this.createCategory(item.getAttribute('name'), false);
-        var category = this.model.getElementByIndex(i);
-        this.switchElement(category.id);
-
-        // Load all blocks in that category to the workspace to be evenly
-        // spaced and saved to that category.
-        for (var j = 0, blockXml; blockXml = item.children[j]; j++) {
-          Blockly.Xml.domToBlock(blockXml, this.toolboxWorkspace);
-        }
-
-        // Evenly space the blocks.
-        // TODO(evd2014): Change to cleanUp once cleanUp_ is made public in
-        // master.
-        this.toolboxWorkspace.cleanUp_();
-
-        // Convert actual shadow blocks to user-generated shadow blocks.
-        this.convertShadowBlocks_();
-
-        // Set category color.
-        if (item.color) {
-          category.changeColor(item.color);
-        }
+        // If the element is a category, import it and switch to it.
+        this.importCategoryFromXml(item, i)
       } else {
         // If the element is a separator, add the separator and switch to it.
         this.addSeparator();
@@ -593,6 +574,49 @@ FactoryController.prototype.importFromTree_ = function(tree) {
   }
 
   this.updatePreview();
+};
+
+/**
+ * Given a category element in XML, imports it into the toolbox editing
+ * workspace. Throws an error if the DOM element passed in is not a category.
+ * Caller should call updatePreview() after using this method.
+ *
+ * @param {!Element} category The XML DOM of the category to import.
+ * @param {int} index The index where the category is being inserted
+ *    (categories are always inserted at the end of the list, so this should
+ *    be the number of categories at time of insert).
+ */
+FactoryController.prototype.importCategoryFromXml = function(xml, index) {
+  // Check that the element being imported is a category.
+  if (xml.tagName != 'category') {
+    alert("failure here");
+    throw new Error ("Cannot import XML that is not a category");
+  }
+
+  // Create a new category and switch to it.
+  this.createCategory(xml.getAttribute('name'), false);
+  var category = this.model.getElementByIndex(index);
+  this.switchElement(category.id);
+
+  // Load all blocks in that category to the workspace to be evenly
+  // spaced and saved to that category.
+  for (var i = 0, blockXml; blockXml = xml.children[i]; i++) {
+    Blockly.Xml.domToBlock(blockXml, this.toolboxWorkspace);
+  }
+
+  // Evenly space the blocks.
+  // TODO(evd2014): Change to cleanUp once cleanUp_ is made public in
+  // master.
+  this.toolboxWorkspace.cleanUp_();
+
+  // Convert actual shadow blocks to user-generated shadow blocks.
+  this.convertShadowBlocks_();
+
+  // Set category color.
+  if (xml.color) {
+    category.changeColor(item.color);
+  }
+
 };
 
 /**
