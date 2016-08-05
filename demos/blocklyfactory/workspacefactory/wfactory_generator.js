@@ -117,10 +117,10 @@ FactoryGenerator.prototype.generateConfigXml = function(toolboxWorkspace) {
   * @param {!Blockly.workspace} toolboxWorkspace The workspace to load XML
   *     from.
   */
- FactoryGenerator.prototype.generateWorkspaceXml = function(toolboxWorkspace) {
+  // UPDATE CoMMENTS
+ FactoryGenerator.prototype.generateWorkspaceXml = function(rawXml) {
   this.hiddenWorkspace.clear();
-  Blockly.Xml.domToWorkspace(Blockly.Xml.workspaceToDom(toolboxWorkspace),
-      this.hiddenWorkspace);
+  Blockly.Xml.domToWorkspace(rawXml, this.hiddenWorkspace);
   this.setShadowBlocksInHiddenWorkspace_();
   return Blockly.Xml.workspaceToDom(this.hiddenWorkspace);
  }
