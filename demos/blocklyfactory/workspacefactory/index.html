@@ -615,6 +615,12 @@ goog.require('goog.ui.ColorPicker');
     controller.exportFile(FactoryController.MODE_PRELOAD);
     document.getElementById('dropdownDiv_export').classList.remove("show");
   }
+  var editToolboxWrapper = function() {
+    controller.setTab(FactoryController.TAB_TOOLBOX);
+  }
+  var editPreloadWrapper = function() {
+    controller.setTab(FactoryController.TAB_PRELOAD);
+  }
 
   document.getElementById('button_add').addEventListener
       ('click', addWrapper);

@@ -348,6 +348,7 @@ FactoryController.prototype.updatePreview = function() {
 
     } else {
       // Uses categories, creates a toolbox.
+
       if (!previewWorkspace.toolbox_) {
         this.reinjectPreview(tree); // Create a toolbox, more expensive.
       } else {
@@ -812,6 +813,7 @@ FactoryController.prototype.convertShadowBlocks = function() {
   }
 };
 
+<<<<<<< b52dd61f1b76c06b816c73ff4dccfce9fa9fd74f
 /**
  * Sets the currently selected mode that determines what the toolbox workspace
  * is being used to edit. Updates the view and then saves and loads XML
