@@ -41,7 +41,7 @@ goog.require('goog.ui.ColorPicker');
 </table>
 
 <section id="createDiv">
-  <p>Drag blocks into your toolbox:</p>
+  <p id="editHelpText">Drag blocks into your toolbox:</p>
   <table id='workspaceTabs'>
     <td id="tab_toolbox" class="tabon">Toolbox</td>
     <td id="tab_preload" class="taboff">Pre-loaded Workspace</td>
@@ -566,10 +566,10 @@ goog.require('goog.ui.ColorPicker');
     controller.clear();
   }
   var editToolboxWrapper = function() {
-    controller.setTab(FactoryController.TAB_TOOLBOX);
+    controller.setMode(FactoryController.MODE_TOOLBOX);
   }
   var editPreloadWrapper = function() {
-    controller.setTab(FactoryController.TAB_PRELOAD);
+    controller.setMode(FactoryController.MODE_PRELOAD);
   }
 
   document.getElementById('button_add').addEventListener
