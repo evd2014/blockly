@@ -581,7 +581,6 @@ goog.require('goog.ui.ColorPicker');
       }
     }
   };
-<<<<<<< 8d894a801cfe834cbaa1a468d1430524e90e4527
   var importWrapper = function() {
     document.getElementById('dropdownDiv_import').classList.toggle("show");
     document.getElementById('dropdownDiv_export').classList.remove("show");
@@ -627,9 +626,22 @@ goog.require('goog.ui.ColorPicker');
     document.getElementById('dropdownDiv_import').classList.remove("show");
   };
   var importPreloadWrapper = function(e) {
-    controller.importFile(event.target.files[0]), false;
+    controller.importFile(event.target.files[0], FactoryController.MODE_PRELOAD);
     document.getElementById('dropdownDiv_import').classList.remove("show");
   };
+  var exportToolboxWrapper = function() {
+    controller.exportFile(FactoryController.MODE_TOOLBOX);
+    document.getElementById('dropdownDiv_export').classList.remove("show");
+  }
+  var exportPreloadWrapper = function() {
+    controller.exportFile(FactoryController.MODE_PRELOAD);
+    document.getElementById('dropdownDiv_export').classList.remove("show");
+  }
+  var exportAllWrapper = function() {
+    controller.exportFile(FactoryController.MODE_TOOLBOX);
+    controller.exportFile(FactoryController.MODE_PRELOAD);
+    document.getElementById('dropdownDiv_export').classList.remove("show");
+  }
 
   document.getElementById('button_add').addEventListener
       ('click', addWrapper);
