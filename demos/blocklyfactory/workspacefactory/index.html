@@ -581,6 +581,7 @@ goog.require('goog.ui.ColorPicker');
       }
     }
   };
+<<<<<<< 8d894a801cfe834cbaa1a468d1430524e90e4527
   var importWrapper = function() {
     document.getElementById('dropdownDiv_import').classList.toggle("show");
     document.getElementById('dropdownDiv_export').classList.remove("show");
@@ -617,10 +618,18 @@ goog.require('goog.ui.ColorPicker');
   }
   var editToolboxWrapper = function() {
     controller.setMode(FactoryController.MODE_TOOLBOX);
-  }
+  };
   var editPreloadWrapper = function() {
     controller.setMode(FactoryController.MODE_PRELOAD);
-  }
+  };
+  var importToolboxWrapper = function(e) {
+    controller.importFile(event.target.files[0], true);
+    document.getElementById('dropdownDiv_import').classList.remove("show");
+  };
+  var importPreloadWrapper = function(e) {
+    controller.importFile(event.target.files[0]), false;
+    document.getElementById('dropdownDiv_import').classList.remove("show");
+  };
 
   document.getElementById('button_add').addEventListener
       ('click', addWrapper);

@@ -372,12 +372,22 @@ FactoryController.prototype.updatePreview = function() {
     // blocks don't get cleared when updating preview from event listeners while
     // switching modes.
     this.previewWorkspace.clear();
+<<<<<<< 8d894a801cfe834cbaa1a468d1430524e90e4527
     Blockly.Xml.domToWorkspace(this.generator.generateWorkspaceXml(),
         this.previewWorkspace);
   } else if (this.selectedMode == FactoryController.MODE_PRELOAD){
     // If currently editing the pre-loaded workspace.
     this.previewWorkspace.clear();
     Blockly.Xml.domToWorkspace(this.generator.generateWorkspaceXml(),
+=======
+    Blockly.Xml.domToWorkspace(this.generator.generateWorkspaceXml
+        (this.model.getPreloadXml()), this.previewWorkspace);
+  } else {
+    // If currently editing the pre-loaded workspace.
+    this.previewWorkspace.clear();
+    Blockly.Xml.domToWorkspace(this.generator.generateWorkspaceXml
+        (Blockly.Xml.workspaceToDom(this.toolboxWorkspace)),
+>>>>>>> Have basic import options working
         this.previewWorkspace);
   }
 
@@ -623,7 +633,12 @@ FactoryController.prototype.addSeparator = function() {
  *    user is importing (FactoryController.MODE_TOOLBOX or
  *    FactoryController.MODE_PRELOAD).
  */
+<<<<<<< 8d894a801cfe834cbaa1a468d1430524e90e4527
 FactoryController.prototype.importFile = function(file, importMode) {
+=======
+ // UPDATE COMMENTS
+FactoryController.prototype.importFile = function(file, isToolbox) {
+>>>>>>> Have basic import options working
   // Exit if cancelled.
   if (!file) {
     return;
@@ -634,8 +649,9 @@ FactoryController.prototype.importFile = function(file, importMode) {
   reader.onload = function() {
     // Try to parse XML from file and load it into toolbox editing area.
     // Print error message if fail.
-    try {
+    //try {
       var tree = Blockly.Xml.textToDom(reader.result);
+<<<<<<< 8d894a801cfe834cbaa1a468d1430524e90e4527
       if (importMode == FactoryController.MODE_TOOLBOX) {
         // Switch mode and import toolbox XML.
         controller.setMode(FactoryController.MODE_TOOLBOX);
@@ -652,6 +668,20 @@ FactoryController.prototype.importFile = function(file, importMode) {
       alert('Cannot load XML from file.');
       console.log(e);
     }
+=======
+      if (isToolbox) {
+        controller.setMode(FactoryController.MODE_TOOLBOX);
+        controller.importToolboxFromTree_(tree);
+      } else {
+        controller.setMode(FactoryController.MODE_PRELOAD);
+        controller.importPreloadFromTree_(tree);
+      }
+    // } catch(e) {
+    //   alert('Cannot load XML from file.');
+    //   console.log(e);
+    //   console.log(e.lineno);
+    // }
+>>>>>>> Have basic import options working
   }
 
   // Read the file asynchronously.
@@ -728,6 +758,14 @@ FactoryController.prototype.importToolboxFromTree_ = function(tree) {
 
   this.updatePreview();
 };
+
+FactoryController.prototype.importPreloadFromTree_ = function(tree) {
+  this.clearAndLoadXml_(tree);
+  this.model.savePreloadXml(tree);
+  this.updatePreview(); //assuming that updatePreview still calls domToWorkspace regardless of mode
+  // this.previewWorkspace.domToWorkspace
+  //     (this.generator.generateWorkspaceXml(tree));
+}
 
 /**
  * Given a XML DOM tree, loads it into the pre-loaded workspace editing area.
@@ -850,10 +888,15 @@ FactoryController.prototype.setMode = function(mode) {
 
   if (mode == FactoryController.MODE_TOOLBOX) {
     // Open the toolbox editing space.
+<<<<<<< 8d894a801cfe834cbaa1a468d1430524e90e4527
     document.getElementById('editHelpText').textContent =
         'Drag blocks into your toolbox:';
     this.model.savePreloadXml
         (Blockly.Xml.workspaceToDom(this.toolboxWorkspace));
+=======
+    this.model.savePreloadXml(this.generator.generateWorkspaceXml
+        (Blockly.Xml.workspaceToDom(this.toolboxWorkspace)));
+>>>>>>> Have basic import options working
     this.clearAndLoadXml_(this.model.getSelectedXml());
     this.view.disableWorkspace(this.view.shouldDisableWorkspace
         (this.model.getSelected()));
