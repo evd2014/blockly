@@ -129,6 +129,11 @@ FactoryModel.prototype.deleteElementFromList = function(index) {
       false : this.hasProcedureCategory;
   // Remove element.
   this.toolboxList.splice(index, 1);
+  // If removing last element from toolbox list, create empty list element
+  // for single flyout.
+  if (this.toolboxList.length == 0) {
+    this.selected = new ListElement(ListElement.TYPE_CATEGORY);
+  }
 };
 
 /**
@@ -380,11 +385,7 @@ FactoryModel.prototype.savePreloadXml = function(xml) {
  */
 FactoryModel.prototype.getPreloadXml = function() {
   return this.preloadXml;
-<<<<<<< d69ceb7f6d014909fb5069d601f1ffb1ec01e308
-}
-=======
 };
->>>>>>> Have basic pre-loaded workspace working
 
 /**
  * Class for a ListElement.
