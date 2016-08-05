@@ -134,6 +134,11 @@ FactoryModel.prototype.deleteElementFromList = function(index) {
       false : this.hasProcedureCategory;
   // Remove element.
   this.toolboxList.splice(index, 1);
+  // If removing last element from toolbox list, create empty list element
+  // for single flyout.
+  if (this.toolboxList.length == 0) {
+    this.selected = new ListElement(ListElement.TYPE_CATEGORY);
+  }
 };
 
 /**
