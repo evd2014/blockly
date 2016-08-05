@@ -39,8 +39,8 @@ FactoryModel = function() {
   this.toolboxList = [];
   // Array of block IDs for all user created shadow blocks.
   this.shadowBlocks = [];
-  // Currently selected ListElement. In list if there are categories, not in
-  // list if there is only a single flyout.
+  // Currently selected ListElement. In toolboxList if there are categories, not
+  // in toolboxList if there is only a single flyout.
   this.selected = new ListElement(ListElement.TYPE_CATEGORY);
   // Boolean for if a Variable category has been added.
   this.hasVariableCategory = false;

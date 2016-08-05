@@ -344,7 +344,7 @@ FactoryView.prototype.unmarkShadowBlock = function(block) {
  * Sets the tabs for modes according to which mode the user is currenly
  * editing in.
  *
- * @param {!string} tab The type of tab being switched to
+ * @param {!string} mode The mode being switched to
  *    (FactoryController.MODE_TOOLBOX or FactoryController.MODE_PRELOAD).
  */
 FactoryView.prototype.setModeSelection = function(mode) {
@@ -356,4 +356,16 @@ FactoryView.prototype.setModeSelection = function(mode) {
       FactoryController.MODE_TOOLBOX ? 'tabon' : 'taboff';
   document.getElementById('toolbox_div').style.display = mode ==
       FactoryController.MODE_TOOLBOX ? 'block' : 'none';
+};
+
+/**
+ * Updates the help text above the workspace depending on the selected mode.
+ *
+ * @param {!string} mode The selected mode (FactoryController.MODE_TOOLBOX or
+ *    FactoryController.MODE_PRELOAD).
+ */
+FactoryView.prototype.updateHelpText = function(mode) {
+  var helpText = 'Drag your blocks into your ' + (mode ==
+      FactoryController.MODE_TOOLBOX ? 'toolbox: ' : 'pre-loaded workspace: ');
+  document.getElementById('editHelpText').textContent = helpText;
 };
