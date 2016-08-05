@@ -339,3 +339,21 @@ FactoryView.prototype.unmarkShadowBlock = function(block) {
     Blockly.removeClass_(block.svgGroup_, 'shadowBlock');
   }
 };
+
+/**
+ * Sets the tabs for modes according to which mode the user is currenly
+ * editing in.
+ *
+ * @param {!string} tab The type of tab being switched to
+ *    (FactoryController.MODE_TOOLBOX or FactoryController.MODE_PRELOAD).
+ */
+FactoryView.prototype.setModeSelection = function(mode) {
+  document.getElementById('tab_preload').className = mode ==
+      FactoryController.MODE_PRELOAD ? 'tabon' : 'taboff';
+  document.getElementById('preload_div').style.display = mode ==
+      FactoryController.MODE_PRELOAD ? 'block' : 'none';
+  document.getElementById('tab_toolbox').className = mode ==
+      FactoryController.MODE_TOOLBOX ? 'tabon' : 'taboff';
+  document.getElementById('toolbox_div').style.display = mode ==
+      FactoryController.MODE_TOOLBOX ? 'block' : 'none';
+};

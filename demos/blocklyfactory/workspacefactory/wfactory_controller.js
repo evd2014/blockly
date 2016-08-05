@@ -53,8 +53,8 @@ FactoryController = function(toolboxWorkspace, previewWorkspace) {
   this.view = new FactoryView();
   // Generates XML for categories.
   this.generator = new FactoryGenerator(this.model);
-  // Tracks which tab is open. Toolbox tab is open when starting.
-  this.selectedTab = FactoryController.TAB_TOOLBOX;
+  // Tracks which editing mode the user is in. Toolbox mode on start.
+  this.selectedMode = FactoryController.MODE_TOOLBOX;
 };
 
 /**
@@ -231,24 +231,13 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
   // Set next category.
   this.model.setSelectedById(id);
 
-  // Clear workspace.
-  this.toolboxWorkspace.clear();
-  this.toolboxWorkspace.clearUndo();
+  // Clears workspace and loads next category.
+  this.clearAndLoadXml_(this.model.getSelectedXml());
 
-  // Loads next category if switching to an element.
-  if (id != null) {
-    this.view.setCategoryTabSelection(id, true);
-    Blockly.Xml.domToWorkspace(this.model.getSelectedXml(),
-        this.toolboxWorkspace);
-    // Disable workspace if switching to a separator.
-    if (this.model.getSelected().type == ListElement.TYPE_SEPARATOR) {
-      this.view.disableWorkspace(true);
-    }
-  }
+  // Selects the next tab.
+  this.view.setCategoryTabSelection(id, true);
 
-  // Mark all shadow blocks laoded and order blocks as if shown in a flyout.
-  this.view.markShadowBlocks(this.model.getShadowBlocksInWorkspace
-        (toolboxWorkspace.getAllBlocks()));
+  // Order blocks as if shown in the flyout.
   this.toolboxWorkspace.cleanUp_();
 
   // Update category editing buttons.
@@ -295,7 +284,8 @@ FactoryController.prototype.updatePreview = function() {
   // Disable events to stop updatePreview from recursively calling itself
   // through event handlers.
   Blockly.Events.disable();
-  if (this.selectedTab == FactoryController.TAB_TOOLBOX) {
+  if (this.selectedMode == FactoryController.MODE_TOOLBOX) {
+    // If currently editing the toolbox.
     var tree = Blockly.Options.parseToolboxTree
         (this.generator.generateConfigXml(this.toolboxWorkspace));
     // No categories, creates a simple flyout.
@@ -314,6 +304,7 @@ FactoryController.prototype.updatePreview = function() {
       }
     }
   } else {
+    // If currently editing the pre-loaded workspace.
     this.previewWorkspace.clear();
     Blockly.Xml.domToWorkspace(this.generator.generateWorkspaceXml
         (this.toolboxWorkspace), this.previewWorkspace);
@@ -711,43 +702,61 @@ FactoryController.prototype.convertShadowBlocks = function() {
   }
 };
 
-FactoryController.prototype.setTab = function(tab) {
+/**
+ * Sets the currently selected mode that determines what the toolbox workspace
+ * is being used to edit. Updates the view and then saves and loads XML
+ * to and from the toolbox and updates the help text.
+ *
+ * @param {!string} tab The type of tab being switched to
+ *    (FactoryController.MODE_TOOLBOX or FactoryController.MODE_PRELOAD).
+ */
+FactoryController.prototype.setMode = function(mode) {
 
-  document.getElementById('tab_preload').className = tab == FactoryController.TAB_PRELOAD ?
-      'tabon' : 'taboff';
-  document.getElementById('preload_div').style.display = tab == FactoryController.TAB_PRELOAD ?
-      'block' : 'none';
-  document.getElementById('tab_toolbox').className = tab == FactoryController.TAB_TOOLBOX ?
-      'tabon' : 'taboff';
-  document.getElementById('toolbox_div').style.display = tab == FactoryController.TAB_TOOLBOX ?
-      'block' : 'none';
+  // Set tab selection and display appropriate tab.
+  this.view.setModeSelection(mode);
 
-  this.selectedTab = tab;
-  if (tab == FactoryController.TAB_TOOLBOX) {
+  // Update selected tab.
+  this.selectedMode = mode;
+
+  if (mode == FactoryController.MODE_TOOLBOX) {
+    // Open the toolbox editing space.
+    document.getElementById('editHelpText').textContent =
+        'Drag blocks into your toolbox:';
     this.model.savePreloadXml(this.generator.generateWorkspaceXml
         (this.toolboxWorkspace));
-    if (this.model.hasToolbox()) {
-      Blockly.Xml.clearAndLoadElement(this.model.getSelectedId());
-    } else {
-      this.toolboxWorkspace.clear();
-      Blockly.Xml.domToWorkspace(this.model.getSelectedXml(), this.toolboxWorkspace);
-      this.view.markShadowBlocks(this.model.getShadowBlocksInWorkspace
-          (this.toolboxWorkspace.getAllBlocks()));
-    }
+    this.clearAndLoadXml_(this.model.getSelectedXml());
+    this.view.disableWorkspace(this.view.shouldDisableWorkspace
+        (this.model.getSelected()));
   } else {
+    // Open the pre-loaded workspace editing space.
+    document.getElementById('editHelpText').textContent =
+        'Drag blocks into your pre-loaded workspace:';
     if (this.model.getSelected()) {
-      console.log('saved');
       this.model.getSelected().saveFromWorkspace(this.toolboxWorkspace);
-      console.log(this.model.getSelectedXml());
     }
-    this.toolboxWorkspace.clear();
-    this.toolboxWorkspace.clearUndo();
-    Blockly.Xml.domToWorkspace(this.model.getPreloadXml(),
-        this.toolboxWorkspace);
-    this.view.markShadowBlocks(this.model.getShadowBlocksInWorkspace
-        (this.toolboxWorkspace.getAllBlocks()));
+    this.clearAndLoadXml_(this.model.getPreloadXml());
+    this.view.disableWorkspace(false);
   }
 };
 
-FactoryController.TAB_TOOLBOX = 'toolbox';
-FactoryController.TAB_PRELOAD = 'preload';
+/**
+ * Clears the toolbox workspace and loads XML to it, marking shadow blocks
+ * as necessary.
+ * @private
+ *
+ * @param {!Element} xml The XML to be loaded to the workspace.
+ */
+FactoryController.prototype.clearAndLoadXml_ = function(xml) {
+  this.toolboxWorkspace.clear();
+  this.toolboxWorkspace.clearUndo();
+  Blockly.Xml.domToWorkspace(xml, this.toolboxWorkspace);
+  this.view.markShadowBlocks(this.model.getShadowBlocksInWorkspace
+      (this.toolboxWorkspace.getAllBlocks()));
+}
+
+// Toolbox editing mode. Changes the user makes to the workspace updates the
+// toolbox.
+FactoryController.MODE_TOOLBOX = 'toolbox';
+// Pre-loaded workspace editing mode. Changes the user makes to the workspace
+// udpates the pre-loaded blocks.
+FactoryController.MODE_PRELOAD = 'preload';

@@ -109,6 +109,14 @@ FactoryGenerator.prototype.generateConfigXml = function(toolboxWorkspace) {
   return xmlDom;
  };
 
+ /**
+  * Generates XML for the workspace (different from generateConfigXml in that
+  * it includes XY and ID attributes). Uses a workspace and converts user
+  * generated shadow blocks to actual shadow blocks.
+  *
+  * @param {!Blockly.workspace} toolboxWorkspace The workspace to load XML
+  *     from.
+  */
  FactoryGenerator.prototype.generateWorkspaceXml = function(toolboxWorkspace) {
   this.hiddenWorkspace.clear();
   Blockly.Xml.domToWorkspace(Blockly.Xml.workspaceToDom(toolboxWorkspace),
