@@ -494,13 +494,13 @@ FactoryController.prototype.loadCategory = function() {
     return;
   }
 
+  var firstCategory = !this.model.hasToolbox();
   // Copy the standard category in the model.
   var copy = standardCategory.copy();
   this.model.addElementToList(copy);
 
   // Update the copy in the view.
-  var tab = this.view.addCategoryRow(copy.name, copy.id,
-      this.model.getSelected() == null);
+  var tab = this.view.addCategoryRow(copy.name, copy.id, firstCategory);
   this.addClickToSwitch(tab, copy.id);
   // Color the category tab in the view.
   if (copy.color) {
