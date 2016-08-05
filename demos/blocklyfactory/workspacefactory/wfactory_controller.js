@@ -37,6 +37,13 @@ FactoryController = function(toolboxWorkspace, previewWorkspace) {
   this.selectedMode = FactoryController.MODE_TOOLBOX;
 };
 
+// Toolbox editing mode. Changes the user makes to the workspace updates the
+// toolbox.
+FactoryController.MODE_TOOLBOX = 'toolbox';
+// Pre-loaded workspace editing mode. Changes the user makes to the workspace
+// udpates the pre-loaded blocks.
+FactoryController.MODE_PRELOAD = 'preload';
+
 /**
  * Currently prompts the user for a name, checking that it's valid (not used
  * before), and then creates a tab and switches to it.
@@ -682,10 +689,11 @@ FactoryController.prototype.setMode = function(mode) {
   // Update selected tab.
   this.selectedMode = mode;
 
+  // Update help text above workspace.
+  this.view.updateHelpText(mode);
+
   if (mode == FactoryController.MODE_TOOLBOX) {
     // Open the toolbox editing space.
-    document.getElementById('editHelpText').textContent =
-        'Drag blocks into your toolbox:';
     this.model.savePreloadXml(this.generator.generateWorkspaceXml
         (this.toolboxWorkspace));
     this.clearAndLoadXml_(this.model.getSelectedXml());
@@ -693,8 +701,6 @@ FactoryController.prototype.setMode = function(mode) {
         (this.model.getSelected()));
   } else {
     // Open the pre-loaded workspace editing space.
-    document.getElementById('editHelpText').textContent =
-        'Drag blocks into your pre-loaded workspace:';
     if (this.model.getSelected()) {
       this.model.getSelected().saveFromWorkspace(this.toolboxWorkspace);
     }
@@ -717,10 +723,3 @@ FactoryController.prototype.clearAndLoadXml_ = function(xml) {
   this.view.markShadowBlocks(this.model.getShadowBlocksInWorkspace
       (this.toolboxWorkspace.getAllBlocks()));
 }
-
-// Toolbox editing mode. Changes the user makes to the workspace updates the
-// toolbox.
-FactoryController.MODE_TOOLBOX = 'toolbox';
-// Pre-loaded workspace editing mode. Changes the user makes to the workspace
-// udpates the pre-loaded blocks.
-FactoryController.MODE_PRELOAD = 'preload';
