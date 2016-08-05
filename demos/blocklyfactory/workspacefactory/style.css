@@ -21,10 +21,6 @@ aside {
   border-bottom: none;
 }
 
-#workspaceTabs>table {
-  float: right;
-}
-
 td.tabon {
   border-bottom-color: #ddd !important;
   background-color: #ddd;
