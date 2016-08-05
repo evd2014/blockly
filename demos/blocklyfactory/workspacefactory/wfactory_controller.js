@@ -628,7 +628,7 @@ FactoryController.prototype.importFile = function(file, importMode) {
   reader.onload = function() {
     // Try to parse XML from file and load it into toolbox editing area.
     // Print error message if fail.
-    try {
+    //try {
       var tree = Blockly.Xml.textToDom(reader.result);
       if (importMode == FactoryController.MODE_TOOLBOX) {
         // Switch mode and import toolbox XML.
@@ -723,6 +723,14 @@ FactoryController.prototype.importToolboxFromTree_ = function(tree) {
   this.saveStateFromWorkspace();
   this.updatePreview();
 };
+
+FactoryController.prototype.importPreloadFromTree_ = function(tree) {
+  this.clearAndLoadXml_(tree);
+  this.model.savePreloadXml(tree);
+  this.updatePreview(); //assuming that updatePreview still calls domToWorkspace regardless of mode
+  // this.previewWorkspace.domToWorkspace
+  //     (this.generator.generateWorkspaceXml(tree));
+}
 
 /**
  * Given a XML DOM tree, loads it into the pre-loaded workspace editing area.
@@ -844,6 +852,11 @@ FactoryController.prototype.convertShadowBlocks = function() {
  *    (FactoryController.MODE_TOOLBOX or FactoryController.MODE_PRELOAD).
  */
 FactoryController.prototype.setMode = function(mode) {
+  // No work to change mode that's currently set.
+  if (this.selectedMode == mode) {
+    return;
+  }
+
   // No work to change mode that's currently set.
   if (this.selectedMode == mode) {
     return;
