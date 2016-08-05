@@ -359,7 +359,6 @@ FactoryModel.prototype.getShadowBlocksInWorkspace = function(workspaceBlocks) {
   return shadowsInWorkspace;
 };
 
-<<<<<<< b52dd61f1b76c06b816c73ff4dccfce9fa9fd74f
 /**
  * Adds a custom tag to a category, updating state variables accordingly.
  * Only accepts 'VARIABLE' and 'PROCEDURE' tags.
@@ -382,7 +381,8 @@ FactoryModel.prototype.addCustomTag = function(category, tag) {
   }
 };
 
-/*
+/**
+ * Have basic pre-loaded workspace working
  * Saves XML as XML to be pre-loaded into the workspace.
  *
  * @param {!Element} xml The XML to be saved.

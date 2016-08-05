@@ -616,10 +616,10 @@ goog.require('goog.ui.ColorPicker');
     document.getElementById('dropdownDiv_export').classList.remove("show");
   }
   var editToolboxWrapper = function() {
-    controller.setTab(FactoryController.TAB_TOOLBOX);
+    controller.setMode(FactoryController.MODE_TOOLBOX);
   }
   var editPreloadWrapper = function() {
-    controller.setTab(FactoryController.TAB_PRELOAD);
+    controller.setMode(FactoryController.MODE_PRELOAD);
   }
 
   document.getElementById('button_add').addEventListener

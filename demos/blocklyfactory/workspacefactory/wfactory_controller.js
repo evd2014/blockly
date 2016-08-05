@@ -252,6 +252,7 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
     // Set next category.
     this.model.setSelectedById(id);
 
+<<<<<<< f68f7c4a490dfb2ccc0db7b8f44930dc316ee38b
     // Clears workspace and loads next category.
     this.clearAndLoadXml_(this.model.getSelectedXml());
 
@@ -261,6 +262,16 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
     // Order blocks as if shown in the flyout.
     this.toolboxWorkspace.cleanUp_();
   }
+=======
+  // Clears workspace and loads next category.
+  this.clearAndLoadXml_(this.model.getSelectedXml());
+
+  // Selects the next tab.
+  this.view.setCategoryTabSelection(id, true);
+
+  // Order blocks as if shown in the flyout.
+  this.toolboxWorkspace.cleanUp_();
+>>>>>>> Have basic pre-loaded workspace working
 
   // Update category editing buttons.
   this.view.updateState(this.model.getIndexByElementId
@@ -331,6 +342,7 @@ FactoryController.prototype.updatePreview = function() {
   // Disable events to stop updatePreview from recursively calling itself
   // through event handlers.
   Blockly.Events.disable();
+<<<<<<< f68f7c4a490dfb2ccc0db7b8f44930dc316ee38b
 
   if (this.selectedMode == FactoryController.MODE_TOOLBOX) {
     // If currently editing the toolbox.
@@ -813,7 +825,6 @@ FactoryController.prototype.convertShadowBlocks = function() {
   }
 };
 
-<<<<<<< b52dd61f1b76c06b816c73ff4dccfce9fa9fd74f
 /**
  * Sets the currently selected mode that determines what the toolbox workspace
  * is being used to edit. Updates the view and then saves and loads XML
@@ -848,6 +859,8 @@ FactoryController.prototype.setMode = function(mode) {
         (this.model.getSelected()));
   } else {
     // Open the pre-loaded workspace editing space.
+    document.getElementById('editHelpText').textContent =
+        'Drag blocks into your pre-loaded workspace:';
     if (this.model.getSelected()) {
       this.model.getSelected().saveFromWorkspace(this.toolboxWorkspace);
     }
@@ -870,3 +883,4 @@ FactoryController.prototype.clearAndLoadXml_ = function(xml) {
   this.view.markShadowBlocks(this.model.getShadowBlocksInWorkspace
       (this.toolboxWorkspace.getAllBlocks()));
 }
+
