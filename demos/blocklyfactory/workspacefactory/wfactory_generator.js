@@ -109,6 +109,14 @@ FactoryGenerator.prototype.generateConfigXml = function(toolboxWorkspace) {
   return xmlDom;
  };
 
+ FactoryGenerator.prototype.generateWorkspaceXml = function(toolboxWorkspace) {
+  this.hiddenWorkspace.clear();
+  Blockly.Xml.domToWorkspace(Blockly.Xml.workspaceToDom(toolboxWorkspace),
+      this.hiddenWorkspace);
+  this.setShadowBlocksInHiddenWorkspace_();
+  return Blockly.Xml.workspaceToDom(this.hiddenWorkspace);
+ }
+
 /**
  * Load the given XML to the hidden workspace, set any user-generated shadow
  * blocks to be actual shadow blocks, then append the XML from the workspace
