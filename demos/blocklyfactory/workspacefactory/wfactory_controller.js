@@ -256,7 +256,8 @@ FactoryController.prototype.exportFile = function(exportMode) {
     if (this.selectedMode == FactoryController.MODE_PRELOAD) {
       // Capture any changes made by user before generating XML if in
       // preload workspace mode.
-      this.model.savePreloadXml(Blockly.Xml.workspaceToDom(this.toolboxWorkspace));
+      this.model.savePreloadXml(Blockly.Xml.workspaceToDom
+          (this.toolboxWorkspace));
     }
     var configXml = Blockly.Xml.domToPrettyText
         (this.generator.generateWorkspaceXml());
