@@ -283,6 +283,13 @@ FactoryController.prototype.updatePreview = function() {
         this.previewWorkspace.toolbox_.populate_(tree);
       }
     }
+
+    // Update pre-loaded blocks in the preview workspace to make sure that
+    // blocks don't get cleared when updating preview from event listeners while
+    // switching modes.
+    this.previewWorkspace.clear();
+    Blockly.Xml.domToWorkspace(this.model.getPreloadXml(),
+        this.previewWorkspace);
   } else {
     // If currently editing the pre-loaded workspace.
     this.previewWorkspace.clear();
