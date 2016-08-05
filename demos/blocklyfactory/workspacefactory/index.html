@@ -531,7 +531,7 @@ goog.require('goog.ui.ColorPicker');
   };
   var exportWrapper = function() {
     document.getElementById('dropdownDiv_export').classList.toggle("show");
-    //controller.exportConfig();
+    document.getElementById('dropdownDiv_import').classList.remove("show");
   };
   var printWrapper = function() {
     controller.printConfig();
@@ -581,9 +581,9 @@ goog.require('goog.ui.ColorPicker');
       }
     }
   };
-  var importWrapper = function() {  // took an event e before, need to have listener with 'change' for files
+  var importWrapper = function() {
     document.getElementById('dropdownDiv_import').classList.toggle("show");
-    //controller.importFile(event.target.files[0]);
+    document.getElementById('dropdownDiv_export').classList.remove("show");
   };
   var clearWrapper = function() {
     controller.clear();
@@ -595,13 +595,26 @@ goog.require('goog.ui.ColorPicker');
     controller.setMode(FactoryController.MODE_PRELOAD);
   };
   var importToolboxWrapper = function(e) {
-    controller.importFile(event.target.files[0], true);
+    controller.importFile(event.target.files[0], FactoryController.MODE_TOOLBOX);
     document.getElementById('dropdownDiv_import').classList.remove("show");
   };
   var importPreloadWrapper = function(e) {
-    controller.importFile(event.target.files[0]), false;
+    controller.importFile(event.target.files[0], FactoryController.MODE_PRELOAD);
     document.getElementById('dropdownDiv_import').classList.remove("show");
   };
+  var exportToolboxWrapper = function() {
+    controller.exportFile(FactoryController.MODE_TOOLBOX);
+    document.getElementById('dropdownDiv_export').classList.remove("show");
+  }
+  var exportPreloadWrapper = function() {
+    controller.exportFile(FactoryController.MODE_PRELOAD);
+    document.getElementById('dropdownDiv_export').classList.remove("show");
+  }
+  var exportAllWrapper = function() {
+    controller.exportFile(FactoryController.MODE_TOOLBOX);
+    controller.exportFile(FactoryController.MODE_PRELOAD);
+    document.getElementById('dropdownDiv_export').classList.remove("show");
+  }
 
   document.getElementById('button_add').addEventListener
       ('click', addWrapper);
@@ -613,6 +626,12 @@ goog.require('goog.ui.ColorPicker');
       ('click', separatorWrapper);
   document.getElementById('button_remove').addEventListener
       ('click', removeWrapper);
+  document.getElementById('dropdown_exportToolbox').addEventListener
+      ('click', exportToolboxWrapper);
+  document.getElementById('dropdown_exportPreload').addEventListener
+      ('click', exportPreloadWrapper);
+  document.getElementById('dropdown_exportAll').addEventListener
+      ('click', exportAllWrapper);
   document.getElementById('button_export').addEventListener
       ('click', exportWrapper);
   document.getElementById('button_print').addEventListener
