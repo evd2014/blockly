@@ -63,33 +63,6 @@ button:hover:not(:disabled)>* {
   opacity: 1;
 }
 
-label {
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  background-color: #eee;
-  color: #000;
-  font-size: large;
-  margin: 0 5px;
-  padding: 10px;
-}
-
-label:hover:not(:disabled) {
-  box-shadow: 2px 2px 5px #888;
-}
-
-label:disabled {
-  opacity: .6;
-}
-
-label>* {
-  opacity: .6;
-  vertical-align: text-bottom;
-}
-
-label:hover:not(:disabled)>* {
-  opacity: 1;
-}
-
 table {
   border: none;
   border-collapse: collapse;
@@ -217,8 +190,19 @@ td {
     text-decoration: none;
 }
 
+.dropdown-content label {
+    color: black;
+    display: block;
+    padding: 12px 16px;
+    text-decoration: none;
+}
+
 /* Change color of dropdown links on hover */
 .dropdown-content a:hover {
+  background-color: #f1f1f1
+}
+
+.dropdown-content label:hover {
   background-color: #f1f1f1
 }
 
