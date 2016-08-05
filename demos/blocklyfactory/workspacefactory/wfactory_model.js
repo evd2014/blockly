@@ -20,11 +20,13 @@ FactoryModel = function() {
   // Array of block IDs for all user created shadow blocks.
   this.shadowBlocks = [];
   // String name of current selected list element, null if no list elements.
-  this.selected = null;
+  this.selected = new ListElement(ListElement.TYPE_CATEGORY); // make type default? update categories
   // Boolean for if a Variable category has been added.
   this.hasVariableCategory = false;
   // Boolean for if a Procedure category has been added.
   this.hasProcedureCategory = false;
+  // XML to be pre-loaded to workspace. Empty on default;
+  this.preloadXml = Blockly.Xml.textToDom('<xml></xml>');
 };
 
 // String name of current selected list element, null if no list elements.
@@ -317,6 +319,14 @@ FactoryModel.prototype.getShadowBlocksInWorkspace = function(workspaceBlocks) {
   }
   return shadowsInWorkspace;
 };
+
+FactoryModel.prototype.savePreloadXml = function(xml) {
+  this.preloadXml = xml
+};
+
+FactoryModel.prototype.getPreloadXml = function() {
+  return this.preloadXml;
+}
 
 
 /**

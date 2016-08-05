@@ -33,6 +33,8 @@ FactoryController = function(toolboxWorkspace, previewWorkspace) {
   this.view = new FactoryView();
   // Generates XML for categories.
   this.generator = new FactoryGenerator(this.model);
+  // Tracks which tab is open. Toolbox tab is open when starting.
+  this.selectedTab = FactoryController.TAB_TOOLBOX;
 };
 
 /**
@@ -273,22 +275,28 @@ FactoryController.prototype.updatePreview = function() {
   // Disable events to stop updatePreview from recursively calling itself
   // through event handlers.
   Blockly.Events.disable();
-  var tree = Blockly.Options.parseToolboxTree
-      (this.generator.generateConfigXml(this.toolboxWorkspace));
-  // No categories, creates a simple flyout.
-  if (tree.getElementsByTagName('category').length == 0) {
-    if (this.previewWorkspace.toolbox_) {
-      this.reinjectPreview(tree); // Switch to simple flyout, more expensive.
+  if (this.selectedTab == FactoryController.TAB_TOOLBOX) {
+    var tree = Blockly.Options.parseToolboxTree
+        (this.generator.generateConfigXml(this.toolboxWorkspace));
+    // No categories, creates a simple flyout.
+    if (tree.getElementsByTagName('category').length == 0) {
+      if (this.previewWorkspace.toolbox_) {
+        this.reinjectPreview(tree); // Switch to simple flyout, more expensive.
+      } else {
+        this.previewWorkspace.flyout_.show(tree.childNodes);
+      }
+    // Uses categories, creates a toolbox.
     } else {
-      this.previewWorkspace.flyout_.show(tree.childNodes);
+      if (!previewWorkspace.toolbox_) {
+        this.reinjectPreview(tree); // Create a toolbox, more expensive.
+      } else {
+        this.previewWorkspace.toolbox_.populate_(tree);
+      }
     }
-  // Uses categories, creates a toolbox.
   } else {
-    if (!previewWorkspace.toolbox_) {
-      this.reinjectPreview(tree); // Create a toolbox, more expensive.
-    } else {
-      this.previewWorkspace.toolbox_.populate_(tree);
-    }
+    this.previewWorkspace.clear();
+    Blockly.Xml.domToWorkspace(this.generator.generateWorkspaceXml
+        (this.toolboxWorkspace), this.previewWorkspace);
   }
   // Reenable events.
   Blockly.Events.enable();
@@ -311,7 +319,7 @@ FactoryController.prototype.reinjectPreview = function(tree) {
        length: 3,
        colour: '#ccc',
        snap: true},
-     media: '../../media/',
+     media: '../../../media/',
      toolbox: previewToolbox,
      zoom:
        {controls: true,
@@ -659,3 +667,44 @@ FactoryController.prototype.convertShadowBlocks_ = function() {
     }
   }
 };
+
+FactoryController.prototype.setTab = function(tab) {
+
+  document.getElementById('tab_preload').className = tab == FactoryController.TAB_PRELOAD ?
+      'tabon' : 'taboff';
+  document.getElementById('preload_div').style.display = tab == FactoryController.TAB_PRELOAD ?
+      'block' : 'none';
+  document.getElementById('tab_toolbox').className = tab == FactoryController.TAB_TOOLBOX ?
+      'tabon' : 'taboff';
+  document.getElementById('toolbox_div').style.display = tab == FactoryController.TAB_TOOLBOX ?
+      'block' : 'none';
+
+  this.selectedTab = tab;
+  if (tab == FactoryController.TAB_TOOLBOX) {
+    this.model.savePreloadXml(this.generator.generateWorkspaceXml
+        (this.toolboxWorkspace));
+    if (this.model.hasToolbox()) {
+      Blockly.Xml.clearAndLoadElement(this.model.getSelectedId());
+    } else {
+      this.toolboxWorkspace.clear();
+      Blockly.Xml.domToWorkspace(this.model.getSelectedXml(), this.toolboxWorkspace);
+      this.view.markShadowBlocks(this.model.getShadowBlocksInWorkspace
+          (this.toolboxWorkspace.getAllBlocks()));
+    }
+  } else {
+    if (this.model.getSelected()) {
+      console.log('saved');
+      this.model.getSelected().saveFromWorkspace(this.toolboxWorkspace);
+      console.log(this.model.getSelectedXml());
+    }
+    this.toolboxWorkspace.clear();
+    this.toolboxWorkspace.clearUndo();
+    Blockly.Xml.domToWorkspace(this.model.getPreloadXml(),
+        this.toolboxWorkspace);
+    this.view.markShadowBlocks(this.model.getShadowBlocksInWorkspace
+        (this.toolboxWorkspace.getAllBlocks()));
+  }
+};
+
+FactoryController.TAB_TOOLBOX = 'toolbox';
+FactoryController.TAB_PRELOAD = 'preload';
