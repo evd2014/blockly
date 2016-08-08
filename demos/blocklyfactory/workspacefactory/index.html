@@ -50,7 +50,7 @@ goog.require('goog.ui.ColorPicker');
         </div>
 
         <button id="button_print">Print Toolbox</button>
-        <button id="button_clear">Clear</button>
+        <button id="button_clear">Clear Toolbox</button>
       </p>
     </td>
   </tr>
@@ -586,7 +586,7 @@ goog.require('goog.ui.ColorPicker');
     document.getElementById('dropdownDiv_export').classList.remove("show");
   };
   var clearWrapper = function() {
-    controller.clear();
+    controller.clearToolbox();
   };
   var editToolboxWrapper = function() {
     controller.setMode(FactoryController.MODE_TOOLBOX);

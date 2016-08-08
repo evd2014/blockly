@@ -131,10 +131,19 @@ FactoryModel.prototype.deleteElementFromList = function(index) {
   this.toolboxList.splice(index, 1);
   // If removing last element from toolbox list, create empty list element
   // for single flyout.
+
+};
+
+/**
+ * Sets selected to be an empty category not in toolbox list if toolbox list
+ * is empty. Should be called when removing the last element from toolbox list.
+ *
+ */
+FactoryModel.prototype.setDefaultSelected = function() {
   if (this.toolboxList.length == 0) {
     this.selected = new ListElement(ListElement.TYPE_CATEGORY);
   }
-};
+}
 
 /**
  * Moves a list element to a certain position in toolboxList by removing it
