@@ -131,30 +131,41 @@ FactoryController.prototype.removeElement = function() {
   if (!this.model.getSelected()) {
     return;
   }
+
   // Check if user wants to remove current category.
   var check = confirm('Are you sure you want to delete the currently selected '
         + this.model.getSelected().type + '?');
   if (!check) { // If cancelled, exit.
     return;
   }
+
   var selectedId = this.model.getSelectedId();
   var selectedIndex = this.model.getIndexByElementId(selectedId);
   // Delete element visually.
   this.view.deleteElementRow(selectedId, selectedIndex);
   // Delete element in model.
   this.model.deleteElementFromList(selectedIndex);
+
   // Find next logical element to switch to.
   var next = this.model.getElementByIndex(selectedIndex);
   if (!next && this.model.hasToolbox()) {
     next = this.model.getElementByIndex(selectedIndex - 1);
   }
   var nextId = next ? next.id : null;
+
   // Open next element.
   this.clearAndLoadElement(nextId);
+
+  // If no element to switch to, display message, clear the workspace, and
+  // set a default selected element not in toolbox list in the model.
   if (!nextId) {
     alert('You currently have no categories or separators. All your blocks' +
         ' will be displayed in a single flyout.');
+    this.toolboxWorkspace.clear();
+    this.toolboxWorkspace.clearUndo();
+    this.model.setDefaultSelected();
   }
+
   // Update preview.
   this.updatePreview();
 };
@@ -215,17 +226,21 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
     this.view.disableWorkspace(false);
   }
 
-  // Set next category.
-  this.model.setSelectedById(id);
+  // If switching to another category, set category selection in the model and
+  // view.
+  if (id != null) {
+    // Set next category.
+    this.model.setSelectedById(id);
 
-  // Clears workspace and loads next category.
-  this.clearAndLoadXml_(this.model.getSelectedXml());
+    // Clears workspace and loads next category.
+    this.clearAndLoadXml_(this.model.getSelectedXml());
 
-  // Selects the next tab.
-  this.view.setCategoryTabSelection(id, true);
+    // Selects the next tab.
+    this.view.setCategoryTabSelection(id, true);
 
-  // Order blocks as if shown in the flyout.
-  this.toolboxWorkspace.cleanUp_();
+    // Order blocks as if shown in the flyout.
+    this.toolboxWorkspace.cleanUp_();
+  }
 
   // Update category editing buttons.
   this.view.updateState(this.model.getIndexByElementId
@@ -682,9 +697,10 @@ FactoryController.prototype.importPreloadFromTree_ = function(tree) {
 
 /**
  * Clears the toolbox editing area completely, deleting all categories and all
- * blocks in the model and view.
+ * blocks in the model and view. Sets the mode to toolbox mode.
  */
-FactoryController.prototype.clear = function() {
+FactoryController.prototype.clearToolbox = function() {
+  this.setMode(FactoryController.MODE_TOOLBOX);
   this.model.clearToolboxList();
   this.view.clearToolboxTabs();
   this.view.addEmptyCategoryMessage();
