@@ -64,7 +64,7 @@ FactoryGenerator.prototype.generateToolboxXml = function() {
         'id' : 'toolbox',
         'style' : 'display:none'
       });
-  if (!this.model.hasToolbox()) {
+  if (!this.model.hasElements()) {
     // Toolbox has no categories. Use XML directly from workspace.
     this.loadToHiddenWorkspaceAndSave_(this.model.getSelectedXml(), xmlDom);
   } else {

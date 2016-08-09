@@ -701,6 +701,7 @@ goog.require('goog.ui.ColorPicker');
     // blocks when dragging them into workspace. Could cause problems if ever load
     // blocks into workspace directly without calling updatePreview.
     if (e.type == Blockly.Events.MOVE || e.type == Blockly.Events.DELETE) {
+      controller.saveStateFromWorkspace();
       controller.updatePreview();
     }
 
