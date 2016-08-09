@@ -50,10 +50,10 @@ FactoryController.MODE_PRELOAD = 'preload';
  */
 FactoryController.prototype.addCategory = function() {
   // Check if it's the first category added.
-  var firstCategory = !this.model.hasToolbox();
+  var isFirstCategory = !this.model.hasElements();
   // Give the option to save blocks if their workspace is not empty and they
   // are creating their first category.
-  if (firstCategory && this.toolboxWorkspace.getAllBlocks().length > 0) {
+  if (isFirstCategory && this.toolboxWorkspace.getAllBlocks().length > 0) {
     var confirmCreate = confirm('Do you want to save your work in another '
         + 'category? If you don\'t, the blocks in your workspace will be ' +
         'deleted.');
@@ -69,14 +69,14 @@ FactoryController.prototype.addCategory = function() {
     }
   }
   // After possibly creating a category, check again if it's the first category.
-  firstCategory = !this.model.hasToolbox();
+  isFirstCategory = !this.model.hasElements();
   // Get name from user.
   name = this.promptForNewCategoryName('Enter the name of your new category: ');
   if (!name) {  //Exit if cancelled.
     return;
   }
   // Create category.
-  this.createCategory(name, firstCategory);
+  this.createCategory(name, isFirstCategory);
   // Switch to category.
   this.switchElement(this.model.getCategoryIdByName(name));
   // Update preview.
@@ -90,15 +90,15 @@ FactoryController.prototype.addCategory = function() {
  *
  * @param {!string} name Name of category being added.
  * @param {!string} id The ID of the category being added.
- * @param {boolean} firstCategory True if it's the first category created,
+ * @param {boolean} isFirstCategory True if it's the first category created,
  * false otherwise.
  */
-FactoryController.prototype.createCategory = function(name, firstCategory) {
+FactoryController.prototype.createCategory = function(name, isFirstCategory) {
   // Create empty category
   var category = new ListElement(ListElement.TYPE_CATEGORY, name);
   this.model.addElementToList(category);
   // Create new category.
-  var tab = this.view.addCategoryRow(name, category.id, firstCategory);
+  var tab = this.view.addCategoryRow(name, category.id, isFirstCategory);
   this.addClickToSwitch(tab, category.id);
 };
 
@@ -148,7 +148,7 @@ FactoryController.prototype.removeElement = function() {
 
   // Find next logical element to switch to.
   var next = this.model.getElementByIndex(selectedIndex);
-  if (!next && this.model.hasToolbox()) {
+  if (!next && this.model.hasElements()) {
     next = this.model.getElementByIndex(selectedIndex - 1);
   }
   var nextId = next ? next.id : null;
@@ -163,7 +163,7 @@ FactoryController.prototype.removeElement = function() {
         ' will be displayed in a single flyout.');
     this.toolboxWorkspace.clear();
     this.toolboxWorkspace.clearUndo();
-    this.model.setDefaultSelected();
+    this.model.createDefaultSelectedIfEmpty();
   }
 
   // Update preview.
@@ -311,7 +311,9 @@ FactoryController.prototype.printConfig = function() {
  * Blockly with reinjectPreview, otherwise just updates without reinjecting.
  * Called whenever a list element is created, removed, or modified and when
  * Blockly move and delete events are fired. Do not call on create events
- * or disabling will cause the user to "drop" their current blocks.
+ * or disabling will cause the user to "drop" their current blocks. Make sure
+ * that no changes have been made to the workspace since updating the model
+ * (if this might be the case, call saveStateFromWorkspace).
  */
 FactoryController.prototype.updatePreview = function() {
   // Disable events to stop updatePreview from recursively calling itself
@@ -320,8 +322,6 @@ FactoryController.prototype.updatePreview = function() {
 
   if (this.selectedMode == FactoryController.MODE_TOOLBOX) {
     // If currently editing the toolbox.
-    // Capture any changes made by user before generating XML.
-    this.model.getSelected().saveFromWorkspace(toolboxWorkspace);
     // Get toolbox XML.
     var tree = Blockly.Options.parseToolboxTree
         (this.generator.generateToolboxXml());
@@ -352,14 +352,27 @@ FactoryController.prototype.updatePreview = function() {
   } else {
     // If currently editing the pre-loaded workspace.
     this.previewWorkspace.clear();
-    this.model.savePreloadXml
-        (Blockly.Xml.workspaceToDom(this.toolboxWorkspace));
     Blockly.Xml.domToWorkspace(this.generator.generateWorkspaceXml(),
         this.previewWorkspace);
   }
 
   // Reenable events.
   Blockly.Events.enable();
+};
+
+/**
+ * Saves the state from the workspace depending on the current mode. Should
+ * be called after making changes to the workspace.
+ */
+FactoryController.prototype.saveStateFromWorkspace = function() {
+  if (this.selectedMode == FactoryController.MODE_TOOLBOX) {
+    // If currently editing the toolbox.
+    this.model.getSelected().saveFromWorkspace(toolboxWorkspace);
+  } else {
+    // If currently editing the pre-loaded workspace.
+    this.model.savePreloadXml
+        (Blockly.Xml.workspaceToDom(this.toolboxWorkspace));
+  }
 };
 
 /**
@@ -509,13 +522,13 @@ FactoryController.prototype.loadCategory = function() {
     return;
   }
 
-  var firstCategory = !this.model.hasToolbox();
+  var isFirstCategory = !this.model.hasElements();
   // Copy the standard category in the model.
   var copy = standardCategory.copy();
   this.model.addElementToList(copy);
 
   // Update the copy in the view.
-  var tab = this.view.addCategoryRow(copy.name, copy.id, firstCategory);
+  var tab = this.view.addCategoryRow(copy.name, copy.id, isFirstCategory);
   this.addClickToSwitch(tab, copy.id);
   // Color the category tab in the view.
   if (copy.color) {
@@ -525,6 +538,8 @@ FactoryController.prototype.loadCategory = function() {
   this.switchElement(copy.id);
   // Convert actual shadow blocks to user-generated shadow blocks.
   this.convertShadowBlocks_();
+  // Save state from workspace before updating preview.
+  this.saveStateFromWorkspace();
   // Update preview.
   this.updatePreview();
 };
@@ -553,7 +568,7 @@ FactoryController.prototype.isStandardCategoryName = function(name) {
  */
 FactoryController.prototype.addSeparator = function() {
   // Don't allow the user to add a separator if a category has not been created.
-  if (!this.model.hasToolbox()) {
+  if (!this.model.hasElements()) {
     alert('Add a category before adding a separator.');
     return;
   }
@@ -678,6 +693,7 @@ FactoryController.prototype.importToolboxFromTree_ = function(tree) {
     }
   }
 
+  this.saveStateFromWorkspace();
   this.updatePreview();
 };
 
@@ -692,6 +708,7 @@ FactoryController.prototype.importToolboxFromTree_ = function(tree) {
 FactoryController.prototype.importPreloadFromTree_ = function(tree) {
   this.clearAndLoadXml_(tree);
   this.model.savePreloadXml(tree);
+  this.saveStateFromWorkspace();
   this.updatePreview();
 }
 
@@ -706,6 +723,7 @@ FactoryController.prototype.clearToolbox = function() {
   this.view.addEmptyCategoryMessage();
   this.toolboxWorkspace.clear();
   this.toolboxWorkspace.clearUndo();
+  this.saveStateFromWorkspace();
   this.updatePreview();
 };
 
@@ -724,6 +742,7 @@ FactoryController.prototype.addShadow = function() {
   }
   this.view.markShadowBlock(Blockly.selected);
   this.model.addShadowBlock(Blockly.selected.id);
+  this.saveStateFromWorkspace();
   this.updatePreview();
 };
 
@@ -740,6 +759,7 @@ FactoryController.prototype.removeShadow = function() {
   }
   this.model.removeShadowBlock(Blockly.selected.id);
   this.view.unmarkShadowBlock(Blockly.selected);
+  this.saveStateFromWorkspace();
   this.updatePreview();
 };
 
