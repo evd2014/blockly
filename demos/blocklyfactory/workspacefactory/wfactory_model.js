@@ -51,6 +51,8 @@ FactoryModel = function() {
   this.hasProcedureCategory = false;
   // XML to be pre-loaded to workspace. Empty on default;
   this.preloadXml = Blockly.Xml.textToDom('<xml></xml>');
+  // Options object to be configured for Blockly inject call.
+  this.options = Object.create(null);
 };
 
 /**
@@ -413,6 +415,14 @@ FactoryModel.prototype.savePreloadXml = function(xml) {
  */
 FactoryModel.prototype.getPreloadXml = function() {
   return this.preloadXml;
+};
+
+FactoryModel.prototype.setOptions = function(type, value) {
+  this.options[type] = value;
+  if (!type) {
+    console.log("UNDEF");
+  }
+  console.log(this.options);
 };
 
 /**

@@ -111,35 +111,35 @@ goog.require('goog.ui.ColorPicker');
   <aside id='preload_div' style='display:none'>
     <p>Configure the <a href="https://developers.google.com/blockly/guides/get-started/web">options</a> for your Blockly inject call.</p>
     <form id="workspace_options">
-      <input type="checkbox" id="collapse_checkbox" checked>Collapsible Blocks<br>
-      <input type="checkbox" id="comments_checkbox" checked>Comments for Blocks<br>
-      <input type="checkbox" id="css_checkbox" checked>Use Blockly CSS<br>
-      <input type="checkbox" id="disable_checkbox" checked>Disabled Blocks<br>
-      <input type="checkbox" id="grid_checkbox" value="grid">Use Grid<br>
+      <input type="checkbox" id="collapse_checkbox" name="collapse" checked>Collapsible Blocks
+      <input type="checkbox" id="comments_checkbox" name="comments" checked>Comments for Blocks
+      <input type="checkbox" id="css_checkbox" name="css" checked>Use Blockly CSS
+      <input type="checkbox" id="disable_checkbox" name="disable" checked>Disabled Blocks
+      <input type="checkbox" id="grid_checkbox" name="grid" value="grid">Use Grid
       <div id="grid_options" style="display:none">
-        Spacing <input type="text" id="grid_spacing_text" value="0"><br>
-        Length <input type="text" id="grid_length_text" value="1"><br>
-        Color <input type="text" id="grid_colour_text" value="'#888'"><br>
-        <input type="checkbox" value="grid_snap_checkbox">Snap<br>
+        Spacing <input type="text" id="grid_spacing_text" name="spacing" value="0">
+        Length <input type="text" id="grid_length_text" name="length" value="1">
+        Color <input type="text" id="grid_colour_text" name="colour" value="'#888'">
+        <input type="checkbox" value="grid_snap_checkbox" name="snap">Snap
       </div>
-      <input type="checkbox" id="maxBlocks_checkbox" checked>Infinite Number of Blocks<br>
+      <input type="checkbox" id="maxBlocks_checkbox" name="maxBlocks" checked>Infinite Number of Blocks
       <div id="maxBlocks_options" style="display:none">
-        Max Blocks <input type="text" id="maxBlocksValue_text" value="0"><br>
+        Max Blocks <input type="text" id="maxBlocksValue_text" name="maxBlocks" value="0">
       </div>
-      Path to Blockly Media <input type="text" id="media_text" value='"https://blockly-demo.appspot.com/static/media/"'><br>
-      <input type="checkbox" id="readOnly_checkbox">Read Only<br>
-      <input type="checkbox" id="rtl_checkbox">Layout with RTL<br>
-      <input type="checkbox" id="scrollbars_checkbox" checked>Scrollbars<br>
-      <input type="checkbox" id="sounds_checkbox" checked>Sounds<br>
-      <input type="checkbox" id="trashbox_checkbox" checked>Trashcan<br>
-      <input type="checkbox" id="zoom_checkbox" value="zoom">Zoom<br>
+      Path to Blockly Media <input type="text" id="media_text" name="media" value='https://blockly-demo.appspot.com/static/media/'>
+      <input type="checkbox" id="readOnly_checkbox" name="readOnly">Read Only
+      <input type="checkbox" id="rtl_checkbox" name="rtl">Layout with RTL
+      <input type="checkbox" id="scrollbars_checkbox" name="scrollbars" checked>Scrollbars
+      <input type="checkbox" id="sounds_checkbox" name="sounds" checked>Sounds
+      <input type="checkbox" id="trashbox_checkbox" name="trashbox" checked>Trashcan
+      <input type="checkbox" id="zoom_checkbox" name="zoom" value="zoom">Zoom
       <div id="zoom_options" style="display:none">
-        <input type="checkbox" id="zoom_controls_checkbox">Zoom Controls<br>
-        <input type="checkbox" id="zoom_wheel_checkbox">Zoom Wheel<br>
-        Start Scale <input type="text" id="zoom_startScale_text" value="1.0"><br>
-        Max Scale <input type="text" id="zoom_maxScale_text" value="3"><br>
-        Min Scale <input type="text" id="zoom_minScale_text" value="0.3"><br>
-        Scale Speed <input type="text" id="zoom_scaleSpeed_text" value="1.2"><br>
+        <input type="checkbox" id="zoom_controls_checkbox" name="controls">Zoom Controls
+        <input type="checkbox" id="zoom_wheel_checkbox" name="wheel">Zoom Wheel
+        Start Scale <input type="text" id="zoom_startScale_text" name="startScale" value="1.0">
+        Max Scale <input type="text" id="zoom_maxScale_text" name="maxScale" value="3">
+        Min Scale <input type="text" id="zoom_minScale_text" name="minScale" value="0.3">
+        Scale Speed <input type="text" id="zoom_scaleSpeed_text" name="scaleSpeed" value="1.2">
       </div>
     </form>
   </aside>
@@ -816,7 +816,50 @@ goog.require('goog.ui.ColorPicker');
   document.getElementById('maxBlocks_checkbox').addEventListener('change', function(e) {
       document.getElementById('maxBlocks_options').style.display = document.getElementById('maxBlocks_checkbox').checked ? 'none' : 'block';
   });
-  //document.getElementById('zoom_checkbox').addEventListener('change',
+
+  document.getElementById('comments_checkbox').addEventListener('change', function(e) {
+      controller.setOptions('comments', document.getElementById('comments_checkbox').checked);
+  });
+  document.getElementById('css_checkbox').addEventListener('change', function(e) {
+      controller.setOptions('css', document.getElementById('css_checkbox').checked);
+  });
+  document.getElementById('disable_checkbox').addEventListener('change', function(e) {
+      controller.setOptions('disable', document.getElementById('disable_checkbox').checked);
+  });
+  document.getElementById('readOnly_checkbox').addEventListener('change', function(e) {
+      controller.setOptions('readOnly', document.getElementById('readOnly_checkbox').checked);
+  });
+  document.getElementById('rtl_checkbox').addEventListener('change', function(e) {
+      controller.setOptions('rtl', document.getElementById('rtl_checkbox').checked);
+  });
+  document.getElementById('scrollbars_checkbox').addEventListener('change', function(e) {
+      controller.setOptions('scrollbars', document.getElementById('scrollbars_checkbox').checked);
+  });
+  document.getElementById('sounds_checkbox').addEventListener('change', function(e) {
+      controller.setOptions('sounds', document.getElementById('sounds_checkbox').checked);
+  });
+  document.getElementById('trashbox_checkbox').addEventListener('change', function(e) {
+      controller.setOptions('trashbox', document.getElementById('trashbox_checkbox').checked);
+  });
+
+  var options = document.getElementById('workspace_options').children;
+  for (var i = 0, option; option = options[i]; i++) {
+    if (option.tagName != 'div' && option.name) {
+      if (option.type == 'checkbox') {
+        controller.setOptions(option.name, option.checked);
+        option.addEventListener('change', function(option, controller) {
+          return function() {
+            controller.setOptions(option.name, option.checked);
+          };
+        }());
+      } else {
+        controller.setOptions(option.name, option.value);
+        option.addEventListener('change', function(e) {
+          controller.setOptions(option.name, option.checked);
+        });
+      }
+    }
+  }
 
 </script>
 </html>
