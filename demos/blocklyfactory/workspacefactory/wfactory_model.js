@@ -52,7 +52,8 @@ FactoryModel = function() {
   // XML to be pre-loaded to workspace. Empty on default;
   this.preloadXml = Blockly.Xml.textToDom('<xml></xml>');
   // Options object to be configured for Blockly inject call.
-  this.options = Object.create(null);
+  this.options = new Object(null);
+  //this.options = goog.dom.createDom();
 };
 
 /**
@@ -417,13 +418,26 @@ FactoryModel.prototype.getPreloadXml = function() {
   return this.preloadXml;
 };
 
-FactoryModel.prototype.setOptions = function(type, value) {
+FactoryModel.prototype.setOption = function(type, value) {
   this.options[type] = value;
+  //this.options.setAttribute(type, value)
   if (!type) {
     console.log("UNDEF");
   }
   console.log(this.options);
 };
+
+FactoryModel.prototype.setSubOption = function(option, type, value) {
+  if (!this.options[option]) {
+    console.log("new option: " + option);
+    this.options[option] = new Object(null);
+  }
+  this.options[option][type] = value;
+};
+
+FactoryModel.prototype.removeOption = function(type) {
+  delete this.options[type];
+}
 
 /**
  * Class for a ListElement.
