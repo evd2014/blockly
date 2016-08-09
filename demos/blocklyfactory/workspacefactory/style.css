@@ -112,6 +112,10 @@ td {
   width: 20%;
 }
 
+#preload_div {
+  width: 20%;
+}
+
 #disable_div {
   background-color: white;
   height: 100%;

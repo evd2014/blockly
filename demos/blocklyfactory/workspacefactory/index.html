@@ -60,12 +60,13 @@ goog.require('goog.ui.ColorPicker');
   <p id="editHelpText">Drag blocks into your toolbox:</p>
   <table id='workspaceTabs'>
     <td id="tab_toolbox" class="tabon">Toolbox</td>
-    <td id="tab_preload" class="taboff">Pre-loaded Workspace</td>
+    <td id="tab_preload" class="taboff">Workspace</td>
   </table>
   <section id="toolbox_section">
     <div id="toolbox_blocks" class="content"></div>
     <div id='disable_div'></div>
   </section>
+
   <aside id="toolbox_div">
     <table id="categoryTable">
       <td id="tab_help">Your categories will appear here</td>
@@ -96,8 +97,6 @@ goog.require('goog.ui.ColorPicker');
     </div>
 
   </aside>
-  <aside id='preload_div' style='display:none'>
-  </aside>
 
   <div class='dropdown'>
     <button id="button_editShadow">Edit Block</button>
@@ -108,6 +107,42 @@ goog.require('goog.ui.ColorPicker');
       <a id='dropdown_removeShadow'>Remove Shadow</a>
     </div>
   </div>
+
+  <aside id='preload_div' style='display:none'>
+    <p>Configure the <a href="https://developers.google.com/blockly/guides/get-started/web">options</a> for your Blockly inject call.</p>
+    <form id="workspace_options">
+      <input type="checkbox" id="collapse_checkbox" checked>Collapsible Blocks<br>
+      <input type="checkbox" id="comments_checkbox" checked>Comments for Blocks<br>
+      <input type="checkbox" id="css_checkbox" checked>Use Blockly CSS<br>
+      <input type="checkbox" id="disable_checkbox" checked>Disabled Blocks<br>
+      <input type="checkbox" id="grid_checkbox" value="grid">Use Grid<br>
+      <div id="grid_options" style="display:none">
+        Spacing <input type="text" id="grid_spacing_text" value="0"><br>
+        Length <input type="text" id="grid_length_text" value="1"><br>
+        Color <input type="text" id="grid_colour_text" value="'#888'"><br>
+        <input type="checkbox" value="grid_snap_checkbox">Snap<br>
+      </div>
+      <input type="checkbox" id="maxBlocks_checkbox" checked>Infinite Number of Blocks<br>
+      <div id="maxBlocks_options" style="display:none">
+        Max Blocks <input type="text" id="maxBlocksValue_text" value="0"><br>
+      </div>
+      Path to Blockly Media <input type="text" id="media_text" value='"https://blockly-demo.appspot.com/static/media/"'><br>
+      <input type="checkbox" id="readOnly_checkbox">Read Only<br>
+      <input type="checkbox" id="rtl_checkbox">Layout with RTL<br>
+      <input type="checkbox" id="scrollbars_checkbox" checked>Scrollbars<br>
+      <input type="checkbox" id="sounds_checkbox" checked>Sounds<br>
+      <input type="checkbox" id="trashbox_checkbox" checked>Trashcan<br>
+      <input type="checkbox" id="zoom_checkbox" value="zoom">Zoom<br>
+      <div id="zoom_options" style="display:none">
+        <input type="checkbox" id="zoom_controls_checkbox">Zoom Controls<br>
+        <input type="checkbox" id="zoom_wheel_checkbox">Zoom Wheel<br>
+        Start Scale <input type="text" id="zoom_startScale_text" value="1.0"><br>
+        Max Scale <input type="text" id="zoom_maxScale_text" value="3"><br>
+        Min Scale <input type="text" id="zoom_minScale_text" value="0.3"><br>
+        Scale Speed <input type="text" id="zoom_scaleSpeed_text" value="1.2"><br>
+      </div>
+    </form>
+  </aside>
 
 </section>
 
@@ -705,6 +740,17 @@ goog.require('goog.ui.ColorPicker');
       }
     }
   });
+
+  document.getElementById('grid_checkbox').addEventListener('change', function(e) {
+      document.getElementById('grid_options').style.display = document.getElementById('grid_checkbox').checked ? 'block' : 'none';
+  });
+  document.getElementById('zoom_checkbox').addEventListener('change', function(e) {
+      document.getElementById('zoom_options').style.display = document.getElementById('zoom_checkbox').checked ? 'block' : 'none';
+  });
+  document.getElementById('maxBlocks_checkbox').addEventListener('change', function(e) {
+      document.getElementById('maxBlocks_options').style.display = document.getElementById('maxBlocks_checkbox').checked ? 'none' : 'block';
+  });
+  //document.getElementById('zoom_checkbox').addEventListener('change',
 
 </script>
 </html>
