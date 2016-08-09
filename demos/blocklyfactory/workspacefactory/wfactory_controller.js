@@ -271,19 +271,22 @@ FactoryController.prototype.updatePreview = function() {
   // Disable events to stop updatePreview from recursively calling itself
   // through event handlers.
   Blockly.Events.disable();
+
   if (this.selectedMode == FactoryController.MODE_TOOLBOX) {
     // If currently editing the toolbox.
     var tree = Blockly.Options.parseToolboxTree
         (this.generator.generateConfigXml(this.toolboxWorkspace));
-    // No categories, creates a simple flyout.
+
     if (tree.getElementsByTagName('category').length == 0) {
+      // No categories, creates a simple flyout.
       if (this.previewWorkspace.toolbox_) {
         this.reinjectPreview(tree); // Switch to simple flyout, more expensive.
       } else {
         this.previewWorkspace.flyout_.show(tree.childNodes);
       }
-    // Uses categories, creates a toolbox.
+
     } else {
+      // Uses categories, creates a toolbox.
       if (!previewWorkspace.toolbox_) {
         this.reinjectPreview(tree); // Create a toolbox, more expensive.
       } else {
@@ -303,6 +306,7 @@ FactoryController.prototype.updatePreview = function() {
     Blockly.Xml.domToWorkspace(this.generator.generateWorkspaceXml
         (this.toolboxWorkspace), this.previewWorkspace);
   }
+
   // Reenable events.
   Blockly.Events.enable();
 };
@@ -682,7 +686,6 @@ FactoryController.prototype.convertShadowBlocks_ = function() {
  *    (FactoryController.MODE_TOOLBOX or FactoryController.MODE_PRELOAD).
  */
 FactoryController.prototype.setMode = function(mode) {
-
   // Set tab selection and display appropriate tab.
   this.view.setModeSelection(mode);
 
