@@ -71,9 +71,9 @@ FactoryModel.prototype.hasProcedures = function() {
  * Determines if the user has any elements in the toolbox. Uses the length of
  * toolboxList.
  *
- * @return {boolean} True if categories exist, false otherwise.
+ * @return {boolean} True if elements exist, false otherwise.
  */
-FactoryModel.prototype.hasToolbox = function() {
+FactoryModel.prototype.hasElements = function() {
   return this.toolboxList.length > 0;
 };
 
@@ -109,17 +109,16 @@ FactoryModel.prototype.deleteElementFromList = function(index) {
       false : this.hasProcedureCategory;
   // Remove element.
   this.toolboxList.splice(index, 1);
-  // If removing last element from toolbox list, create empty list element
-  // for single flyout.
-
 };
 
 /**
  * Sets selected to be an empty category not in toolbox list if toolbox list
  * is empty. Should be called when removing the last element from toolbox list.
+ * If the toolbox list is empty, selected stores the XML for the single flyout
+ * of blocks displayed.
  *
  */
-FactoryModel.prototype.setDefaultSelected = function() {
+FactoryModel.prototype.createDefaultSelectedIfEmpty = function() {
   if (this.toolboxList.length == 0) {
     this.selected = new ListElement(ListElement.TYPE_CATEGORY);
   }
