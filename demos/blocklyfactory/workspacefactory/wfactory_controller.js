@@ -807,6 +807,10 @@ FactoryController.prototype.clearAndLoadXml_ = function(xml) {
       (this.toolboxWorkspace.getAllBlocks()));
 }
 
+FactoryController.prototype.setOptions = function(type, value) {
+  this.model.setOptions(type, value);
+};
+
 // Toolbox editing mode. Changes the user makes to the workspace updates the
 // toolbox.
 FactoryController.MODE_TOOLBOX = 'toolbox';
