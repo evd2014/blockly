@@ -111,35 +111,32 @@ goog.require('goog.ui.ColorPicker');
   <aside id='preload_div' style='display:none'>
     <p>Configure the <a href="https://developers.google.com/blockly/guides/get-started/web">options</a> for your Blockly inject call.</p>
     <form id="workspace_options">
-      <input type="checkbox" id="collapse_checkbox" name="collapse" checked>Collapsible Blocks
-      <input type="checkbox" id="comments_checkbox" name="comments" checked>Comments for Blocks
-      <input type="checkbox" id="css_checkbox" name="css" checked>Use Blockly CSS
-      <input type="checkbox" id="disable_checkbox" name="disable" checked>Disabled Blocks
-      <input type="checkbox" id="grid_checkbox" name="grid" value="grid">Use Grid
-      <div id="grid_options" style="display:none">
-        Spacing <input type="text" id="grid_spacing_text" name="spacing" value="0">
-        Length <input type="text" id="grid_length_text" name="length" value="1">
-        Color <input type="text" id="grid_colour_text" name="colour" value="'#888'">
-        <input type="checkbox" value="grid_snap_checkbox" name="snap">Snap
+      <input type="checkbox" id="collapse_checkbox" name="collapse" checked>Collapsible Blocks<br>
+      <input type="checkbox" id="comments_checkbox" name="comments" checked>Comments for Blocks<br>
+      <input type="checkbox" id="css_checkbox" name="css" checked>Use Blockly CSS<br>
+      <input type="checkbox" id="disable_checkbox" name="disable" checked>Disabled Blocks<br>
+      <input type="checkbox" id="grid_checkbox" name="grid" value="grid">Use Grid<br>
+      <div id="grid_options" name="grid" style="display:none">
+        Spacing <input type="text" id="grid_spacing_text" name="spacing" custom="number" value="0"><br>
+        Length <input type="text" id="grid_length_text" name="length" custom="number"value="1"><br>
+        Color <input type="text" id="grid_colour_text" name="colour" custom="text" value="#888"><br>
+        <input type="checkbox" value="grid_snap_checkbox" name="snap">Snap<br>
       </div>
-      <input type="checkbox" id="maxBlocks_checkbox" name="maxBlocks" checked>Infinite Number of Blocks
-      <div id="maxBlocks_options" style="display:none">
-        Max Blocks <input type="text" id="maxBlocksValue_text" name="maxBlocks" value="0">
-      </div>
-      Path to Blockly Media <input type="text" id="media_text" name="media" value='https://blockly-demo.appspot.com/static/media/'>
-      <input type="checkbox" id="readOnly_checkbox" name="readOnly">Read Only
-      <input type="checkbox" id="rtl_checkbox" name="rtl">Layout with RTL
-      <input type="checkbox" id="scrollbars_checkbox" name="scrollbars" checked>Scrollbars
-      <input type="checkbox" id="sounds_checkbox" name="sounds" checked>Sounds
-      <input type="checkbox" id="trashbox_checkbox" name="trashbox" checked>Trashcan
-      <input type="checkbox" id="zoom_checkbox" name="zoom" value="zoom">Zoom
-      <div id="zoom_options" style="display:none">
-        <input type="checkbox" id="zoom_controls_checkbox" name="controls">Zoom Controls
-        <input type="checkbox" id="zoom_wheel_checkbox" name="wheel">Zoom Wheel
-        Start Scale <input type="text" id="zoom_startScale_text" name="startScale" value="1.0">
-        Max Scale <input type="text" id="zoom_maxScale_text" name="maxScale" value="3">
-        Min Scale <input type="text" id="zoom_minScale_text" name="minScale" value="0.3">
-        Scale Speed <input type="text" id="zoom_scaleSpeed_text" name="scaleSpeed" value="1.2">
+      Max Blocks <input type="text" id="maxBlocksValue_text" name="maxBlocks" custom="number" value="Infinity"><br>
+      Path to Blockly Media <input type="text" id="media_text" name="media" custom="text" value='https://blockly-demo.appspot.com/static/media/'><br>
+      <input type="checkbox" id="readOnly_checkbox" name="readOnly">Read Only<br>
+      <input type="checkbox" id="rtl_checkbox" name="rtl">Layout with RTL<br>
+      <input type="checkbox" id="scrollbars_checkbox" name="scrollbars" checked>Scrollbars<br>
+      <input type="checkbox" id="sounds_checkbox" name="sounds" checked>Sounds<br>
+      <input type="checkbox" id="trashcan_checkbox" name="trashcan" checked>Trashcan<br>
+      <input type="checkbox" id="zoom_checkbox" name="zoom">Zoom<br>
+      <div id="zoom_options" name="zoom" style="display:none">
+        <input type="checkbox" id="zoom_controls_checkbox" name="controls">Zoom Controls<br>
+        <input type="checkbox" id="zoom_wheel_checkbox" name="wheel">Zoom Wheel<br>
+        Start Scale <input type="text" id="zoom_startScale_text" name="startScale" custom="number" value="1.0"><br>
+        Max Scale <input type="text" id="zoom_maxScale_text" name="maxScale" custom="number" value="3"><br>
+        Min Scale <input type="text" id="zoom_minScale_text" name="minScale" custom="number" value="0.3"><br>
+        Scale Speed <input type="text" id="zoom_scaleSpeed_text" name="scaleSpeed" custom="number" value="1.2"><br>
       </div>
     </form>
   </aside>
@@ -741,57 +738,142 @@ goog.require('goog.ui.ColorPicker');
     }
   });
 
+  //UNIFY
   document.getElementById('grid_checkbox').addEventListener('change', function(e) {
       document.getElementById('grid_options').style.display = document.getElementById('grid_checkbox').checked ? 'block' : 'none';
+      if (!document.getElementById('grid_checkbox').checked) {
+        controller.removeOption('grid');
+      } else {
+        var options = document.getElementById('grid_options').children;
+        for (var i = 0, option; option = options[i]; i++) {
+          if (option.type == 'checkbox') {
+            controller.setOptions(option.name, option.checked, 'grid');
+          } else {
+            var value = option.value;
+            if (type = option.getAttribute('custom') == 'number') {
+              value = parseInt(value);
+            }
+            controller.setOptions(option.name, value, 'grid');
+          }
+        }
+      }
   });
+  // MOVE TO METHOD IN CONTROLLER
   document.getElementById('zoom_checkbox').addEventListener('change', function(e) {
       document.getElementById('zoom_options').style.display = document.getElementById('zoom_checkbox').checked ? 'block' : 'none';
+      if (!document.getElementById('zoom_checkbox').checked) {
+        controller.removeOption('zoom');
+      } else {
+        var options = document.getElementById('zoom_options').children;
+        for (var i = 0, option; option = options[i]; i++) {
+          if (option.type == 'checkbox') {
+            controller.setOptions(option.name, option.checked, 'zoom');
+          } else {
+            var value = option.value;
+            if (type = option.getAttribute('custom') == 'number') {
+              value = parseInt(value);
+            }
+            controller.setOptions(option.name, value, 'zoom');
+          }
+        }
+      }
   });
-  document.getElementById('maxBlocks_checkbox').addEventListener('change', function(e) {
-      document.getElementById('maxBlocks_options').style.display = document.getElementById('maxBlocks_checkbox').checked ? 'none' : 'block';
-  });
+  // document.getElementById('maxBlocks_checkbox').addEventListener('change', function(e) {
+  //     document.getElementById('maxBlocks_options').style.display = document.getElementById('maxBlocks_checkbox').checked ? 'none' : 'block';
+  // });
 
-  document.getElementById('comments_checkbox').addEventListener('change', function(e) {
-      controller.setOptions('comments', document.getElementById('comments_checkbox').checked);
-  });
-  document.getElementById('css_checkbox').addEventListener('change', function(e) {
-      controller.setOptions('css', document.getElementById('css_checkbox').checked);
-  });
-  document.getElementById('disable_checkbox').addEventListener('change', function(e) {
-      controller.setOptions('disable', document.getElementById('disable_checkbox').checked);
-  });
-  document.getElementById('readOnly_checkbox').addEventListener('change', function(e) {
-      controller.setOptions('readOnly', document.getElementById('readOnly_checkbox').checked);
-  });
-  document.getElementById('rtl_checkbox').addEventListener('change', function(e) {
-      controller.setOptions('rtl', document.getElementById('rtl_checkbox').checked);
-  });
-  document.getElementById('scrollbars_checkbox').addEventListener('change', function(e) {
-      controller.setOptions('scrollbars', document.getElementById('scrollbars_checkbox').checked);
-  });
-  document.getElementById('sounds_checkbox').addEventListener('change', function(e) {
-      controller.setOptions('sounds', document.getElementById('sounds_checkbox').checked);
-  });
-  document.getElementById('trashbox_checkbox').addEventListener('change', function(e) {
-      controller.setOptions('trashbox', document.getElementById('trashbox_checkbox').checked);
-  });
+  // document.getElementById('comments_checkbox').addEventListener('change', function(e) {
+  //     controller.setOptions('comments', document.getElementById('comments_checkbox').checked);
+  // });
+  // document.getElementById('css_checkbox').addEventListener('change', function(e) {
+  //     controller.setOptions('css', document.getElementById('css_checkbox').checked);
+  // });
+  // document.getElementById('disable_checkbox').addEventListener('change', function(e) {
+  //     controller.setOptions('disable', document.getElementById('disable_checkbox').checked);
+  // });
+  // document.getElementById('readOnly_checkbox').addEventListener('change', function(e) {
+  //     controller.setOptions('readOnly', document.getElementById('readOnly_checkbox').checked);
+  // });
+  // document.getElementById('rtl_checkbox').addEventListener('change', function(e) {
+  //     controller.setOptions('rtl', document.getElementById('rtl_checkbox').checked);
+  // });
+  // document.getElementById('scrollbars_checkbox').addEventListener('change', function(e) {
+  //     controller.setOptions('scrollbars', document.getElementById('scrollbars_checkbox').checked);
+  // });
+  // document.getElementById('sounds_checkbox').addEventListener('change', function(e) {
+  //     controller.setOptions('sounds', document.getElementById('sounds_checkbox').checked);
+  // });
+  // document.getElementById('trashbox_checkbox').addEventListener('change', function(e) {
+  //     controller.setOptions('trashbox', document.getElementById('trashbox_checkbox').checked);
+  // });
 
   var options = document.getElementById('workspace_options').children;
   for (var i = 0, option; option = options[i]; i++) {
-    if (option.tagName != 'div' && option.name) {
+    console.log('ID: ' + option.id);
+    if (option.tagName != 'DIV' && option.name && option.name != 'grid' && option.name !='zoom') {
+      var name = option.name;
+      var id = option.id;
       if (option.type == 'checkbox') {
         controller.setOptions(option.name, option.checked);
-        option.addEventListener('change', function(option, controller) {
+        option.addEventListener('change', function(optionName, optionId) {
           return function() {
-            controller.setOptions(option.name, option.checked);
+            var checked = document.getElementById(optionId).checked;
+            console.log(checked + ' ' + optionName);
+            controller.setOptions(optionName, checked);
           };
-        }());
+        }(name, id));
       } else {
         controller.setOptions(option.name, option.value);
-        option.addEventListener('change', function(e) {
-          controller.setOptions(option.name, option.checked);
-        });
+        var type = option.getAttribute('custom');
+        option.addEventListener('change', function(optionName, optionId, optionType) {
+          return function() {
+            var value = document.getElementById(optionId).value
+            if (optionType == 'number') {
+              console.log("parsing");
+              value = parseInt(value);
+            }
+            console.log(value + ' ' + optionName);
+            controller.setOptions(optionName, value);
+          };
+        }(name, id, type));
       }
+    } else if (option.id == 'grid_options' || option.id == 'zoom_options') {
+      var subOptions = option.children;
+      console.log(option.name);
+      console.log(subOptions.length);
+      for (var j = 0, subOption; subOption = subOptions[j]; j++) {
+        if (subOption.name) {
+          var subName = subOption.name;
+          var id = subOption.id;
+          var name = option.getAttribute('name');
+          console.log(name);
+          if (subOption.type == 'checkbox') {
+            // controller.setOptions(subOption.name, subOption.checked, name);
+            subOption.addEventListener('change', function(optionName, subOptionName, subOptionId) {
+              return function() {
+                var checked = document.getElementById(subOptionId).checked;
+                console.log(checked + ' ' + optionName + ' ' + subOptionName);
+                controller.setOptions(subOptionName, checked, optionName);
+              };
+            }(name, subName, id));
+          } else {
+            // controller.setOptions(subOption.name, subOption.value, name);
+            var type = subOption.getAttribute('custom');
+            subOption.addEventListener('change', function(optionName, subOptionName, subOptionId, subOptionType) {
+              return function() {
+                var value = document.getElementById(subOptionId).value
+                if (subOptionType == 'number') {
+                  console.log("parsing");
+                  value = parseInt(value);
+                }
+                console.log(value + ' ' + subOptionName);
+                controller.setOptions(subOptionName, value, optionName);
+              };
+            }(name, subName, id, type));
+          }
+        }
+      }
+      console.log('done with iteration of for loop');
     }
   }
 

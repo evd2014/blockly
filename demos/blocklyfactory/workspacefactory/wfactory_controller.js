@@ -361,19 +361,20 @@ FactoryController.prototype.updatePreview = function() {
  */
 FactoryController.prototype.reinjectPreview = function(tree) {
   this.previewWorkspace.dispose();
-  previewToolbox = Blockly.Xml.domToPrettyText(tree);
-  this.previewWorkspace = Blockly.inject('preview_blocks',
-    {grid:
-      {spacing: 25,
-       length: 3,
-       colour: '#ccc',
-       snap: true},
-     media: '../../../media/',
-     toolbox: previewToolbox,
-     zoom:
-       {controls: true,
-        wheel: true}
-    });
+  this.model.setOption('toolbox', Blockly.Xml.domToPrettyText(tree));
+  this.previewWorkspace = Blockly.inject('preview_blocks', this.model.options);
+   // this.previewWorkspace = Blockly.inject('preview_blocks',
+   //   {grid:
+   //     {spacing: 25,
+   //      length: 3,
+   //      colour: '#ccc',
+   //      snap: true},
+   //    media: '../../../media/',
+   //    toolbox: previewToolbox,
+   //    zoom:
+   //      {controls: true,
+   //       wheel: true}
+   //   });
 };
 
 /**
@@ -807,9 +808,23 @@ FactoryController.prototype.clearAndLoadXml_ = function(xml) {
       (this.toolboxWorkspace.getAllBlocks()));
 }
 
-FactoryController.prototype.setOptions = function(type, value) {
-  this.model.setOptions(type, value);
+FactoryController.prototype.setOptions = function(type, value,
+    opt_parentOption) {
+  if (!opt_parentOption) {
+    this.model.setOption(type, value);
+  } else {
+    console.log("calling suboption for " + opt_parentOption);
+    this.model.setSubOption(opt_parentOption, type, value);
+  }
+  this.reinjectPreview(Blockly.Options.parseToolboxTree
+        (this.generator.generateToolboxXml()));
 };
+
+FactoryController.prototype.removeOption = function(type) {
+  this.model.removeOption(type);
+  this.reinjectPreview(Blockly.Options.parseToolboxTree
+        (this.generator.generateToolboxXml()));
+}
 
 // Toolbox editing mode. Changes the user makes to the workspace updates the
 // toolbox.
