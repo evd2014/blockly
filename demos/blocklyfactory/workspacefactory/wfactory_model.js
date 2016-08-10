@@ -53,7 +53,6 @@ FactoryModel = function() {
   this.preloadXml = Blockly.Xml.textToDom('<xml></xml>');
   // Options object to be configured for Blockly inject call.
   this.options = new Object(null);
-  //this.options = goog.dom.createDom();
 };
 
 /**
@@ -418,23 +417,42 @@ FactoryModel.prototype.getPreloadXml = function() {
   return this.preloadXml;
 };
 
+/**
+ * Adds an attribute to the options object with the name type and the value
+ * value.
+ *
+ * @param {!string} type The name of the attribute to give to the options
+ *    object.
+ * @param {Object} value The value of the attribute added to options.
+ */
 FactoryModel.prototype.setOption = function(type, value) {
   this.options[type] = value;
-  //this.options.setAttribute(type, value)
-  if (!type) {
-    console.log("UNDEF");
-  }
-  console.log(this.options);
 };
 
+/**
+ * Adds an attribute to an object within the options object. If an option with
+ * that name does not exist, create a new one.
+ *
+ * @param {!string} The name of the object within the options object to add
+ *    the attribute to.
+ * @param {!string} type The name of the attribute to add to the object within
+ *    options.
+ * @param {Object} value The value of the attribute to be added to the object
+ *    within options.
+ */
 FactoryModel.prototype.setSubOption = function(option, type, value) {
   if (!this.options[option]) {
-    console.log("new option: " + option);
     this.options[option] = new Object(null);
   }
   this.options[option][type] = value;
 };
 
+/**
+ * Removes an option within the options object.
+ *
+ * @param {!string} type the name of the attribute to be removed from the
+ *    options object.
+ */
 FactoryModel.prototype.removeOption = function(type) {
   delete this.options[type];
 }

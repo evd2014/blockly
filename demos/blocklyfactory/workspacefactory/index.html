@@ -111,25 +111,25 @@ goog.require('goog.ui.ColorPicker');
 
   <aside id='preload_div' style='display:none'>
     <p>Configure the <a href="https://developers.google.com/blockly/guides/get-started/web">options</a> for your Blockly inject call.</p>
-    <button id="button_standardOptions">Standard Options</button>
+    <button class="small" id="button_standardOptions">Standard Options</button>
     <form id="workspace_options">
       <input type="checkbox" id="collapse_checkbox" name="collapse">Collapsible Blocks<br>
       <input type="checkbox" id="comments_checkbox" name="comments">Comments for Blocks<br>
-      <input type="checkbox" id="css_checkbox" name="css" checked>Use Blockly CSS<br>
+      <input type="checkbox" id="css_checkbox" name="css">Use Blockly CSS<br>
       <input type="checkbox" id="disable_checkbox" name="disable">Disabled Blocks<br>
-      <input type="checkbox" id="grid_checkbox" name="grid" value="grid">Use Grid<br>
+      <input type="checkbox" id="grid_checkbox" name="grid">Use Grid<br>
       <div id="grid_options" name="grid" style="display:none">
         Spacing <input type="text" id="grid_spacing_text" name="spacing" custom="number" value="0"><br>
         Length <input type="text" id="grid_length_text" name="length" custom="number"value="1"><br>
         Color <input type="text" id="grid_colour_text" name="colour" custom="text" value="#888"><br>
-        <input type="checkbox" value="grid_snap_checkbox" name="snap">Snap<br>
+        <input type="checkbox" id="grid_snap_checkbox" value="grid_snap_checkbox" name="snap">Snap<br>
       </div>
-      Max Blocks <input type="text" id="maxBlocksValue_text" name="maxBlocks" custom="number" value="Infinity"><br>
-      Path to Blockly Media <input type="text" id="media_text" name="media" custom="text" value='https://blockly-demo.appspot.com/static/media/'><br>
+      Max Blocks <input type="text" id="maxBlocks_text" name="maxBlocks" custom="number" value="Infinity"><br>
+      Path to Blockly Media <input type="text" id="media_text" name="media" custom="text"><br>
       <input type="checkbox" id="readOnly_checkbox" name="readOnly">Read Only<br>
       <input type="checkbox" id="rtl_checkbox" name="rtl">Layout with RTL<br>
       <input type="checkbox" id="scrollbars_checkbox" name="scrollbars">Scrollbars<br>
-      <input type="checkbox" id="sounds_checkbox" name="sounds" checked>Sounds<br>
+      <input type="checkbox" id="sounds_checkbox" name="sounds">Sounds<br>
       <input type="checkbox" id="trashcan_checkbox" name="trashcan">Trashcan<br>
       <input type="checkbox" id="zoom_checkbox" name="zoom">Zoom<br>
       <div id="zoom_options" name="zoom" style="display:none">
@@ -678,10 +678,11 @@ goog.require('goog.ui.ColorPicker');
   var exportAllWrapper = function() {
     controller.exportXmlFile(FactoryController.MODE_TOOLBOX);
     controller.exportXmlFile(FactoryController.MODE_PRELOAD);
+    controller.exportOptionsFile();
     document.getElementById('dropdownDiv_export').classList.remove("show");
   }
   var standardOptionsWrapper = function() {
-    controller.setStandardOptiosn();
+    controller.setStandardOptionsAndUpdate();
   };
 
   document.getElementById('button_add').addEventListener
@@ -817,144 +818,50 @@ goog.require('goog.ui.ColorPicker');
     }
   });
 
-  //UNIFY
+  // Add event listeners for checkboxes and text fields for configuring the Options object.
+
+  // Checking the grid checkbox displays and applys grid options.
+  // Unchecking the grid checkbox removes the grid object from the options object and
+  // hides the grid options.
   document.getElementById('grid_checkbox').addEventListener('change', function(e) {
       document.getElementById('grid_options').style.display = document.getElementById('grid_checkbox').checked ? 'block' : 'none';
       if (!document.getElementById('grid_checkbox').checked) {
         controller.removeOption('grid');
       } else {
-        var options = document.getElementById('grid_options').children;
-        for (var i = 0, option; option = options[i]; i++) {
-          if (option.type == 'checkbox') {
-            controller.setOptions(option.name, option.checked, 'grid');
-          } else {
-            var value = option.value;
-            if (type = option.getAttribute('custom') == 'number') {
-              value = parseInt(value);
-            }
-            controller.setOptions(option.name, value, 'grid');
-          }
-        }
+        controller.openAndApplySubOptions('grid', document.getElementById('grid_options').children);
       }
   });
-  // MOVE TO METHOD IN CONTROLLER
+
+  // Checking the zoom checkbox displays and applys grid options.
+  // Unchecking the zoom checkbox removes the zoom object from the options object and
+  // hides the zoom options.
   document.getElementById('zoom_checkbox').addEventListener('change', function(e) {
       document.getElementById('zoom_options').style.display = document.getElementById('zoom_checkbox').checked ? 'block' : 'none';
       if (!document.getElementById('zoom_checkbox').checked) {
         controller.removeOption('zoom');
       } else {
-        var options = document.getElementById('zoom_options').children;
-        for (var i = 0, option; option = options[i]; i++) {
-          if (option.type == 'checkbox') {
-            controller.setOptions(option.name, option.checked, 'zoom');
-          } else {
-            var value = option.value;
-            if (type = option.getAttribute('custom') == 'number') {
-              value = parseInt(value);
-            }
-            controller.setOptions(option.name, value, 'zoom');
-          }
-        }
+        controller.openAndApplySubOptions('zoom', document.getElementById('zoom_options').children);
       }
   });
-  // document.getElementById('maxBlocks_checkbox').addEventListener('change', function(e) {
-  //     document.getElementById('maxBlocks_options').style.display = document.getElementById('maxBlocks_checkbox').checked ? 'none' : 'block';
-  // });
 
-  // document.getElementById('comments_checkbox').addEventListener('change', function(e) {
-  //     controller.setOptions('comments', document.getElementById('comments_checkbox').checked);
-  // });
-  // document.getElementById('css_checkbox').addEventListener('change', function(e) {
-  //     controller.setOptions('css', document.getElementById('css_checkbox').checked);
-  // });
-  // document.getElementById('disable_checkbox').addEventListener('change', function(e) {
-  //     controller.setOptions('disable', document.getElementById('disable_checkbox').checked);
-  // });
-  // document.getElementById('readOnly_checkbox').addEventListener('change', function(e) {
-  //     controller.setOptions('readOnly', document.getElementById('readOnly_checkbox').checked);
-  // });
-  // document.getElementById('rtl_checkbox').addEventListener('change', function(e) {
-  //     controller.setOptions('rtl', document.getElementById('rtl_checkbox').checked);
-  // });
-  // document.getElementById('scrollbars_checkbox').addEventListener('change', function(e) {
-  //     controller.setOptions('scrollbars', document.getElementById('scrollbars_checkbox').checked);
-  // });
-  // document.getElementById('sounds_checkbox').addEventListener('change', function(e) {
-  //     controller.setOptions('sounds', document.getElementById('sounds_checkbox').checked);
-  // });
-  // document.getElementById('trashbox_checkbox').addEventListener('change', function(e) {
-  //     controller.setOptions('trashbox', document.getElementById('trashbox_checkbox').checked);
-  // });
-
+  // Add event listeners for all options checkboxes and text fields (not zoom and grid).
   var options = document.getElementById('workspace_options').children;
   for (var i = 0, option; option = options[i]; i++) {
-    console.log('ID: ' + option.id);
-    if (option.tagName != 'DIV' && option.name && option.name != 'grid' && option.name !='zoom') {
-      var name = option.name;
-      var id = option.id;
-      if (option.type == 'checkbox') {
-        controller.setOptions(option.name, option.checked);
-        option.addEventListener('change', function(optionName, optionId) {
-          return function() {
-            var checked = document.getElementById(optionId).checked;
-            console.log(checked + ' ' + optionName);
-            controller.setOptions(optionName, checked);
-          };
-        }(name, id));
-      } else {
-        controller.setOptions(option.name, option.value);
-        var type = option.getAttribute('custom');
-        option.addEventListener('change', function(optionName, optionId, optionType) {
-          return function() {
-            var value = document.getElementById(optionId).value
-            if (optionType == 'number') {
-              console.log("parsing");
-              value = parseInt(value);
-            }
-            console.log(value + ' ' + optionName);
-            controller.setOptions(optionName, value);
-          };
-        }(name, id, type));
-      }
+    if (option.name && option.getAttribute('name') != 'grid' && option.getAttribute('name') !='zoom') {
+      controller.addOptionsListener(option);
     } else if (option.id == 'grid_options' || option.id == 'zoom_options') {
+      // Add event listeners for suboptions of grid and zoom.
       var subOptions = option.children;
-      console.log(option.name);
-      console.log(subOptions.length);
       for (var j = 0, subOption; subOption = subOptions[j]; j++) {
         if (subOption.name) {
-          var subName = subOption.name;
-          var id = subOption.id;
-          var name = option.getAttribute('name');
-          console.log(name);
-          if (subOption.type == 'checkbox') {
-            // controller.setOptions(subOption.name, subOption.checked, name);
-            subOption.addEventListener('change', function(optionName, subOptionName, subOptionId) {
-              return function() {
-                var checked = document.getElementById(subOptionId).checked;
-                console.log(checked + ' ' + optionName + ' ' + subOptionName);
-                controller.setOptions(subOptionName, checked, optionName);
-              };
-            }(name, subName, id));
-          } else {
-            // controller.setOptions(subOption.name, subOption.value, name);
-            var type = subOption.getAttribute('custom');
-            subOption.addEventListener('change', function(optionName, subOptionName, subOptionId, subOptionType) {
-              return function() {
-                var value = document.getElementById(subOptionId).value
-                if (subOptionType == 'number') {
-                  console.log("parsing");
-                  value = parseInt(value);
-                }
-                console.log(value + ' ' + subOptionName);
-                controller.setOptions(subOptionName, value, optionName);
-              };
-            }(name, subName, id, type));
-          }
+          controller.addOptionsListener(subOption, option.getAttribute('name'));
         }
       }
-      console.log('done with iteration of for loop');
     }
   }
+
+  // Check standard options and apply the changes to update the view.
+  controller.setStandardOptionsAndUpdate();
 
 </script>
 </html>

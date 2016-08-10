@@ -88,7 +88,7 @@ FactoryController.prototype.addCategory = function() {
       this.createCategory(name, true);
       // Allow the user to use the default options for injecting the workspace
       // when there are categories.
-      this.allowToSetDefaultCategoryOptions();
+      this.allowToSetDefaultOptions();
       // Set the new category as selected.
       this.model.setSelectedById(this.model.getCategoryIdByName(name));
     }
@@ -108,7 +108,7 @@ FactoryController.prototype.addCategory = function() {
    // Allow the user to use the default options for injecting the workspace
   // when there are categories if adding the first category.
   if (firstCategory) {
-    this.allowToSetDefaultCategoryOptions();
+    this.allowToSetDefaultOptions();
   }
   // Update preview.
   this.updatePreview();
@@ -197,7 +197,7 @@ FactoryController.prototype.removeElement = function() {
     this.model.createDefaultSelectedIfEmpty();
     // Allow the user to use the default options for injecting the workspace
     // when there are no categories.
-    this.allowToSetDefaultFlyoutOptions();
+    this.allowToSetDefaultOptions();
   }
 
   // Update preview.
@@ -318,13 +318,18 @@ FactoryController.prototype.exportXmlFile = function(exportMode) {
   this.view.createAndDownloadFile(fileName, data);
  };
 
+/**
+ * Export the options object to be used for the Blockly inject call. Gets a
+ * file name from the user and downloads the options object to that file.
+ */
 FactoryController.prototype.exportOptionsFile = function() {
   var fileName = prompt('File Name for options object for injecting: ');
   if (!fileName) {  // If cancelled.
     return;
   }
-  // Prettify?
-  var data = new Blob([JSON.stringify(this.model.options)], {type: 'text/plain'});
+  // TODO(evd2014): Use Regex to prettify JSON generated.
+  var data = new Blob([JSON.stringify(this.model.options)],
+      {type: 'text/plain'});
   this.view.createAndDownloadFile(fileName, data);
 };
 
@@ -423,18 +428,6 @@ FactoryController.prototype.reinjectPreview = function(tree) {
   this.previewWorkspace.dispose();
   this.model.setOption('toolbox', Blockly.Xml.domToPrettyText(tree));
   this.previewWorkspace = Blockly.inject('preview_blocks', this.model.options);
-   // this.previewWorkspace = Blockly.inject('preview_blocks',
-   //   {grid:
-   //     {spacing: 25,
-   //      length: 3,
-   //      colour: '#ccc',
-   //      snap: true},
-   //    media: '../../../media/',
-   //    toolbox: previewToolbox,
-   //    zoom:
-   //      {controls: true,
-   //       wheel: true}
-   //   });
 };
 
 /**
@@ -580,7 +573,7 @@ FactoryController.prototype.loadCategory = function() {
   if (firstCategory) {
     // Allow the user to use the default options for injecting the workspace
     // when there are categories.
-    this.allowToSetDefaultCategoryOptions();
+    this.allowToSetDefaultOptions();
   }
   // Update preview.
   this.updatePreview();
@@ -702,7 +695,7 @@ FactoryController.prototype.importToolboxFromTree_ = function(tree) {
 
     // Allow the user to set the default configuration options for a single
     // flyout.
-    this.allowToSetDefaultFlyoutOptions();
+    this.allowToSetDefaultOptions();
   } else {
     // Categories/separators present.
     for (var i = 0, item; item = tree.children[i]; i++) {
@@ -745,7 +738,7 @@ FactoryController.prototype.importToolboxFromTree_ = function(tree) {
 
     // Allow the user to set the default configuration options for using
     // categories.
-    this.allowToSetDefaultCategoryOptions();
+    this.allowToSetDefaultOptions();
   }
   this.view.updateState(this.model.getIndexByElementId
       (this.model.getSelectedId()), this.model.getSelected());
@@ -815,7 +808,7 @@ FactoryController.prototype.clearToolbox = function() {
   this.toolboxWorkspace.clearUndo();
   this.saveStateFromWorkspace();
   if (hasCategories) {
-    this.allowToSetDefaultFlyoutOptions();
+    this.allowToSetDefaultOptions();
   }
   this.updatePreview();
 };
@@ -949,7 +942,20 @@ FactoryController.prototype.clearAndLoadXml_ = function(xml) {
       (this.toolboxWorkspace.getAllBlocks()));
 }
 
-FactoryController.prototype.setOptions = function(type, value,
+/**
+ * Sets an attribute in the options object in the model of type with the value
+ * 'value'. Optional parent option if the attribute should be an attribute
+ * of an object inside of the options object (grid or zoom). Updates the
+ * preview workspace after adding.
+ *
+ * @param {!string} type The name of the attribute to set in the options object
+ *    (or an object inside of options).
+ * @param {Object} value The value of the attribute called type.
+ * @param {!string} opt_parentOption Optional attribute inside of the options
+ *    object to which the new attribute should be added. Must have an object
+ *    as a value.
+ */
+FactoryController.prototype.setOptionAndUpdate = function(type, value,
     opt_parentOption) {
   if (!opt_parentOption) {
     this.model.setOption(type, value);
@@ -961,43 +967,158 @@ FactoryController.prototype.setOptions = function(type, value,
         (this.generator.generateToolboxXml()));
 };
 
+/**
+ * Removes an attribute 'type' from the options object and updates the preview
+ * workspace.
+ *
+ * @param {!string} type The name of the attribute in the options objec to
+ *    remove.
+ */
 FactoryController.prototype.removeOption = function(type) {
   this.model.removeOption(type);
   this.reinjectPreview(Blockly.Options.parseToolboxTree
         (this.generator.generateToolboxXml()));
 };
 
-FactoryController.prototype.allowToSetDefaultFlyoutOptions = function() {
-  if (this.model.hasToolbox()) {
+/**
+ * Sets the standard default options for the options object and updates
+ * the preview workspace. The default values depends on if categories are
+ * present.
+ */
+FactoryController.prototype.setStandardOptionsAndUpdate = function() {
+  this.setBaseOptions();
+  this.setCategoryOptions();
+  this.reinjectPreview(Blockly.Options.parseToolboxTree
+        (this.generator.generateToolboxXml()));
+ };
+
+/**
+ * Asks the user if they want to use default configuration options specific
+ * to categories or a single flyout of blocks. If desired, makes the necessary
+ * changes to the options object depending on if there are categories and then
+ * updates the preview workspace. Only updates category/flyout specific
+ * options, not the base default options that are set regardless of if
+ * categories or a single flyout are used.
+ */
+FactoryController.prototype.allowToSetDefaultOptions = function() {
+  if (!this.model.hasToolbox() && !confirm('Do you want to use the default ' +
+      'workspace configuration options for injecting a workspace without ' +
+      'categories?')) {
+    return;
+  } else if (this.model.hasToolbox() && !confirm('Do you want to use the ' +
+      'default workspace configuration options for injecting a workspace ' +
+      'with categories?')) {
     return;
   }
-  if (!confirm('Do you want to use the default workspace configuration ' +
-          'options for injecting a workspace without categories?')) {
-    return;
-  }
-  this.model.setOption('collapse', false);
-  this.model.setOption('comments', false);
-  this.model.setOption('disable', false);
-  this.model.setOption('scrollbars', false);
-  this.model.setOption('trashcan', false);
+  this.setCategoryOptions();
   this.reinjectPreview(Blockly.Options.parseToolboxTree
         (this.generator.generateToolboxXml()));
 };
 
-FactoryController.prototype.allowToSetDefaultCategoryOptions = function() {
-  if (!this.model.hasToolbox()) {
+/**
+ * Sets the basic options that are not dependent on if there are categories
+ * or a single flyout of blocks. Updates checkboxes and text fields and the
+ * model, but not the preview workspace.
+ */
+FactoryController.prototype.setBaseOptions = function() {
+  this.model.setOption('css', true);
+  document.getElementById('css_checkbox').checked = true;
+  this.model.setOption('maxBlocks', Infinity);
+  document.getElementById('maxBlocks_text').value = Infinity;
+  this.model.setOption('media',
+      'https://blockly-demo.appspot.com/static/media/');
+  document.getElementById('media_text').value =
+      'https://blockly-demo.appspot.com/static/media/';
+  this.model.setOption('readOnly', false);
+  document.getElementById('readOnly_checkbox').checked = false;
+  this.model.setOption('rtl', false);
+  document.getElementById('rtl_checkbox').checked = false;
+  this.model.setOption('sounds', true);
+  document.getElementById('sounds_checkbox').checked = true;
+};
+
+/**
+ * Updates category specific options depending on if there are categories
+ * currently present. Updates checkboxes and text fields and the model, but
+ * not the preview workspace.
+ */
+FactoryController.prototype.setCategoryOptions = function() {
+  var hasCategories = this.model.hasToolbox();
+  this.model.setOption('collapse', hasCategories);
+  document.getElementById('collapse_checkbox').checked = hasCategories;
+  this.model.setOption('comments', hasCategories);
+  document.getElementById('comments_checkbox').checked = hasCategories;
+  this.model.setOption('disable', hasCategories);
+  document.getElementById('disable_checkbox').checked = hasCategories;
+  this.model.setOption('scrollbars', hasCategories);
+  document.getElementById('scrollbars_checkbox').checked = hasCategories;
+  this.model.setOption('trashcan', hasCategories);
+  document.getElementById('trashcan_checkbox').checked = hasCategories;
+};
+
+/**
+ * Applies all suboptions of an object within the options object. Should
+ * be called when the 'grid' or 'zoom' boxes are checked.
+ *
+ * @param {!string} name The name of the object within the options object
+ *    where the suboptions should be added.
+ * @param {!Array<!Element>} options The DOM elements for the suboptions that
+ *    should be applied to the object within the options object.
+ */
+FactoryController.prototype.applySubOptions = function(name, options) {
+  for (var i = 0, option; option = options[i]; i++) {
+    if (option.type == 'checkbox') {
+      this.setOptionAndUpdate(option.name, option.checked, name);
+    } else if (option.type == 'text') {
+      var value = option.value;
+      if (type = option.getAttribute('custom') == 'number') {
+        value = parseInt(value);
+      }
+      this.setOptionAndUpdate(option.name, value, name);
+    }
+  }
+};
+
+/**
+ * Adds event listeners for a checkbox or text input field associated
+ * with the options object. The input can modify a top-level attribute within
+ * the options object or an attribute of an object inside the options object
+ * (with the name opt_parentName).
+ *
+ * @param {!Element} option The option input to add the event listener to.
+ * @param {string} opt_parentName Optional name of the object inside of the
+ *    options object that the input element should add an attribute to.
+ */
+FactoryController.prototype.addOptionsListener = function (option,
+    opt_parentName) {
+  // Ensure only adding an event listener to a valid input element.
+  if (!option.name) {
     return;
   }
-  if (!confirm('Do you want to use the default workspace configuration ' +
-          'options for injecting a workspace with categories?')) {
-    return;
+  var name = option.name;
+  var id = option.id;
+  if (option.type == 'checkbox') {
+    // If adding an event listener for a checkbox.
+    option.addEventListener('change', function(optionName, optionId) {
+      return function() {
+        var checked = document.getElementById(optionId).checked;
+        controller.setOptionAndUpdate(optionName, checked, opt_parentName);
+      };
+    }(name, id));
+  } else {
+    // If adding an event listener for a text field (representing either a
+    // string or a number, as determined by the custom tag).
+    var type = option.getAttribute('custom');
+    option.addEventListener('change', function(optionName, optionId,
+        optionType) {
+      return function() {
+        var value = document.getElementById(optionId).value
+        if (optionType == 'number') {
+          value = parseInt(value);
+        }
+        controller.setOptionAndUpdate(optionName, value, opt_parentName);
+      };
+    }(name, id, type));
   }
-  this.model.setOption('collapse', true);
-  this.model.setOption('comments', true);
-  this.model.setOption('disable', true);
-  this.model.setOption('scrollbars', true);
-  this.model.setOption('trashcan', true);
-  this.reinjectPreview(Blockly.Options.parseToolboxTree
-        (this.generator.generateToolboxXml()));
-}
+};
 
