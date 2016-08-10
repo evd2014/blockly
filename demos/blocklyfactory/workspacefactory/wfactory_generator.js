@@ -86,7 +86,7 @@ FactoryGenerator.prototype.generateToolboxXml = function() {
       if (element.type == ListElement.TYPE_SEPARATOR) {
         // If the next element is a separator.
         var nextElement = goog.dom.createDom('sep');
-      } else {
+      } else if (element.type == ListElement.TYPE_CATEGORY) {
         // If the next element is a category.
         var nextElement = goog.dom.createDom('category');
         nextElement.setAttribute('name', element.name);

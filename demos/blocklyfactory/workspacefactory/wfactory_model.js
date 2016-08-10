@@ -35,13 +35,15 @@
  * @constructor
  */
 FactoryModel = function() {
-  // Ordered list of ListElement objects.
+  // Ordered list of ListElement objects. Empty if there is a single flyout.
   this.toolboxList = [];
+  // ListElement for blocks in a single flyout. Null if a toolbox exists.
+  this.flyout = new ListElement(ListElement.TYPE_FLYOUT);
   // Array of block IDs for all user created shadow blocks.
   this.shadowBlocks = [];
-  // Currently selected ListElement. In toolboxList if there are categories, not
-  // in toolboxList if there is only a single flyout.
-  this.selected = new ListElement(ListElement.TYPE_CATEGORY);
+  // Currently selected ListElement. In toolboxList if there are categories, in
+  // flyout if all blocks are displayed in a single flyout.
+  this.selected = this.flyout;
   // Boolean for if a Variable category has been added.
   this.hasVariableCategory = false;
   // Boolean for if a Procedure category has been added.
@@ -110,6 +112,8 @@ FactoryModel.prototype.addElementToList = function(element) {
       this.hasProcedureCategory;
   // Add element to toolboxList.
   this.toolboxList.push(element);
+  // Empty single flyout.
+  this.flyout = null;
 };
 
 /**
@@ -132,15 +136,14 @@ FactoryModel.prototype.deleteElementFromList = function(index) {
 };
 
 /**
- * Sets selected to be an empty category not in toolbox list if toolbox list
- * is empty. Should be called when removing the last element from toolbox list.
- * If the toolbox list is empty, selected stores the XML for the single flyout
- * of blocks displayed.
+ * Sets selected to be an empty single flyout if toolbox list is empty. Should
+ * be called when removing the last element from toolbox list.
  *
  */
 FactoryModel.prototype.createDefaultSelectedIfEmpty = function() {
   if (this.toolboxList.length == 0) {
-    this.selected = new ListElement(ListElement.TYPE_CATEGORY);
+    this.flyout = new ListElement(ListElement.TYPE_FLYOUT);
+    this.selected = this.flyout;
   }
 }
 
@@ -416,6 +419,7 @@ ListElement = function(type, opt_name) {
 // List element types.
 ListElement.TYPE_CATEGORY = 'category';
 ListElement.TYPE_SEPARATOR = 'separator';
+ListElement.TYPE_FLYOUT = 'flyout';
 
 /**
  * Saves a category by updating its XML (does not save XML for
@@ -425,8 +429,8 @@ ListElement.TYPE_SEPARATOR = 'separator';
  * from.
  */
 ListElement.prototype.saveFromWorkspace = function(workspace) {
-  // Only save list elements that are categories.
-  if (this.type != ListElement.TYPE_CATEGORY) {
+  // Don't save anything from separators.
+  if (this.type == ListElement.TYPE_SEPARATOR) {
     return;
   }
   this.xml = Blockly.Xml.workspaceToDom(workspace);
@@ -441,7 +445,7 @@ ListElement.prototype.saveFromWorkspace = function(workspace) {
  */
 ListElement.prototype.changeName = function (name) {
   // Only update list elements that are categories.
-  if (this.type != ListElement.TYPE_CATEGORY) {
+  if (this.type == ListElement.TYPE_CATEGORY) {
     return;
   }
   this.name = name;
