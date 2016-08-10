@@ -84,10 +84,16 @@ FactoryController.prototype.addCategory = function() {
       if (!name) {  // Exit if cancelled.
         return;
       }
+      // Create the new category.
       this.createCategory(name, true);
+      // Allow the user to use the default options for injecting the workspace
+      // when there are categories.
+      this.allowToSetDefaultCategoryOptions();
+      // Set the new category as selected.
       this.model.setSelectedById(this.model.getCategoryIdByName(name));
     }
   }
+
   // After possibly creating a category, check again if it's the first category.
   isFirstCategory = !this.model.hasElements();
   // Get name from user.
@@ -99,6 +105,11 @@ FactoryController.prototype.addCategory = function() {
   this.createCategory(name, isFirstCategory);
   // Switch to category.
   this.switchElement(this.model.getCategoryIdByName(name));
+   // Allow the user to use the default options for injecting the workspace
+  // when there are categories if adding the first category.
+  if (firstCategory) {
+    this.allowToSetDefaultCategoryOptions();
+  }
   // Update preview.
   this.updatePreview();
 };
@@ -184,6 +195,9 @@ FactoryController.prototype.removeElement = function() {
     this.toolboxWorkspace.clear();
     this.toolboxWorkspace.clearUndo();
     this.model.createDefaultSelectedIfEmpty();
+    // Allow the user to use the default options for injecting the workspace
+    // when there are no categories.
+    this.allowToSetDefaultFlyoutOptions();
   }
 
   // Update preview.
@@ -563,6 +577,11 @@ FactoryController.prototype.loadCategory = function() {
   this.convertShadowBlocks_();
   // Save state from workspace before updating preview.
   this.saveStateFromWorkspace();
+  if (firstCategory) {
+    // Allow the user to use the default options for injecting the workspace
+    // when there are categories.
+    this.allowToSetDefaultCategoryOptions();
+  }
   // Update preview.
   this.updatePreview();
 };
@@ -680,9 +699,14 @@ FactoryController.prototype.importToolboxFromTree_ = function(tree) {
 
     // Add message to denote empty category.
     this.view.addEmptyCategoryMessage();
+
+    // Allow the user to set the default configuration options for a single
+    // flyout.
+    this.allowToSetDefaultFlyoutOptions();
   } else {
     // Categories/separators present.
     for (var i = 0, item; item = tree.children[i]; i++) {
+
       if (item.tagName == 'category') {
         // If the element is a category, create a new category and switch to it.
         this.createCategory(item.getAttribute('name'), false);
@@ -718,6 +742,10 @@ FactoryController.prototype.importToolboxFromTree_ = function(tree) {
         this.switchElement(this.model.getElementByIndex(i).id);
       }
     }
+
+    // Allow the user to set the default configuration options for using
+    // categories.
+    this.allowToSetDefaultCategoryOptions();
   }
   this.view.updateState(this.model.getIndexByElementId
       (this.model.getSelectedId()), this.model.getSelected());
@@ -778,6 +806,7 @@ FactoryController.prototype.importPreloadFromTree_ = function(tree) {
  */
 FactoryController.prototype.clearToolbox = function() {
   this.setMode(FactoryController.MODE_TOOLBOX);
+  var hasCategories = this.model.hasToolbox();
   this.model.clearToolboxList();
   this.view.clearToolboxTabs();
   this.view.addEmptyCategoryMessage();
@@ -785,6 +814,9 @@ FactoryController.prototype.clearToolbox = function() {
   this.toolboxWorkspace.clear();
   this.toolboxWorkspace.clearUndo();
   this.saveStateFromWorkspace();
+  if (hasCategories) {
+    this.allowToSetDefaultFlyoutOptions();
+  }
   this.updatePreview();
 };
 
@@ -931,6 +963,40 @@ FactoryController.prototype.setOptions = function(type, value,
 
 FactoryController.prototype.removeOption = function(type) {
   this.model.removeOption(type);
+  this.reinjectPreview(Blockly.Options.parseToolboxTree
+        (this.generator.generateToolboxXml()));
+};
+
+FactoryController.prototype.allowToSetDefaultFlyoutOptions = function() {
+  if (this.model.hasToolbox()) {
+    return;
+  }
+  if (!confirm('Do you want to use the default workspace configuration ' +
+          'options for injecting a workspace without categories?')) {
+    return;
+  }
+  this.model.setOption('collapse', false);
+  this.model.setOption('comments', false);
+  this.model.setOption('disable', false);
+  this.model.setOption('scrollbars', false);
+  this.model.setOption('trashcan', false);
+  this.reinjectPreview(Blockly.Options.parseToolboxTree
+        (this.generator.generateToolboxXml()));
+};
+
+FactoryController.prototype.allowToSetDefaultCategoryOptions = function() {
+  if (!this.model.hasToolbox()) {
+    return;
+  }
+  if (!confirm('Do you want to use the default workspace configuration ' +
+          'options for injecting a workspace with categories?')) {
+    return;
+  }
+  this.model.setOption('collapse', true);
+  this.model.setOption('comments', true);
+  this.model.setOption('disable', true);
+  this.model.setOption('scrollbars', true);
+  this.model.setOption('trashcan', true);
   this.reinjectPreview(Blockly.Options.parseToolboxTree
         (this.generator.generateToolboxXml()));
 }

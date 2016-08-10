@@ -111,11 +111,12 @@ goog.require('goog.ui.ColorPicker');
 
   <aside id='preload_div' style='display:none'>
     <p>Configure the <a href="https://developers.google.com/blockly/guides/get-started/web">options</a> for your Blockly inject call.</p>
+    <button id="button_standardOptions">Standard Options</button>
     <form id="workspace_options">
-      <input type="checkbox" id="collapse_checkbox" name="collapse" checked>Collapsible Blocks<br>
-      <input type="checkbox" id="comments_checkbox" name="comments" checked>Comments for Blocks<br>
+      <input type="checkbox" id="collapse_checkbox" name="collapse">Collapsible Blocks<br>
+      <input type="checkbox" id="comments_checkbox" name="comments">Comments for Blocks<br>
       <input type="checkbox" id="css_checkbox" name="css" checked>Use Blockly CSS<br>
-      <input type="checkbox" id="disable_checkbox" name="disable" checked>Disabled Blocks<br>
+      <input type="checkbox" id="disable_checkbox" name="disable">Disabled Blocks<br>
       <input type="checkbox" id="grid_checkbox" name="grid" value="grid">Use Grid<br>
       <div id="grid_options" name="grid" style="display:none">
         Spacing <input type="text" id="grid_spacing_text" name="spacing" custom="number" value="0"><br>
@@ -127,9 +128,9 @@ goog.require('goog.ui.ColorPicker');
       Path to Blockly Media <input type="text" id="media_text" name="media" custom="text" value='https://blockly-demo.appspot.com/static/media/'><br>
       <input type="checkbox" id="readOnly_checkbox" name="readOnly">Read Only<br>
       <input type="checkbox" id="rtl_checkbox" name="rtl">Layout with RTL<br>
-      <input type="checkbox" id="scrollbars_checkbox" name="scrollbars" checked>Scrollbars<br>
+      <input type="checkbox" id="scrollbars_checkbox" name="scrollbars">Scrollbars<br>
       <input type="checkbox" id="sounds_checkbox" name="sounds" checked>Sounds<br>
-      <input type="checkbox" id="trashcan_checkbox" name="trashcan" checked>Trashcan<br>
+      <input type="checkbox" id="trashcan_checkbox" name="trashcan">Trashcan<br>
       <input type="checkbox" id="zoom_checkbox" name="zoom">Zoom<br>
       <div id="zoom_options" name="zoom" style="display:none">
         <input type="checkbox" id="zoom_controls_checkbox" name="controls">Zoom Controls<br>
@@ -679,6 +680,9 @@ goog.require('goog.ui.ColorPicker');
     controller.exportXmlFile(FactoryController.MODE_PRELOAD);
     document.getElementById('dropdownDiv_export').classList.remove("show");
   }
+  var standardOptionsWrapper = function() {
+    controller.setStandardOptiosn();
+  };
 
   document.getElementById('button_add').addEventListener
       ('click', addWrapper);
@@ -728,6 +732,8 @@ goog.require('goog.ui.ColorPicker');
       ('click', editToolboxWrapper);
   document.getElementById('tab_preload').addEventListener
       ('click', editPreloadWrapper);
+  document.getElementById('button_standardOptions').addEventListener
+      ('click', standardOptionsWrapper);
 
   // Use up and down arrow keys to move categories.
   // TODO(evd2014): When merge with next CL for editing preloaded blocks, make sure
