@@ -1,4 +1,24 @@
 /**
+ * @license
+ * Visual Blocks Editor
+ *
+ * Copyright 2016 Google Inc.
+ * https://developers.google.com/blockly/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
  * Controls the UI elements for workspace factory, mainly the category tabs.
  * Also includes downloading files because that interacts directly with the DOM.
  * Depends on FactoryController (for adding mouse listeners). Tabs for each
@@ -318,4 +338,34 @@ FactoryView.prototype.unmarkShadowBlock = function(block) {
   if (Blockly.hasClass_(block.svgGroup_, 'shadowBlock')) {
     Blockly.removeClass_(block.svgGroup_, 'shadowBlock');
   }
+};
+
+/**
+ * Sets the tabs for modes according to which mode the user is currenly
+ * editing in.
+ *
+ * @param {!string} mode The mode being switched to
+ *    (FactoryController.MODE_TOOLBOX or FactoryController.MODE_PRELOAD).
+ */
+FactoryView.prototype.setModeSelection = function(mode) {
+  document.getElementById('tab_preload').className = mode ==
+      FactoryController.MODE_PRELOAD ? 'tabon' : 'taboff';
+  document.getElementById('preload_div').style.display = mode ==
+      FactoryController.MODE_PRELOAD ? 'block' : 'none';
+  document.getElementById('tab_toolbox').className = mode ==
+      FactoryController.MODE_TOOLBOX ? 'tabon' : 'taboff';
+  document.getElementById('toolbox_div').style.display = mode ==
+      FactoryController.MODE_TOOLBOX ? 'block' : 'none';
+};
+
+/**
+ * Updates the help text above the workspace depending on the selected mode.
+ *
+ * @param {!string} mode The selected mode (FactoryController.MODE_TOOLBOX or
+ *    FactoryController.MODE_PRELOAD).
+ */
+FactoryView.prototype.updateHelpText = function(mode) {
+  var helpText = 'Drag your blocks into your ' + (mode ==
+      FactoryController.MODE_TOOLBOX ? 'toolbox: ' : 'pre-loaded workspace: ');
+  document.getElementById('editHelpText').textContent = helpText;
 };
