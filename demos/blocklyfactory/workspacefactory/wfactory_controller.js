@@ -349,7 +349,7 @@ FactoryController.prototype.updatePreview = function() {
     this.previewWorkspace.clear();
     Blockly.Xml.domToWorkspace(this.generator.generateWorkspaceXml(),
         this.previewWorkspace);
-  } else {
+  } else if (this.selectedMode == FactoryController.MODE_PRELOAD){
     // If currently editing the pre-loaded workspace.
     this.previewWorkspace.clear();
     Blockly.Xml.domToWorkspace(this.generator.generateWorkspaceXml(),
@@ -406,9 +406,8 @@ FactoryController.prototype.reinjectPreview = function(tree) {
  * currently in use, exits if user presses cancel.
  */
 FactoryController.prototype.changeCategoryName = function() {
-  // Return if no category selected or element a separator.
-  if (!this.model.getSelected() ||
-      this.model.getSelected().type == ListElement.TYPE_SEPARATOR) {
+  // Return if a category is not selected.
+  if (this.model.getSelected().type != ListElement.TYPE_CATEGORY) {
     return;
   }
   // Get new name from user.
@@ -476,9 +475,8 @@ FactoryController.prototype.moveElementToIndex = function(element, newIndex,
  * a valid CSS string.
  */
 FactoryController.prototype.changeSelectedCategoryColor = function(color) {
-  // Return if no category selected or element a separator.
-  if (!this.model.getSelected() ||
-      this.model.getSelected().type == ListElement.TYPE_SEPARATOR) {
+  // Return if category is not selected.
+  if (this.model.getSelected().type != ListElement.TYPE_CATEGORY) {
     return;
   }
   // Change color of selected category.
