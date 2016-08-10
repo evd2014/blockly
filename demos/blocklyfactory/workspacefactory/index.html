@@ -762,7 +762,7 @@ goog.require('goog.ui.ColorPicker');
       if (!document.getElementById('grid_checkbox').checked) {
         controller.removeOption('grid');
       } else {
-        controller.openAndApplySubOptions('grid', document.getElementById('grid_options').children);
+        controller.applySubOptions('grid', document.getElementById('grid_options').children);
       }
   });
 
@@ -774,7 +774,7 @@ goog.require('goog.ui.ColorPicker');
       if (!document.getElementById('zoom_checkbox').checked) {
         controller.removeOption('zoom');
       } else {
-        controller.openAndApplySubOptions('zoom', document.getElementById('zoom_options').children);
+        controller.applySubOptions('zoom', document.getElementById('zoom_options').children);
       }
   });
 

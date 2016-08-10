@@ -861,7 +861,6 @@ FactoryController.prototype.setOptionAndUpdate = function(type, value,
   if (!opt_parentOption) {
     this.model.setOption(type, value);
   } else {
-    console.log("calling suboption for " + opt_parentOption);
     this.model.setSubOption(opt_parentOption, type, value);
   }
   this.reinjectPreview(Blockly.Options.parseToolboxTree
