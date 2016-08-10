@@ -45,6 +45,7 @@ goog.require('goog.ui.ColorPicker');
         <div id="dropdownDiv_export" class="dropdown-content">
           <a id='dropdown_exportToolbox'>Toolbox</a>
           <a id='dropdown_exportPreload'>Workspace Blocks</a>
+          <a id='dropdown_exportOptions'>Inject Options</a>
           <a id='dropdown_exportAll'>All</a>
         </div>
         </div>
@@ -666,12 +667,16 @@ goog.require('goog.ui.ColorPicker');
     document.getElementById('dropdownDiv_export').classList.remove("show");
   }
   var exportPreloadWrapper = function() {
-    controller.exportFile(FactoryController.MODE_PRELOAD);
+    controller.exportXmlFile(FactoryController.MODE_PRELOAD);
+    document.getElementById('dropdownDiv_export').classList.remove("show");
+  }
+  var exportOptionsWrapper = function() {
+    controller.exportOptionsFile();
     document.getElementById('dropdownDiv_export').classList.remove("show");
   }
   var exportAllWrapper = function() {
-    controller.exportFile(FactoryController.MODE_TOOLBOX);
-    controller.exportFile(FactoryController.MODE_PRELOAD);
+    controller.exportXmlFile(FactoryController.MODE_TOOLBOX);
+    controller.exportXmlFile(FactoryController.MODE_PRELOAD);
     document.getElementById('dropdownDiv_export').classList.remove("show");
   }
 
@@ -689,6 +694,8 @@ goog.require('goog.ui.ColorPicker');
       ('click', exportToolboxWrapper);
   document.getElementById('dropdown_exportPreload').addEventListener
       ('click', exportPreloadWrapper);
+  document.getElementById('dropdown_exportOptions').addEventListener
+      ('click', exportOptionsWrapper);
   document.getElementById('dropdown_exportAll').addEventListener
       ('click', exportAllWrapper);
   document.getElementById('button_export').addEventListener

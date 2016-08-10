@@ -275,10 +275,7 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
  *    (FactoryController.MODE_TOOLBOX for the toolbox configuration, and
  *    FactoryController.MODE_PRELOAD for the pre-loaded workspace configuration)
  */
-FactoryController.prototype.exportFile = function(exportMode) {
-  // Save workspace in current state.
-  this.saveStateFromWorkspace();
-
+FactoryController.prototype.exportXmlFile = function(exportMode) {
   // Generate XML.
   if (exportMode == FactoryController.MODE_TOOLBOX) {
     // Export the toolbox XML.
@@ -306,6 +303,16 @@ FactoryController.prototype.exportFile = function(exportMode) {
   var data = new Blob([configXml], {type: 'text/xml'});
   this.view.createAndDownloadFile(fileName, data);
  };
+
+FactoryController.prototype.exportOptionsFile = function() {
+  var fileName = prompt('File Name for options object for injecting: ');
+  if (!fileName) {  // If cancelled.
+    return;
+  }
+  // Prettify?
+  var data = new Blob([JSON.stringify(this.model.options)], {type: 'text/plain'});
+  this.view.createAndDownloadFile(fileName, data);
+};
 
 /**
  * Tied to "Print" button. Mainly used for debugging purposes. Prints
