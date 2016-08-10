@@ -63,6 +63,10 @@ button:hover:not(:disabled)>* {
   opacity: 1;
 }
 
+button.small {
+  font-size: small;
+}
+
 table {
   border: none;
   border-collapse: collapse;
