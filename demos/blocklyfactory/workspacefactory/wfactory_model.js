@@ -21,8 +21,8 @@ FactoryModel = function() {
   this.flyout = new ListElement(ListElement.TYPE_FLYOUT);
   // Array of block IDs for all user created shadow blocks.
   this.shadowBlocks = [];
-  // Currently selected ListElement. In toolboxList if there are categories, in
-  // flyout if all blocks are displayed in a single flyout.
+  // Reference to currently selected ListElement. Stored in toolboxList if there
+  // are categories, or in flyout if blocks are displayed in a single flyout.
   this.selected = this.flyout;
   // Boolean for if a Variable category has been added.
   this.hasVariableCategory = false;
@@ -383,11 +383,11 @@ ListElement.TYPE_FLYOUT = 'flyout';
  * from.
  */
 ListElement.prototype.saveFromWorkspace = function(workspace) {
-  // Don't save anything from separators.
-  if (this.type == ListElement.TYPE_SEPARATOR) {
-    return;
+  // Only save XML for categories and flyouts.
+  if (this.type == ListElement.TYPE_FLYOUT ||
+      this.type == ListElement.TYPE_CATEGORY) {
+    this.xml = Blockly.Xml.workspaceToDom(workspace);
   }
-  this.xml = Blockly.Xml.workspaceToDom(workspace);
 };
 
 
@@ -399,7 +399,7 @@ ListElement.prototype.saveFromWorkspace = function(workspace) {
  */
 ListElement.prototype.changeName = function (name) {
   // Only update list elements that are categories.
-  if (this.type == ListElement.TYPE_CATEGORY) {
+  if (this.type != ListElement.TYPE_CATEGORY) {
     return;
   }
   this.name = name;
