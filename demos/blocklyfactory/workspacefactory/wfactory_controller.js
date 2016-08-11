@@ -258,6 +258,7 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
 FactoryController.prototype.exportFile = function(exportMode) {
   // Save workspace in current state.
   this.saveStateFromWorkspace();
+
   // Generate XML.
   if (exportMode == FactoryController.MODE_TOOLBOX) {
     // Export the toolbox XML.

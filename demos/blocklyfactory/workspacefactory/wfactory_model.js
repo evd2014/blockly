@@ -21,8 +21,9 @@ FactoryModel = function() {
   this.flyout = new ListElement(ListElement.TYPE_FLYOUT);
   // Array of block IDs for all user created shadow blocks.
   this.shadowBlocks = [];
-  // Reference to currently selected ListElement. Stored in toolboxList if there
-  // are categories, or in flyout if blocks are displayed in a single flyout.
+  // Reference to currently selected ListElement. Stored in this.toolboxList if
+  // there are categories, or in this.flyout if blocks are displayed in a single
+  // flyout.
   this.selected = this.flyout;
   // Boolean for if a Variable category has been added.
   this.hasVariableCategory = false;
