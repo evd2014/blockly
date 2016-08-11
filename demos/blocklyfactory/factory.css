@@ -217,12 +217,28 @@ button, .buttonStyle {
   padding: 5px 19px;
 }
 
+.tab:hover:not(.tabon){
+  background-color: #f8f8f8;
+}
+
 .tab.tabon {
   background-color: #ddd;
 }
 
 .tab.taboff {
   cursor: pointer;
+  background-color: #fff;
+}
+
+#tabContainer {
+  padding: 1px;
+  background-color: #999;
+  display: inline-block;
+  /*box-shadow: 2px 2px 5px #888;*/
+}
+
+#paddingContainer {
+  padding-bottom: 15px;
 }
 
 /* Workspace Factory */
