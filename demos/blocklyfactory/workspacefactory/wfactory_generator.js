@@ -106,7 +106,59 @@ FactoryGenerator.prototype.generateWorkspaceXml = function() {
   generatedXml.setAttribute('id', 'preload_blocks');
   generatedXml.setAttribute('style', 'display:none');
   return generatedXml;
- }
+ };
+
+/**
+ * Returns an array of all the block types currently being used in the toolbox
+ * and the pre-loaded blocks. No duplicates.
+ *
+ * @return {!Array<!string>} Array of block types currently being used.
+ */
+FactoryGenerator.prototype.getAllUsedBlocks = function() {
+  var blockTypeList = [];
+  if (!this.model.hasElements()) {
+    // If has a single flyout, add block types for the single flyout.
+    this.pushBlockTypesToList_(this.model.getSelectedXml(), blockTypeList);
+
+  } else {
+    // If has categories, add block types for each category.
+    var toolboxList = this.model.getToolboxList();
+
+    for (var i = 0, category; category = this.toolboxList[i]; i++) {
+      if (category.type == ListElement.TYPE_CATEGORY) {
+        this.pushBlockTypesToList_(category.xml, blockTypeList);
+      }
+    }
+  }
+
+  // Add the block types from any pre-loaded blocks.
+  this.pushBlockTypesToList_(this.model.getPreloadXml(), blockTypeList);
+
+  return blockTypeList;
+};
+
+/**
+ * Given XML for the workspace, adds all block types included in the XML to
+ * the list, not adding duplicates.
+ * @private
+ *
+ * @param {!Element} xml The XML for the workspace containing all the block
+ *    types that should be added to the list.l
+ * @param {!Array<!string>} list The array of block types to add to.
+ */
+FactoryGenerator.prototype.pushBlockTypesToList_ = function (xml, list) {
+  // Load blocks to hidden workspace.
+  this.hiddenWorkspace.clear();
+  Blockly.Xml.domToWorkspace(xml, this.hiddenWorkspace);
+  var blocks = this.hiddenWorkspace.getAllBlocks();
+
+  for (var i = 0, block; block = blocks[i]; i++) {
+    // Only add block if not contained in list.
+    if (list.indexOf(block.type) == -1) {
+      list.push(block.type);
+    }
+  }
+};
 
 /**
  * Load the given XML to the hidden workspace, set any user-generated shadow
