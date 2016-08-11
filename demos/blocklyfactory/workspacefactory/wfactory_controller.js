@@ -276,24 +276,15 @@ FactoryController.prototype.clearAndLoadElement = function(id) {
  *    FactoryController.MODE_PRELOAD for the pre-loaded workspace configuration)
  */
 FactoryController.prototype.exportFile = function(exportMode) {
+  // Save workspace in current state.
+  this.saveStateFromWorkspace();
   // Generate XML.
   if (exportMode == FactoryController.MODE_TOOLBOX) {
     // Export the toolbox XML.
-    if (this.selectedMode == FactoryController.MODE_TOOLBOX) {
-      // Capture any changes made by user before generating XML if in
-      // toolbox mode.
-      this.model.getSelected().saveFromWorkspace(toolboxWorkspace);
-    }
     var configXml = Blockly.Xml.domToPrettyText
         (this.generator.generateToolboxXml());
   } else if (exportMode == FactoryController.MODE_PRELOAD) {
     // Export the pre-loaded block XML.
-    if (this.selectedMode == FactoryController.MODE_PRELOAD) {
-      // Capture any changes made by user before generating XML if in
-      // preload workspace mode.
-      this.model.savePreloadXml(Blockly.Xml.workspaceToDom
-          (this.toolboxWorkspace));
-    }
     var configXml = Blockly.Xml.domToPrettyText
         (this.generator.generateWorkspaceXml());
   } else {
@@ -319,7 +310,7 @@ FactoryController.prototype.exportFile = function(exportMode) {
  */
 FactoryController.prototype.printConfig = function() {
   // Capture any changes made by user before generating XML.
-  this.model.getSelected().saveFromWorkspace(toolboxWorkspace);
+  this.saveStateFromWorkspace();
   // Print XML.
   window.console.log(Blockly.Xml.domToPrettyText
       (this.generator.generateToolboxXml()));

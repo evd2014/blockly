@@ -114,7 +114,7 @@ FactoryGenerator.prototype.generateToolboxXml = function() {
   * generated shadow blocks to actual shadow blocks.
   *
   */
- FactoryGenerator.prototype.generateWorkspaceXml = function() {
+FactoryGenerator.prototype.generateWorkspaceXml = function() {
   // Load workspace XML to hidden workspace with user-generated shadow blocks
   // as actual shadow blocks.
   this.hiddenWorkspace.clear();
