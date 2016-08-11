@@ -379,7 +379,7 @@ FactoryController.prototype.saveStateFromWorkspace = function() {
   if (this.selectedMode == FactoryController.MODE_TOOLBOX) {
     // If currently editing the toolbox.
     this.model.getSelected().saveFromWorkspace(toolboxWorkspace);
-  } else {
+  } else if (this.selectedMode == FactoryController.MODE_PRELOAD) {
     // If currently editing the pre-loaded workspace.
     this.model.savePreloadXml
         (Blockly.Xml.workspaceToDom(this.toolboxWorkspace));
