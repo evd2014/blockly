@@ -41,6 +41,9 @@
 <body>
   <h1><a href="https://developers.google.com/blockly/">Blockly</a> &gt;
     <a href="../index.html">Demos</a> &gt; Blockly Factory</h1>
+    <button id="helpButton" title="View documentation in new window." style="float:right;">
+      <span>Help</span>
+    </button>
  <div id="paddingContainer">
   <div id="tabContainer">
     <div id="blockFactory_tab" class="tab tabon"> Block Factory</div>
@@ -49,18 +52,26 @@
   </div>
   </div>
 
+
+  <!-- Exporter tab -->
   <div id="blockLibraryExporter">
-    <h3> Block Selector </h3>
-    <div id="helperTextDiv">
+    <div id="exportSelector" style="display:inline-block;">
+      <h3> Block Selector </h3>
       <p id="helperText"> Drag blocks into your workspace to select them for download.</p>
+        <div class='dropdown'>
+        <button id="button_setBlocks">Select</button>
+        <div id="dropdownDiv_setBlocks" class="dropdown-content">
+          <a id='dropdown_addAllFromLib'>Add All Stored</a>
+          <a id='dropdown_addAllUsed'>Add All Used</a>
+          <a id='dropdown_clearSelected'>Remove All</a>
+        </div>
+        </div>
+
+      <!-- Inject exportSelectorWorkspace into this div -->
+      <div id="selectorWorkspace"></div>
+
     </div>
-    <div id="exporterButtons">
-      <button id="clearSelectedButton"> Clear Blocks </button>
-      <button id="addAllFromLibButton"> Add All Stored Blocks </button>
-      <button id="addAllUsedButton"> Add All Used Blocks </button>
-    </div>
-    <!-- Inject exportSelectorWorkspace into this div -->
-    <div id="exportSelector"></div>
+
     <!-- Users may customize export settings through this form -->
     <div id="exportSettings">
       <h3> Export Settings </h3>
@@ -108,6 +119,8 @@
       </div>
     </div>
   </div>
+
+  <!-- Workspace Factory tab -->
 
   <div id="workspaceFactoryContent">
     <p>
@@ -173,6 +186,7 @@
     </aside>
   </div>
 
+  <!-- Blockly Factory Tab -->
   <table id="blockFactoryContent">
     <tr>
       <td width="50%" height="5%">
@@ -227,9 +241,6 @@
                   accept="application/xml">
               <button id="localSaveButton" title="Save block library xml to a local file.">
                 <span>Download Block Library</span>
-              </button>
-              <button id="helpButton" title="View documentation in new window.">
-                <span>Help</span>
               </button>
             </td>
           </tr>
@@ -335,15 +346,15 @@
       <block type="type_other"></block>
     </category>
     <category name="Colour" id="colourCategory">
-      <block type="colour_hue"><mutation colour="20"></mutation><field name="HUE"></field></block>
-      <block type="colour_hue"><mutation colour="65"></mutation><field name="HUE"></field></block>
-      <block type="colour_hue"><mutation colour="120"></mutation><field name="HUE"></field></block>
-      <block type="colour_hue"><mutation colour="160"></mutation><field name="HUE"></field></block>
-      <block type="colour_hue"><mutation colour="210"></mutation><field name="HUE"></field></block>
-      <block type="colour_hue"><mutation colour="230"></mutation><field name="HUE"></field></block>
-      <block type="colour_hue"><mutation colour="260"></mutation><field name="HUE"></field></block>
-      <block type="colour_hue"><mutation colour="290"></mutation><field name="HUE"></field></block>
-      <block type="colour_hue"><mutation colour="330"></mutation><field name="HUE"></field></block>
+      <block type="colour_hue"><mutation colour="20"></mutation><field name="HUE">20</field></block>
+      <block type="colour_hue"><mutation colour="65"></mutation><field name="HUE">65</field></block>
+      <block type="colour_hue"><mutation colour="120"></mutation><field name="HUE">120</field></block>
+      <block type="colour_hue"><mutation colour="160"></mutation><field name="HUE">160</field></block>
+      <block type="colour_hue"><mutation colour="210"></mutation><field name="HUE">210</field></block>
+      <block type="colour_hue"><mutation colour="230"></mutation><field name="HUE">230</field></block>
+      <block type="colour_hue"><mutation colour="260"></mutation><field name="HUE">260</field></block>
+      <block type="colour_hue"><mutation colour="290"></mutation><field name="HUE">290</field></block>
+      <block type="colour_hue"><mutation colour="330"></mutation><field name="HUE">330</field></block>
     </category>
   </xml>
 
