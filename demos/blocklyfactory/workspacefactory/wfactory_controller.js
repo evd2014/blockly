@@ -988,51 +988,54 @@ FactoryController.prototype.generateNewOptions = function() {
   var optionsObj = new Object(null);
 
   // Add all standard options to the options object.
-  optionsObj['collapse'] = this.getOptionValue_('option_collapse_checkbox',
-      'checkbox');
-  optionsObj['comments'] = this.getOptionValue_('option_comments_checkbox',
-      'checkbox');
-  optionsObj['css'] = this.getOptionValue_('option_css_checkbox', 'checkbox');
-  optionsObj['disable'] = this.getOptionValue_('option_disable_checkbox',
-      'checkbox');
-  optionsObj['maxBlocks'] = this.getOptionValue_('option_maxBlocks_text',
-      'number');
-  optionsObj['media'] = this.getOptionValue_('option_media_text', 'text');
-  optionsObj['readOnly'] = this.getOptionValue_('option_readOnly_checkbox',
-      'checkbox');
-  optionsObj['rtl'] = this.getOptionValue_('option_rtl_checkbox', 'checkbox');
-  optionsObj['scrollbars'] = this.getOptionValue_('option_scrollbars_checkbox',
-      'checkbox');
-  optionsObj['sounds'] = this.getOptionValue_('option_sounds_checkbox',
-      'checkbox');
-  optionsObj['trashcan'] = this.getOptionValue_('option_trashcan_checkbox',
-      'checkbox');
+  // Use parse int to get numbers from value inputs.
+  optionsObj['collapse'] =
+      document.getElementById('option_collapse_checkbox').checked;
+  optionsObj['comments'] =
+      document.getElementById('option_comments_checkbox').checked;
+  optionsObj['css'] = document.getElementById('option_css_checkbox').checked;
+  optionsObj['disable'] =
+      document.getElementById('option_disable_checkbox').checked;
+  optionsObj['maxBlocks'] =
+      parseInt(document.getElementById('option_maxBlocks_text').value);
+  optionsObj['media'] = document.getElementById('option_media_text').value;
+  optionsObj['readOnly'] =
+      document.getElementById('option_readOnly_checkbox').checked;
+  optionsObj['rtl'] = document.getElementById('option_rtl_checkbox').checked;
+  optionsObj['scrollbars'] =
+      document.getElementById('option_scrollbars_checkbox').checked;
+  optionsObj['sounds'] =
+      document.getElementById('option_sounds_checkbox').checked;
+  optionsObj['trashcan'] =
+      document.getElementById('option_trashcan_checkbox').checked;
 
   // If using a grid, add all grid options.
   if (document.getElementById('option_grid_checkbox').checked) {
     var grid = new Object(null);
-    grid['spacing'] = this.getOptionValue_('gridOption_spacing_text', 'number');
-    grid['length'] = this.getOptionValue_('gridOption_length_text', 'number');
-    grid['colour'] = this.getOptionValue_('gridOption_colour_text', 'text');
-    grid['snap'] = this.getOptionValue_('gridOption_snap_checkbox', 'checkbox');
+    grid['spacing'] =
+        parseInt(document.getElementById('gridOption_spacing_text').value);
+    grid['length'] =
+        parseInt(document.getElementById('gridOption_length_text').value);
+    grid['colour'] = document.getElementById('gridOption_colour_text').value;
+    grid['snap'] = document.getElementById('gridOption_snap_checkbox').checked;
     optionsObj['grid'] = grid;
   }
 
   // If using zoom, add all zoom options.
   if (document.getElementById('option_zoom_checkbox').checked) {
     var zoom = new Object(null);
-    zoom['controls'] = this.getOptionValue_('zoomOption_controls_checkbox',
-        'checkbox');
-    zoom['wheel'] = this.getOptionValue_('zoomOption_wheel_checkbox',
-        'checkbox');
-    zoom['startScale'] = this.getOptionValue_('zoomOption_startScale_text',
-        'number');
-    zoom['maxScale'] = this.getOptionValue_('zoomOption_maxScale_text',
-        'number');
-    zoom['minScale'] = this.getOptionValue_('zoomOption_minScale_text',
-        'number');
-    zoom['scaleSpeed'] = this.getOptionValue_('zoomOption_scaleSpeed_text',
-        'number');
+    zoom['controls'] =
+        document.getElementById('zoomOption_controls_checkbox').checked;
+    zoom['wheel'] =
+        document.getElementById('zoomOption_wheel_checkbox').checked;
+    zoom['startScale'] =
+        parseInt(document.getElementById('zoomOption_startScale_text').value);
+    zoom['maxScale'] =
+        parseInt(document.getElementById('zoomOption_maxScale_text').value);
+    zoom['minScale'] =
+        parseInt(document.getElementById('zoomOption_minScale_text').value);
+    zoom['scaleSpeed'] =
+        parseInt(document.getElementById('zoomOption_scaleSpeed_text').value);
     optionsObj['zoom'] = zoom;
   }
 
@@ -1061,4 +1064,3 @@ FactoryController.prototype.getOptionValue_ = function(optionId, type) {
     return option.value;
   }
 };
-
