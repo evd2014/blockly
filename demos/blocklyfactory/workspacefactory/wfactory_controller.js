@@ -64,9 +64,12 @@ FactoryController.prototype.addCategory = function() {
       this.createCategory(name, true);
       // Set the new category as selected.
       this.model.setSelectedById(this.model.getCategoryIdByName(name));
+      // Allow user to use the default options for injecting with categories.
+      this.allowToSetDefaultOptions();
     }
   }
 
+  firstCategory = !this.model.hasToolbox();
   // Get name from user.
   name = this.promptForNewCategoryName('Enter the name of your new category: ');
   if (!name) {  //Exit if cancelled.
@@ -308,6 +311,9 @@ FactoryController.prototype.exportOptionsFile = function() {
   if (!fileName) {  // If cancelled.
     return;
   }
+  // Generate new options to remove toolbox XML from options object (if
+  // necessary).
+  this.generateNewOptions();
   // TODO(evd2014): Use Regex to prettify JSON generated.
   var data = new Blob([JSON.stringify(this.model.options)],
       {type: 'text/plain'});
@@ -608,22 +614,18 @@ FactoryController.prototype.importFile = function(file, importMode) {
     // Print error message if fail.
     try {
       var tree = Blockly.Xml.textToDom(reader.result);
-
       if (importMode == FactoryController.MODE_TOOLBOX) {
         // Switch mode and import toolbox XML.
         controller.setMode(FactoryController.MODE_TOOLBOX);
         controller.importToolboxFromTree_(tree);
-
       } else if (importMode == FactoryController.MODE_PRELOAD) {
         // Switch mode and import pre-loaded workspace XML.
         controller.setMode(FactoryController.MODE_PRELOAD);
         controller.importPreloadFromTree_(tree);
-
       } else {
         // Throw error if invalid mode.
         throw new Error("Unknown import mode: " + importMode);
       }
-
      } catch(e) {
        alert('Cannot load XML from file.');
        console.log(e);
@@ -873,7 +875,7 @@ FactoryController.prototype.allowToSetDefaultOptions = function() {
       'with categories?')) {
     return;
   }
-  this.view.setCategoryOptions(this.model.hasCategories());
+  this.view.setCategoryOptions(this.model.hasToolbox());
   this.generateNewOptions();
 };
 
@@ -884,20 +886,54 @@ FactoryController.prototype.allowToSetDefaultOptions = function() {
  */
 FactoryController.prototype.generateNewOptions = function() {
   var optionsObj = new Object(null);
-  var options = document.getElementById('workspace_options').children;
 
-  for (var i = 0, option; option = options[i]; i++) {
-    if (option.name && option.getAttribute('name') != 'grid' &&
-        option.getAttribute('name') !='zoom') {
-      this.addOption_(option, optionsObj);
-    }
-  }
+  // Add all standard options to the options object.
+  optionsObj['collapse'] = this.getOptionValue_('option_collapse_checkbox',
+      'checkbox');
+  optionsObj['comments'] = this.getOptionValue_('option_comments_checkbox',
+      'checkbox');
+  optionsObj['css'] = this.getOptionValue_('option_css_checkbox', 'checkbox');
+  optionsObj['disable'] = this.getOptionValue_('option_disable_checkbox',
+      'checkbox');
+  optionsObj['maxBlocks'] = this.getOptionValue_('option_maxBlocks_text',
+      'number');
+  optionsObj['media'] = this.getOptionValue_('option_media_text', 'text');
+  optionsObj['readOnly'] = this.getOptionValue_('option_readOnly_checkbox',
+      'checkbox');
+  optionsObj['rtl'] = this.getOptionValue_('option_rtl_checkbox', 'checkbox');
+  optionsObj['scrollbars'] = this.getOptionValue_('option_scrollbars_checkbox',
+      'checkbox');
+  optionsObj['sounds'] = this.getOptionValue_('option_sounds_checkbox',
+      'checkbox');
+  optionsObj['trashcan'] = this.getOptionValue_('option_trashcan_checkbox',
+      'checkbox');
 
+  // If using a grid, add all grid options.
   if (document.getElementById('option_grid_checkbox').checked) {
-    optionsObj['grid'] = this.generateSubOptionsObj_('grid_options');
+    var grid = new Object(null);
+    grid['spacing'] = this.getOptionValue_('gridOption_spacing_text', 'number');
+    grid['length'] = this.getOptionValue_('gridOption_length_text', 'number');
+    grid['colour'] = this.getOptionValue_('gridOption_colour_text', 'text');
+    grid['snap'] = this.getOptionValue_('gridOption_snap_checkbox', 'checkbox');
+    optionsObj['grid'] = grid;
   }
+
+  // If using zoom, add all zoom options.
   if (document.getElementById('option_zoom_checkbox').checked) {
-    optionsObj['zoom'] = this.generateSubOptionsObj_('zoom_options');
+    var zoom = new Object(null);
+    zoom['controls'] = this.getOptionValue_('zoomOption_controls_checkbox',
+        'checkbox');
+    zoom['wheel'] = this.getOptionValue_('zoomOption_wheel_checkbox',
+        'checkbox');
+    zoom['startScale'] = this.getOptionValue_('zoomOption_startScale_text',
+        'number');
+    zoom['maxScale'] = this.getOptionValue_('zoomOption_maxScale_text',
+        'number');
+    zoom['minScale'] = this.getOptionValue_('zoomOption_minScale_text',
+        'number');
+    zoom['scaleSpeed'] = this.getOptionValue_('zoomOption_scaleSpeed_text',
+        'number');
+    optionsObj['zoom'] = zoom;
   }
 
   this.model.setOptions(optionsObj);
@@ -907,46 +943,22 @@ FactoryController.prototype.generateNewOptions = function() {
 };
 
 /**
- * Generates a suboptions object given the name of the div where the suboption
- * input fields are located.
+ * Given the name of an input DOM element and the type of input field, returns
+ * the value that should be recorded in the options object.
  * @private
  *
- * @param {!string} optionsDivName Name of the div element where suboption
- *    input fields are.
- * @return {!Object} Suboptions object populated with all the attributes in
- *    the suboptions div.
+ * @param {!string} optionId The ID of the input DOM element for an option.
+ * @param {!string} type The type of input for that DOM element ('checkbox',
+ *    'number', or 'text').
  */
-FactoryController.prototype.generateSubOptionsObj_ = function(optionsDivName) {
-  var subOptions = document.getElementById(optionsDivName).children;
-  var subOptionsObj = new Object(null);
-
-  for (var i = 0, option; option = subOptions[i]; i++) {
-    if (option.name) {
-      this.addOption_(option, subOptionsObj);
-    }
-  }
-  return subOptionsObj;
-};
-
-/**
- * Given an input DOM element and an options object, adds the attribute for
- * that input field to the options object. Checkboxes, text input fields, and
- * text input fields for numbers are all treated differently.
- * @private
- *
- * @param {!Element} option DOM input element for the option.
- * @param {!Object} optionsObj Options object to add the attribute to.
- */
-FactoryController.prototype.addOption_ = function(option, optionsObj) {
-  if (option.type == 'checkbox') {
-    optionsObj[option.name] = option.checked;
-
-  } else if (option.type == 'text') {
-    var value = option.value;
-    if (type = option.getAttribute('custom') == 'number') {
-      value = parseInt(value);
-    }
-    optionsObj[option.name] = value;
+FactoryController.prototype.getOptionValue_ = function(optionId, type) {
+  var option = document.getElementById(optionId);
+  if (type == 'checkbox') {
+    return option.checked;
+  } else  if (type == 'number') {
+    return parseInt(option.value);
+  } else if (type == 'text') {
+    return option.value;
   }
 };
 
