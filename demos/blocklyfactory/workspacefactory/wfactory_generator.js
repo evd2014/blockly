@@ -106,7 +106,7 @@ FactoryGenerator.prototype.generateWorkspaceXml = function() {
   generatedXml.setAttribute('id', 'preload_blocks');
   generatedXml.setAttribute('style', 'display:none');
   return generatedXml;
- }
+ };
 
 /**
  * Load the given XML to the hidden workspace, set any user-generated shadow
