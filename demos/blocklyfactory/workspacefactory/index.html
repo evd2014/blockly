@@ -113,32 +113,32 @@ goog.require('goog.ui.ColorPicker');
     <p>Configure the <a href="https://developers.google.com/blockly/guides/get-started/web">options</a> for your Blockly inject call.</p>
     <button class="small" id="button_standardOptions">Standard Options</button>
     <form id="workspace_options">
-      <input type="checkbox" id="collapse_checkbox" name="collapse">Collapsible Blocks<br>
-      <input type="checkbox" id="comments_checkbox" name="comments">Comments for Blocks<br>
-      <input type="checkbox" id="css_checkbox" name="css">Use Blockly CSS<br>
-      <input type="checkbox" id="disable_checkbox" name="disable">Disabled Blocks<br>
-      <input type="checkbox" id="grid_checkbox" name="grid">Use Grid<br>
+      <input type="checkbox" id="option_collapse_checkbox" name="collapse">Collapsible Blocks<br>
+      <input type="checkbox" id="option_comments_checkbox" name="comments">Comments for Blocks<br>
+      <input type="checkbox" id="option_css_checkbox" name="css">Use Blockly CSS<br>
+      <input type="checkbox" id="option_disable_checkbox" name="disable">Disabled Blocks<br>
+      <input type="checkbox" id="option_grid_checkbox" name="grid">Use Grid<br>
       <div id="grid_options" name="grid" style="display:none">
-        Spacing <input type="text" id="grid_spacing_text" name="spacing" custom="number" value="0"><br>
-        Length <input type="text" id="grid_length_text" name="length" custom="number"value="1"><br>
-        Color <input type="text" id="grid_colour_text" name="colour" custom="text" value="#888"><br>
-        <input type="checkbox" id="grid_snap_checkbox" value="grid_snap_checkbox" name="snap">Snap<br>
+        Spacing <input type="text" id="gridOption_spacing_text" name="spacing" custom="number" value="0"><br>
+        Length <input type="text" id="gridOption_length_text" name="length" custom="number"value="1"><br>
+        Color <input type="text" id="gridOption_colour_text" name="colour" custom="text" value="#888"><br>
+        <input type="checkbox" id="gridOption_snap_checkbox" value="grid_snap_checkbox" name="snap">Snap<br>
       </div>
-      Max Blocks <input type="text" id="maxBlocks_text" name="maxBlocks" custom="number" value="Infinity"><br>
-      Path to Blockly Media <input type="text" id="media_text" name="media" custom="text"><br>
-      <input type="checkbox" id="readOnly_checkbox" name="readOnly">Read Only<br>
-      <input type="checkbox" id="rtl_checkbox" name="rtl">Layout with RTL<br>
-      <input type="checkbox" id="scrollbars_checkbox" name="scrollbars">Scrollbars<br>
-      <input type="checkbox" id="sounds_checkbox" name="sounds">Sounds<br>
-      <input type="checkbox" id="trashcan_checkbox" name="trashcan">Trashcan<br>
-      <input type="checkbox" id="zoom_checkbox" name="zoom">Zoom<br>
+      Max Blocks <input type="text" id="option_maxBlocks_text" name="maxBlocks" custom="number" value="Infinity"><br>
+      Path to Blockly Media <input type="text" id="option_media_text" name="media" custom="text"><br>
+      <input type="checkbox" id="option_readOnly_checkbox" name="readOnly">Read Only<br>
+      <input type="checkbox" id="option_rtl_checkbox" name="rtl">Layout with RTL<br>
+      <input type="checkbox" id="option_scrollbars_checkbox" name="scrollbars">Scrollbars<br>
+      <input type="checkbox" id="option_sounds_checkbox" name="sounds">Sounds<br>
+      <input type="checkbox" id="option_trashcan_checkbox" name="trashcan">Trashcan<br>
+      <input type="checkbox" id="option_zoom_checkbox" name="zoom">Zoom<br>
       <div id="zoom_options" name="zoom" style="display:none">
-        <input type="checkbox" id="zoom_controls_checkbox" name="controls">Zoom Controls<br>
-        <input type="checkbox" id="zoom_wheel_checkbox" name="wheel">Zoom Wheel<br>
-        Start Scale <input type="text" id="zoom_startScale_text" name="startScale" custom="number" value="1.0"><br>
-        Max Scale <input type="text" id="zoom_maxScale_text" name="maxScale" custom="number" value="3"><br>
-        Min Scale <input type="text" id="zoom_minScale_text" name="minScale" custom="number" value="0.3"><br>
-        Scale Speed <input type="text" id="zoom_scaleSpeed_text" name="scaleSpeed" custom="number" value="1.2"><br>
+        <input type="checkbox" id="zoomOption_controls_checkbox" name="controls">Zoom Controls<br>
+        <input type="checkbox" id="zoomOption_wheel_checkbox" name="wheel">Zoom Wheel<br>
+        Start Scale <input type="text" id="zoomOption_startScale_text" name="startScale" custom="number" value="1.0"><br>
+        Max Scale <input type="text" id="zoomOption_maxScale_text" name="maxScale" custom="number" value="3"><br>
+        Min Scale <input type="text" id="zoomOption_minScale_text" name="minScale" custom="number" value="0.3"><br>
+        Scale Speed <input type="text" id="zoomOption_scaleSpeed_text" name="scaleSpeed" custom="number" value="1.2"><br>
       </div>
     </form>
   </aside>
@@ -820,41 +820,37 @@ goog.require('goog.ui.ColorPicker');
 
   // Add event listeners for checkboxes and text fields for configuring the Options object.
 
-  // Checking the grid checkbox displays and applys grid options.
-  // Unchecking the grid checkbox removes the grid object from the options object and
-  // hides the grid options.
-  document.getElementById('grid_checkbox').addEventListener('change', function(e) {
-      document.getElementById('grid_options').style.display = document.getElementById('grid_checkbox').checked ? 'block' : 'none';
-      if (!document.getElementById('grid_checkbox').checked) {
-        controller.removeOption('grid');
-      } else {
-        controller.applySubOptions('grid', document.getElementById('grid_options').children);
-      }
+  // Checking the grid checkbox displays grid options and updates the options
+  // object.
+  document.getElementById('option_grid_checkbox').addEventListener('change', function(e) {
+      document.getElementById('grid_options').style.display = document.getElementById('option_grid_checkbox').checked ? 'block' : 'none';
+      controller.generateNewOptions();
   });
 
-  // Checking the zoom checkbox displays and applys grid options.
-  // Unchecking the zoom checkbox removes the zoom object from the options object and
-  // hides the zoom options.
-  document.getElementById('zoom_checkbox').addEventListener('change', function(e) {
-      document.getElementById('zoom_options').style.display = document.getElementById('zoom_checkbox').checked ? 'block' : 'none';
-      if (!document.getElementById('zoom_checkbox').checked) {
-        controller.removeOption('zoom');
-      } else {
-        controller.applySubOptions('zoom', document.getElementById('zoom_options').children);
-      }
+  // Checking the grid checkbox displays zoom options and updates the options
+  // object.
+  document.getElementById('option_zoom_checkbox').addEventListener('change', function(e) {
+      document.getElementById('zoom_options').style.display = document.getElementById('option_zoom_checkbox').checked ? 'block' : 'none';
+      controller.generateNewOptions();
   });
 
   // Add event listeners for all options checkboxes and text fields (not zoom and grid).
   var options = document.getElementById('workspace_options').children;
   for (var i = 0, option; option = options[i]; i++) {
+
     if (option.name && option.getAttribute('name') != 'grid' && option.getAttribute('name') !='zoom') {
-      controller.addOptionsListener(option);
+      option.addEventListener('change', function() {
+        controller.generateNewOptions();
+      });
+
     } else if (option.id == 'grid_options' || option.id == 'zoom_options') {
       // Add event listeners for suboptions of grid and zoom.
-      var subOptions = option.children;
-      for (var j = 0, subOption; subOption = subOptions[j]; j++) {
+
+      for (var j = 0, subOption; subOption = option.children[j]; j++) {
         if (subOption.name) {
-          controller.addOptionsListener(subOption, option.getAttribute('name'));
+          option.addEventListener('change', function() {
+            controller.generateNewOptions();
+          });
         }
       }
     }

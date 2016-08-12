@@ -418,44 +418,23 @@ FactoryModel.prototype.getPreloadXml = function() {
 };
 
 /**
- * Adds an attribute to the options object with the name type and the value
- * value.
+ * Sets a new options object for injecting a Blockly workspace.
  *
- * @param {!string} type The name of the attribute to give to the options
- *    object.
- * @param {Object} value The value of the attribute added to options.
+ * @param {Object} options Options object for injecting a Blockly workspace.
  */
-FactoryModel.prototype.setOption = function(type, value) {
-  this.options[type] = value;
+FactoryModel.prototype.setOptions = function(options) {
+  this.options = options;
 };
 
 /**
- * Adds an attribute to an object within the options object. If an option with
- * that name does not exist, create a new one.
+ * Sets an attribute of the options object.
  *
- * @param {!string} The name of the object within the options object to add
- *    the attribute to.
- * @param {!string} type The name of the attribute to add to the object within
- *    options.
- * @param {Object} value The value of the attribute to be added to the object
- *    within options.
+ * @param {!string} name Name of the attribute to add.
+ * @param {Object} value The value of the attribute to add.
  */
-FactoryModel.prototype.setSubOption = function(option, type, value) {
-  if (!this.options[option]) {
-    this.options[option] = new Object(null);
-  }
-  this.options[option][type] = value;
+FactoryModel.prototype.setOptionsAttribute = function(name, value) {
+  this.options[name] = value;
 };
-
-/**
- * Removes an option within the options object.
- *
- * @param {!string} type the name of the attribute to be removed from the
- *    options object.
- */
-FactoryModel.prototype.removeOption = function(type) {
-  delete this.options[type];
-}
 
 /**
  * Class for a ListElement.
