@@ -387,7 +387,7 @@ FactoryModel.prototype.getAllUsedBlockTypes = function() {
  * which are marked as "block" in XML.
  *
  * @param {!Element} xml The XML for the workspace containing all the block
- *    types that should be added to the list.l
+ *    types that should be added to the list.
  * @param {!Array<!string>} list The array of block types to add to.
  */
 FactoryModel.prototype.pushBlockTypesToList = function (xml, list) {
