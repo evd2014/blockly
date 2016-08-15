@@ -217,22 +217,21 @@ button, .buttonStyle {
 }
 
 .tab:hover:not(.tabon){
-  background-color: #f8f8f8;
+  background-color: #e8e8e8;
 }
 
 .tab.tabon {
-  background-color: #ddd;
+  background-color: #ccc;
 }
 
 .tab.taboff {
   cursor: pointer;
-  background-color: #fff;
 }
 
 #tabContainer {
-  border-bottom-style: solid;
-  border-top-style: solid;
-  border-width: 1px;
+  background-color: #f8f8f8;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
   display: table;
   width: 100%;
 }
