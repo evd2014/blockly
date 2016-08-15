@@ -360,23 +360,22 @@ FactoryModel.prototype.getPreloadXml = function() {
  */
 FactoryModel.prototype.getAllUsedBlockTypes = function() {
   var blockTypeList = [];
-  console.log(this.getSelectedXml());
+
   if (this.flyout) {
     // If has a single flyout, add block types for the single flyout.
-
-    this.pushBlockTypesToList_(this.getSelectedXml(), blockTypeList);
+    this.pushBlockTypesToList(this.getSelectedXml(), blockTypeList);
   } else {
     // If has categories, add block types for each category.
 
     for (var i = 0, category; category = this.toolboxList[i]; i++) {
       if (category.type == ListElement.TYPE_CATEGORY) {
-        this.pushBlockTypesToList_(category.xml, blockTypeList);
+        this.pushBlockTypesToList(category.xml, blockTypeList);
       }
     }
   }
 
   // Add the block types from any pre-loaded blocks.
-  this.pushBlockTypesToList_(this.getPreloadXml(), blockTypeList);
+  this.pushBlockTypesToList(this.getPreloadXml(), blockTypeList);
 
   return blockTypeList;
 }
@@ -386,13 +385,12 @@ FactoryModel.prototype.getAllUsedBlockTypes = function() {
  * the list, not adding duplicates. Don't need to consider shadow blocks
  * because all shadow blocks are transformed to user-generated shadow blocks
  * which are marked as "block" in XML.
- * @private
  *
  * @param {!Element} xml The XML for the workspace containing all the block
  *    types that should be added to the list.l
  * @param {!Array<!string>} list The array of block types to add to.
  */
-FactoryModel.prototype.pushBlockTypesToList_ = function (xml, list) {
+FactoryModel.prototype.pushBlockTypesToList = function (xml, list) {
   // Get all block XML nodes.
   var blocks = xml.getElementsByTagName('block');
 
