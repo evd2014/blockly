@@ -636,32 +636,11 @@ goog.require('goog.ui.ColorPicker');
     controller.importFile(event.target.files[0], FactoryController.MODE_PRELOAD);
     document.getElementById('dropdownDiv_import').classList.remove("show");
   };
-  var exportToolboxWrapper = function() {
-    controller.exportFile(FactoryController.MODE_TOOLBOX);
-    document.getElementById('dropdownDiv_export').classList.remove("show");
-  }
-  var exportPreloadWrapper = function() {
-    controller.exportFile(FactoryController.MODE_PRELOAD);
-    document.getElementById('dropdownDiv_export').classList.remove("show");
-  }
-  var exportAllWrapper = function() {
-    controller.exportFile(FactoryController.MODE_TOOLBOX);
-    controller.exportFile(FactoryController.MODE_PRELOAD);
-    document.getElementById('dropdownDiv_export').classList.remove("show");
-  }
   var editToolboxWrapper = function() {
     controller.setMode(FactoryController.MODE_TOOLBOX);
   };
   var editPreloadWrapper = function() {
     controller.setMode(FactoryController.MODE_PRELOAD);
-  };
-  var importToolboxWrapper = function(e) {
-    controller.importFile(event.target.files[0], true);
-    document.getElementById('dropdownDiv_import').classList.remove("show");
-  };
-  var importPreloadWrapper = function(e) {
-    controller.importFile(event.target.files[0], FactoryController.MODE_PRELOAD);
-    document.getElementById('dropdownDiv_import').classList.remove("show");
   };
   var exportToolboxWrapper = function() {
     controller.exportFile(FactoryController.MODE_TOOLBOX);

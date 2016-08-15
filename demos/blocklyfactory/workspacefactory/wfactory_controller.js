@@ -89,7 +89,9 @@ FactoryController.prototype.addCategory = function() {
       // Create the new category.
       this.createCategory(name, true);
       // Set the new category as selected.
-      this.model.setSelectedById(this.model.getCategoryIdByName(name));
+      var id = this.model.getCategoryIdByName(name);
+      this.model.setSelectedById(id);
+      this.view.setCategoryTabSelection(id, true);
       // Allow user to use the default options for injecting with categories.
       this.allowToSetDefaultOptions();
     }

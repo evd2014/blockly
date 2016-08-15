@@ -136,18 +136,6 @@ FactoryModel.prototype.deleteElementFromList = function(index) {
       false : this.hasProcedureCategory;
   // Remove element.
   this.toolboxList.splice(index, 1);
-<<<<<<< 5c38b1f7f28b9490385f0649e2c7ebd6b2f348f4
-  // If removing last element from toolbox list, create empty list element
-  // for single flyout.
-  if (this.toolboxList.length == 0) {
-    this.selected = new ListElement(ListElement.TYPE_CATEGORY);
-  }
-};
-
-/**
- * Sets selected to be an empty single flyout if toolbox list is empty. Should
- * be called when removing the last element from toolbox list.
-=======
 };
 
 /**
@@ -155,7 +143,6 @@ FactoryModel.prototype.deleteElementFromList = function(index) {
  * is empty. Should be called when removing the last element from toolbox list.
  * If the toolbox list is empty, selected stores the XML for the single flyout
  * of blocks displayed.
->>>>>>> Added saveStateFromWorkspace, changed the names of some variables and methods
  *
  */
 FactoryModel.prototype.createDefaultSelectedIfEmpty = function() {
