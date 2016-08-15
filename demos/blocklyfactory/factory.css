@@ -230,13 +230,11 @@ button, .buttonStyle {
 }
 
 #tabContainer {
-  padding: 1px;
-  background-color: #999;
-  display: inline-block;
-}
-
-#paddingContainer {
-  padding-bottom: 15px;
+  border-bottom-style: solid;
+  border-top-style: solid;
+  border-width: 1px;
+  display: table;
+  width: 100%;
 }
 
 /* Workspace Factory */
