@@ -109,7 +109,7 @@ FactoryController.prototype.addCategory = function() {
 
    // Allow the user to use the default options for injecting the workspace
   // when there are categories if adding the first category.
-  if (firstCategory) {
+  if (isFirstCategory) {
     this.allowToSetDefaultOptions();
   }
   // Update preview.
@@ -433,6 +433,8 @@ FactoryController.prototype.reinjectPreview = function(tree) {
   this.previewWorkspace.dispose();
   this.model.setOptionsAttribute('toolbox', Blockly.Xml.domToPrettyText(tree));
   this.previewWorkspace = Blockly.inject('preview_blocks', this.model.options);
+  Blockly.Xml.domToWorkspace(this.generator.generateWorkspaceXml(),
+      this.previewWorkspace);
 };
 
 /**
@@ -575,7 +577,7 @@ FactoryController.prototype.loadCategory = function() {
   this.convertShadowBlocks_();
   // Save state from workspace before updating preview.
   this.saveStateFromWorkspace();
-  if (firstCategory) {
+  if (isFirstCategory) {
     // Allow the user to use the default options for injecting the workspace
     // when there are categories.
     this.allowToSetDefaultOptions();
@@ -803,7 +805,7 @@ FactoryController.prototype.importPreloadFromTree_ = function(tree) {
  */
 FactoryController.prototype.clearToolbox = function() {
   this.setMode(FactoryController.MODE_TOOLBOX);
-  var hasCategories = this.model.hasToolbox();
+  var hasCategories = this.model.hasElements();
   this.model.clearToolboxList();
   this.view.clearToolboxTabs();
   this.view.addEmptyCategoryMessage();
@@ -953,7 +955,7 @@ FactoryController.prototype.clearAndLoadXml_ = function(xml) {
  */
 FactoryController.prototype.setStandardOptionsAndUpdate = function() {
   this.view.setBaseOptions();
-  this.view.setCategoryOptions(this.model.hasToolbox());
+  this.view.setCategoryOptions(this.model.hasElements());
   this.generateNewOptions();
  };
 
@@ -966,16 +968,16 @@ FactoryController.prototype.setStandardOptionsAndUpdate = function() {
  * categories or a single flyout are used.
  */
 FactoryController.prototype.allowToSetDefaultOptions = function() {
-  if (!this.model.hasToolbox() && !confirm('Do you want to use the default ' +
+  if (!this.model.hasElements() && !confirm('Do you want to use the default ' +
       'workspace configuration options for injecting a workspace without ' +
       'categories?')) {
     return;
-  } else if (this.model.hasToolbox() && !confirm('Do you want to use the ' +
+  } else if (this.model.hasElements() && !confirm('Do you want to use the ' +
       'default workspace configuration options for injecting a workspace ' +
       'with categories?')) {
     return;
   }
-  this.view.setCategoryOptions(this.model.hasToolbox());
+  this.view.setCategoryOptions(this.model.hasElements());
   this.generateNewOptions();
 };
 
@@ -1045,22 +1047,3 @@ FactoryController.prototype.generateNewOptions = function() {
       (this.generator.generateToolboxXml()));
 };
 
-/**
- * Given the name of an input DOM element and the type of input field, returns
- * the value that should be recorded in the options object.
- * @private
- *
- * @param {!string} optionId The ID of the input DOM element for an option.
- * @param {!string} type The type of input for that DOM element ('checkbox',
- *    'number', or 'text').
- */
-FactoryController.prototype.getOptionValue_ = function(optionId, type) {
-  var option = document.getElementById(optionId);
-  if (type == 'checkbox') {
-    return option.checked;
-  } else  if (type == 'number') {
-    return parseInt(option.value);
-  } else if (type == 'text') {
-    return option.value;
-  }
-};
